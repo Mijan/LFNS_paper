@@ -1,0 +1,238 @@
+//
+// Created by jan on 24/10/18.
+//
+
+#include <sstream>
+#include <cfloat>
+#include <cstdlib>
+#include "ConfigFileInterpreter.h"
+#include "XmlPropertyMap.h"
+#include "../base/IoUtils.h"
+#include "../base/Utils.h"
+#include "../sampler/GaussianSampler.h"
+#include "../sampler/UniformSampler.h"
+
+namespace io {
+
+    ConfigFileInterpreter::ConfigFileInterpreter(std::string instance_file_name) : _reader(instance_file_name) {}
+
+    ConfigFileInterpreter::~ConfigFileInterpreter() {}
+
+
+    std::string ConfigFileInterpreter::getModelFileName() {
+        std::string model_file = _reader.getEntry("model.model");
+        if (base::IoUtils::isPathAbsolute(model_file)) {
+            return model_file;
+        } else {
+            return _reader.getXmlFilePath() + model_file;
+        }
+    }
+
+    std::string ConfigFileInterpreter::getMeasurementModelFile() {
+        std::string measurement_file = _reader.getEntry("model.measurement");
+        if (base::IoUtils::isPathAbsolute(measurement_file)) {
+            return measurement_file;
+        } else {
+            return _reader.getXmlFilePath() + measurement_file;
+        }
+    }
+
+    std::string ConfigFileInterpreter::getInitialConditionsFile() {
+        std::string initial_conditions_file = _reader.getEntry("model.initialvalue");
+        if (base::IoUtils::isPathAbsolute(initial_conditions_file)) {
+            return initial_conditions_file;
+        } else {
+            return _reader.getXmlFilePath() + initial_conditions_file;
+        }
+    }
+
+    std::string ConfigFileInterpreter::getModelType() { return _reader.getEntry("model.type"); }
+
+    std::map<std::string, std::string> ConfigFileInterpreter::getParameterScales() {
+        std::map<std::string, std::string> parameter_scales;
+
+        std::vector<XmlMap> scale_entries = _reader.getEntryMaps("parameters", "scales");
+
+        for (XmlMap &map: scale_entries) {
+            std::string param_name_str = map["parameters"].entry;
+            std::vector<std::string> param_names = base::Utils::StringToStringVector(param_name_str);
+            std::string scale = map["parameters"].getAttributeValue("scale");
+            for (std::string param_name : param_names) {
+                try { parameter_scales[param_name] = scale; } catch (const std::exception &e) {
+                    std::stringstream ss;
+                    ss << "Failed to obtain scale for parameter " << param_name << ":\n\t" << e.what() << std::endl;
+                    throw std::runtime_error(ss.str());
+                };
+            }
+        }
+        return parameter_scales;
+    };
+
+
+    std::map<std::string, std::pair<double, double>> ConfigFileInterpreter::getParameterBounds() {
+        std::map<std::string, std::pair<double, double>> bounds;
+        std::vector<XmlMap> bound_entries = _reader.getEntryMaps("parameters.bounds", "bound");
+
+        for (XmlMap bound_entry: bound_entries) {
+            std::string param_name_str = bound_entry["parameters"].entry;
+            std::vector<std::string> param_names = base::Utils::StringToStringVector(param_name_str);
+            int num_found_param = 0;
+            for (std::string &param_name : param_names) {
+                XmlPropertyMap bound_map(bound_entry);
+                double lower_bound;
+                double upper_bound;
+                try {
+                    lower_bound = std::stod(bound_map.getValueForKey("parameters", param_name, "lowerbounds").c_str());
+                    upper_bound = std::stod(bound_map.getValueForKey("parameters", param_name, "upperbounds").c_str());
+                    bounds[param_name] = std::make_pair(lower_bound, upper_bound);
+                } catch (const std::exception &e) {
+                    std::stringstream ss;
+                    ss << "Failed to obtain bound for parameter " << param_name << ":\n\t" << e.what() << std::endl;
+                    throw std::runtime_error(ss.str());
+                }
+            }
+        }
+        return bounds;
+    };
+
+
+    std::map<std::string, double> ConfigFileInterpreter::getFixedParameters() {
+        std::map<std::string, double> fixed_params;
+        XmlMap fixed_entries = _reader.getEntryMap("parameters", "fixedparams");
+        std::string param_names_str = fixed_entries["parameters"].entry;
+        std::vector<std::string> param_names = base::Utils::StringToStringVector(param_names_str);
+
+        XmlPropertyMap fixed_map(fixed_entries);
+        for (std::string &param_name : param_names) {
+            try {
+                double value = std::stod(fixed_map.getValueForKey("parameters", param_name, "values").c_str());
+                fixed_params[param_name] = value;
+            } catch (const std::exception &e) {
+                std::stringstream ss;
+                ss << "Failed to obtain fixed value for parameter " << param_name << ":\n\t" << e.what() << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+        }
+        return fixed_params;
+    };
+
+
+    std::map<std::string, std::string> ConfigFileInterpreter::getDataFiles() {
+        std::map<std::string, std::string> data_files;
+        std::vector<XmlMap> data_entries = _reader.getEntryMaps("data", "dataset");
+
+        for (XmlMap data_entry: data_entries) {
+            try {
+                std::string experiment_name = data_entry["experiments"].entry;
+                std::string data_file = data_entry["datafile"].entry;
+                if (base::IoUtils::isPathAbsolute(data_file)) {
+                    data_files[experiment_name] = data_file;
+                } else {
+                    data_files[experiment_name] = _reader.getXmlFilePath() + data_file;
+                }
+
+            } catch (const std::exception &e) {
+                std::stringstream ss;
+                ss << "Failed to obtain data file:\n\t" << e.what() << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+        }
+        return data_files;
+    };
+
+    std::map<std::string, std::string> ConfigFileInterpreter::getTimesFiles() {
+        std::map<std::string, std::string> time_files;
+        std::vector<XmlMap> data_entries = _reader.getEntryMaps("data", "dataset");
+
+        for (XmlMap data_entry: data_entries) {
+            try {
+                std::string experiment_name = data_entry["experiments"].entry;
+                std::string time_file = data_entry["timefile"].entry;
+                if (base::IoUtils::isPathAbsolute(time_file)) {
+                    time_files[experiment_name] = time_file;
+                } else {
+                    time_files[experiment_name] = _reader.getXmlFilePath() + time_file;
+                }
+
+            } catch (const std::exception &e) {
+                std::stringstream ss;
+                ss << "Failed to obtain times file:\n\t" << e.what() << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+        }
+        return time_files;
+    }
+
+
+    std::vector<std::string> ConfigFileInterpreter::getExperimentsForLFNS() {
+        try {
+            std::string experiment_str = _reader.getEntry("LFNS.experiments");
+            std::vector<std::string> experiements = base::Utils::StringToStringVector(experiment_str);
+            return experiements;
+        } catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain experiments for LFNS:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    int ConfigFileInterpreter::getNForLFNS() {
+        try {
+            std::string N_str = _reader.getEntry("LFNS.N");
+            return stoi(N_str);
+        }
+        catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain N for LFNS:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    int ConfigFileInterpreter::getRForLFNS() {
+        try {
+            std::string r_str = _reader.getEntry("LFNS.r");
+            return stoi(r_str);
+        }
+        catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain r for LFNS:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    int ConfigFileInterpreter::getHForLFNS() {
+        try {
+            std::string r_str = _reader.getEntry("LFNS.H");
+            return stoi(r_str);
+        }
+        catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain H for LFNS:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    int ConfigFileInterpreter::getDPGMMItForLFNS() {
+        try {
+            std::string dpgmm_str = _reader.getEntry("LFNS.dpgmmiterations");
+            return stoi(dpgmm_str);
+        }
+        catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain number of DPGMM iterations for LFNS:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    double ConfigFileInterpreter::getEpsilonForLFNS() {
+        try {
+            std::string dpgmm_str = _reader.getEntry("LFNS.epsilon");
+            return std::stod(dpgmm_str);
+        }
+        catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain epsilon for LFNS:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+}

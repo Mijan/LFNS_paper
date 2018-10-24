@@ -1,0 +1,114 @@
+//
+// Created by jan on 11/10/18.
+//
+
+#include <cfloat>
+#include <iostream>
+#include <sstream>
+#include "ParticleFilter.h"
+
+namespace particle_filter {
+    using namespace std::placeholders;
+
+    ParticleFilter::ParticleFilter(base::RngPtr rng, SimulationFct_ptr simulation_fct, LikelihoodFct_ptr likelihood_fct,
+                                   InitialStateFct_ptr initial_state_fct, int num_states, int num_particles) : _rng(
+            rng), _simulation_fct(simulation_fct), _likelihood_fct(likelihood_fct), _initial_state_fct(
+            initial_state_fct), _smc_particles(std::make_shared<SmcParticleSet>(rng)), _log_likelihoods_tmps(
+            num_particles), _threshold_ptr(nullptr) {
+        _smc_particles->setTotalNumParticles(num_particles, num_states);
+    }
+
+    ParticleFilter::~ParticleFilter() {}
+
+    double ParticleFilter::computeLogLikelihood(const std::vector<std::vector<double> > &data,
+                                                const std::vector<double> &times, const std::vector<double> &theta) {
+        if (times.size() != data.size()) {
+            std::stringstream ss;
+            ss << "Failed to run ParticleFilter. Provided trajectory has " << data.size()
+               << " entries, but provided times have " << times.size() << " entries!" << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+
+        for (int particle_nbr = 0; particle_nbr < _smc_particles->getTotalNumParticles(); particle_nbr++) {
+            SmcParticle_ptr particle = _smc_particles->getParticle(particle_nbr);
+
+            (*_initial_state_fct)(&particle->state, &particle->time, theta);
+            _smc_particles->setWeight(particle_nbr, 1.0);
+        }
+        _smc_particles->clearAncestorIndices();
+        _smc_particles->resetFullWeight();
+
+        if (_smc_particles->getTotalNumParticles() == 1) {
+            return computeLogLikelihoodNoResampling(data, times, theta);
+        } else {
+            double log_likelihood = 0;
+            for (int t = 0; t < times.size(); t++) {
+                log_likelihood += _runFilteringStep(data[t], times[t], theta);
+                if (_stopping_criterions.processStopped()) { return -DBL_MAX; }
+                if (_threshold_ptr && log_likelihood < *_threshold_ptr) { return -DBL_MAX; }
+                _smc_particles->resampleOldParticles();
+            }
+            return log_likelihood;
+        }
+    }
+
+    double ParticleFilter::computeLogLikelihoodNoResampling(const std::vector<std::vector<double> > &data,
+                                                            const std::vector<double> &times,
+                                                            const std::vector<double> &theta) {
+        double log_likelihood = 0;
+        SmcParticle_ptr particle = _smc_particles->getParticle(0);
+        for (int t = 0; t < times.size(); t++) {
+            double final_time = times[t];
+            (*_simulation_fct)(particle->state, particle->time, final_time, theta);
+
+            double log_likelihood_part = (*_likelihood_fct)(particle->state, data[t], theta);
+            log_likelihood += log_likelihood_part;
+        }
+        return log_likelihood;
+    }
+
+
+    LogLikelihodEvalFct_ptr
+    ParticleFilter::getLikelihoodEvaluationForData(const std::vector<std::vector<double> > *data,
+                                                   const std::vector<double> *times) {
+        return std::make_shared<LogLikelihodEvalFct>(
+                std::bind(&ParticleFilter::computeLogLikelihood, this, *data, *times, _1));
+    }
+
+    double
+    ParticleFilter::_runFilteringStep(const std::vector<double> &data, double final_time,
+                                      const std::vector<double> &theta) {
+
+        double max_log = -DBL_MAX;
+
+        for (int particle_nbr = 0; particle_nbr < _smc_particles->getTotalNumParticles(); particle_nbr++) {
+            SmcParticle_ptr particle = _smc_particles->getParticle(particle_nbr);
+            (*_simulation_fct)(particle->state, particle->time, final_time, theta);
+
+            double log_likelihood_part = (*_likelihood_fct)(particle->state, data, theta);
+
+            _log_likelihoods_tmps[particle_nbr] = log_likelihood_part;
+            max_log = max_log > log_likelihood_part ? max_log : log_likelihood_part;
+            if (_stopping_criterions.processStopped()) {
+                return -DBL_MAX;
+            }
+        }
+
+
+        double log_likelihood = 0;
+        for (int particle_nbr = 0; particle_nbr < _smc_particles->getTotalNumParticles(); particle_nbr++) {
+            double norm_like = _log_likelihoods_tmps[particle_nbr] - max_log;
+            log_likelihood += std::exp(norm_like);
+            _smc_particles->setWeight(particle_nbr, std::exp(norm_like));
+        }
+        log_likelihood = std::log(log_likelihood) + max_log - std::log(_smc_particles->getTotalNumParticles());
+        return log_likelihood;
+    }
+
+
+    void ParticleFilter::setThresholdPtr(double *threshold) { _threshold_ptr = threshold; }
+
+    void ParticleFilter::addStoppingCriterion(base::StoppingFct_ptr stopping_criterion) {
+        _stopping_criterions.push_back(stopping_criterion);
+    }
+}
