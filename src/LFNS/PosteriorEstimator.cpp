@@ -141,11 +141,11 @@ namespace lfns {
             max_tmp_2 = max_tmp_2 > log_sums_2_2[j-1] ? max_tmp_2 : log_sums_2_2[j-1];
         }
         double log_sum_2_2 = 0;
-        for (int j = 0; j < _r; j++) {
+        for (int j = 0; j < _r-1; j++) {
             log_sum_2_2 += exp(log_sums_2_2[j] - max_tmp_2);
         }
 
-        log_sum_2_2 = log_sum_2_2 - exp(log_sums_2_2[_r] - max_tmp_2);
+        log_sum_2_2 = log_sum_2_2 - exp(log_sums_2_2[_r-1] - max_tmp_2);
         int sgn = log_sum_2_2 < 0 ? -1 : 1;
 
         log_sum_2_2 = std::log(sgn * log_sum_2_2) + max_tmp_2;
