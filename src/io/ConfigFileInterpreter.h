@@ -28,7 +28,7 @@ namespace io {
 
         std::map<std::string, std::string> getParameterScales();
 
-        std::map<std::string, std::pair<double, double>> getParameterBounds();
+        std::map<std::string, std::pair<double, double> > getParameterBounds();
 
         std::map<std::string, double> getFixedParameters();
 

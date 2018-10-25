@@ -18,7 +18,7 @@ namespace lfns {
         return unfixed_parameters;
     }
 
-    std::vector<std::pair<double, double>> LFNSSettings::getBounds(const std::vector<std::string> &param_names) const {
+    std::vector<std::pair<double, double> > LFNSSettings::getBounds(const std::vector<std::string> &param_names) const {
         std::vector<std::pair<double, double> > bounds;
         for (const std::string &param: param_names) {
             bool param_found = false;

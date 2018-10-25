@@ -48,7 +48,7 @@ namespace sampler {
     std::vector<double> &DensityEstimation::sample() {
         do {
             sampleTransformed(_trans_sample);
-            _trans_sample = (_evs * _trans_sample.cast<std::complex<double>>()).real();
+            _trans_sample = (_evs * _trans_sample.cast<std::complex<double> >()).real();
             _trans_sample += _mean;
 
         } while (!isSampleFeasible(_trans_sample));
@@ -58,7 +58,7 @@ namespace sampler {
 
     double DensityEstimation::getLogLikelihood(const std::vector<double> &sample) {
         sampleTransformed(_trans_sample);
-        _trans_sample = (_evs * _trans_sample.cast<std::complex<double>>()).real();
+        _trans_sample = (_evs * _trans_sample.cast<std::complex<double> >()).real();
         _trans_sample += _mean;
         return getTransformedLogLikelihood(_trans_sample);
     }

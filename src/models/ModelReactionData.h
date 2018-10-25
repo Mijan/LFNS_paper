@@ -24,12 +24,12 @@ namespace models {
 
         void createStoichiometry();
 
-        std::vector<std::vector<std::string>> production_species;
-        std::vector<std::vector<std::string>> product_species;
-        std::vector<std::vector<std::string>> reaction_variables;
+        std::vector<std::vector<std::string> > production_species;
+        std::vector<std::vector<std::string> > product_species;
+        std::vector<std::vector<std::string> > reaction_variables;
         std::vector<std::string> propensities;
 
-        std::vector<std::map<std::size_t, int>> stoichiometry_for_reaction;
+        std::vector<std::map<std::size_t, int> > stoichiometry_for_reaction;
     };
 
     typedef std::shared_ptr<ModelReactionData> ModelData_ptr;

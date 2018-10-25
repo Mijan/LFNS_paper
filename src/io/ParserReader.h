@@ -32,11 +32,11 @@ namespace io {
 
         std::vector<std::string> readUniformIntRdn();
 
-        std::vector<std::pair<double, double>> readNormalParams();
+        std::vector<std::pair<double, double> > readNormalParams();
 
-        std::vector<std::pair<double, double>> readUniformParams();
+        std::vector<std::pair<double, double> > readUniformParams();
 
-        std::vector<std::pair<int, int>> readUniformIntParams();
+        std::vector<std::pair<int, int> > readUniformIntParams();
 
     };
 }

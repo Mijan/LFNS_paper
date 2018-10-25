@@ -26,10 +26,6 @@ namespace base {
 
         static bool isPathAbsolute(std::string path);
 
-//        static void writeTrajectories(std::string output_file_name,
-//                                      const std::vector <simulator::SimulatedTrajectory> &out_trajectories,
-//                                      std::ios_base::openmode mode = std::ios_base::out);
-
         template<typename T>
         static void writeVector(std::string output_file_name,
                                 const std::vector<T> &out_vector, std::string delimmiter = ", ",
@@ -51,8 +47,7 @@ namespace base {
         }
 
         template<typename T>
-        static void writeVectorCol(std::string output_file_name,
-                                   const std::vector<T> &out_vector,
+        static void writeVectorCol(std::string output_file_name, const std::vector<T> &out_vector,
                                    std::ios_base::openmode mode = std::ios_base::out) {
             std::ofstream data_file(output_file_name.c_str(), mode);
             if (!data_file.is_open()) {
@@ -74,12 +69,11 @@ namespace base {
         readVector(std::string input_file_name, std::ios_base::openmode mode = std::ios_base::out);
 
         static std::vector<std::vector<std::vector<double> > >
-        readMultiline(std::string input_file_name, int num_lines_for_multiline,int max_traj = 1000);
+        readMultiline(std::string input_file_name, int num_lines_for_multiline, int max_traj = 1000);
 
         template<typename T>
-        static void writeVectorOfVectors(std::string output_file_name,
-                                         const std::vector<std::vector<T>> &out_vectors, bool transposed = false,
-                                         std::ios_base::openmode mode = std::ios_base::out) {
+        static void writeVectorOfVectors(std::string output_file_name, const std::vector<std::vector<T> > &out_vectors,
+                                         bool transposed = false, std::ios_base::openmode mode = std::ios_base::out) {
             std::ofstream data_file(output_file_name.c_str(), mode);
             if (!data_file.is_open()) {
                 std::ostringstream os;

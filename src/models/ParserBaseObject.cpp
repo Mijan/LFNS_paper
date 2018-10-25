@@ -29,7 +29,7 @@ namespace models {
                                                                                    _fixed_parameters() {
 
         const std::vector<std::string> &normal_random_num = _parser_data.getNormalRandomNbrsName();
-        const std::vector<std::pair<double, double>> &normal_params = _parser_data.getNormalRandomParams();
+        const std::vector<std::pair<double, double> > &normal_params = _parser_data.getNormalRandomParams();
         for (std::size_t normal_num = 0; normal_num < normal_random_num.size(); normal_num++) {
             std::pair<double, double> params = normal_params[normal_num];
             if (params.second < 0) {
@@ -43,7 +43,7 @@ namespace models {
         }
 
         const std::vector<std::string> &uniform_random_num = _parser_data.getUniformRandomNbrsName();
-        const std::vector<std::pair<double, double>> &uniform_params = _parser_data.getUniformRandomParams();
+        const std::vector<std::pair<double, double> > &uniform_params = _parser_data.getUniformRandomParams();
         for (std::size_t uniform_num = 0; uniform_num < uniform_random_num.size(); uniform_num++) {
             std::pair<double, double> params = uniform_params[uniform_num];
             if (params.first >= params.second) {
@@ -56,7 +56,7 @@ namespace models {
         }
 
         const std::vector<std::string> &uniform_int_random_num = _parser_data.getUniformIntRandomNbrsName();
-        const std::vector<std::pair<int, int>> &uniform_int_params = _parser_data.getUniformIntRandomParams();
+        const std::vector<std::pair<int, int> > &uniform_int_params = _parser_data.getUniformIntRandomParams();
         for (std::size_t uniform_num = 0; uniform_num < uniform_int_random_num.size(); uniform_num++) {
             std::pair<double, double> params = uniform_int_params[uniform_num];
             if (params.first >= params.second) {
@@ -124,7 +124,7 @@ namespace models {
         BaseObject::printInfo(os);
 
         std::vector<std::string> normal_names = _parser_data.getNormalRandomNbrsName();
-        std::vector<std::pair<double, double>> normal_params = _parser_data.getNormalRandomParams();
+        std::vector<std::pair<double, double> > normal_params = _parser_data.getNormalRandomParams();
         if (!normal_names.empty()) {
             os << "\n\nNormal numbers:" << std::endl;
             for (std::size_t i = 0; i < normal_names.size(); i++) {
@@ -134,7 +134,7 @@ namespace models {
         }
 
         std::vector<std::string> uniform_names = _parser_data.getUniformRandomNbrsName();
-        std::vector<std::pair<double, double>> uniform_params = _parser_data.getUniformRandomParams();
+        std::vector<std::pair<double, double> > uniform_params = _parser_data.getUniformRandomParams();
         if (!uniform_names.empty()) {
             os << "\nUniform numbers:" << std::endl;
             for (std::size_t i = 0; i < uniform_names.size(); i++) {
@@ -144,7 +144,7 @@ namespace models {
         }
 
         std::vector<std::string> uniform_int_names = _parser_data.getUniformIntRandomNbrsName();
-        std::vector<std::pair<int, int>> uniform_int_params = _parser_data.getUniformIntRandomParams();
+        std::vector<std::pair<int, int> > uniform_int_params = _parser_data.getUniformIntRandomParams();
         if (!uniform_int_names.empty()) {
             os << "\nUniform int numbers:" << std::endl;
             for (std::size_t i = 0; i < uniform_int_names.size(); i++) {

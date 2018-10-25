@@ -43,7 +43,7 @@ namespace lfns {
 
 
         std::vector<std::string> getUnfixedParameters() const;
-        std::vector<std::pair<double, double>> getBounds(const std::vector<std::string> &param_names) const;
+        std::vector<std::pair<double, double> > getBounds(const std::vector<std::string> &param_names) const;
         std::vector<int> getLogParams(const std::vector<std::string> &param_names) const;
 
         void print(std::ostream &stream);

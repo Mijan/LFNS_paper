@@ -46,7 +46,7 @@ namespace lfns {
         std::vector<double> _E_t;
         std::vector<double> _E_t2;
 
-        std::vector<std::vector<double>> _f_normalized;
+        std::vector<std::vector<double> > _f_normalized;
         std::vector<double> _f_log_scale;
 
         double E_t(int j);

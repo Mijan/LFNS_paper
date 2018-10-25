@@ -69,8 +69,8 @@ namespace io {
     };
 
 
-    std::map<std::string, std::pair<double, double>> ConfigFileInterpreter::getParameterBounds() {
-        std::map<std::string, std::pair<double, double>> bounds;
+    std::map<std::string, std::pair<double, double> > ConfigFileInterpreter::getParameterBounds() {
+        std::map<std::string, std::pair<double, double> > bounds;
         std::vector<XmlMap> bound_entries = _reader.getEntryMaps("parameters.bounds", "bound");
 
         for (XmlMap bound_entry: bound_entries) {

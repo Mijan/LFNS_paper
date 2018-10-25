@@ -8,14 +8,13 @@
 #include "../io/ParserReader.h"
 
 namespace models {
-    ParserData::ParserData(std::vector<std::string>
-                           parameter_names_,
-                           std::vector<std::string> species_names_) : BaseData(parameter_names_, species_names_),
-                                                                      _normal_random_nbr(), _uniform_random_nbr(),
-                                                                      _uniform_int_random_nbr(),
-                                                                      _normal_random_params(),
-                                                                      _uniform_random_params(),
-                                                                      _uniform_int_random_params() {}
+    ParserData::ParserData(std::vector<std::string> parameter_names_, std::vector<std::string> species_names_)
+            : BaseData(parameter_names_, species_names_),
+              _normal_random_nbr(), _uniform_random_nbr(),
+              _uniform_int_random_nbr(),
+              _normal_random_params(),
+              _uniform_random_params(),
+              _uniform_int_random_params() {}
 
     ParserData::ParserData(std::string file_name) : BaseData(),
                                                     _normal_random_nbr(), _uniform_random_nbr(),
@@ -53,15 +52,15 @@ namespace models {
         return _uniform_int_random_nbr;
     }
 
-    const std::vector<std::pair<double, double>> &ParserData::getNormalRandomParams() const {
+    const std::vector<std::pair<double, double> > &ParserData::getNormalRandomParams() const {
         return _normal_random_params;
     }
 
-    const std::vector<std::pair<double, double>> &ParserData::getUniformRandomParams() const {
+    const std::vector<std::pair<double, double> > &ParserData::getUniformRandomParams() const {
         return _uniform_random_params;
     }
 
-    const std::vector<std::pair<int, int>> &ParserData::getUniformIntRandomParams() const {
+    const std::vector<std::pair<int, int> > &ParserData::getUniformIntRandomParams() const {
         return _uniform_int_random_params;
     }
 

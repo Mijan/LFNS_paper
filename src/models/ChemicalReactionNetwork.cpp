@@ -211,7 +211,7 @@ namespace models {
 
     void ChemicalReactionNetwork::_createRhsParsers() {
         _rhs_parsers = std::vector<mu::Parser>(_model_data.getNumSpecies());
-        std::map<size_t, std::vector<size_t>> reaction_nbr_by_species = _getReactionBySpecies();
+        std::map<size_t, std::vector<size_t> > reaction_nbr_by_species = _getReactionBySpecies();
 
         for (std::size_t species_nbr = 0; species_nbr < _model_data.getNumSpecies(); species_nbr++) {
             mu::Parser p;
@@ -260,7 +260,7 @@ namespace models {
         return propensity_str;
     }
 
-    std::map<size_t, std::vector<size_t>> ChemicalReactionNetwork::_getReactionBySpecies() const {
+    std::map<size_t, std::vector<size_t> > ChemicalReactionNetwork::_getReactionBySpecies() const {
         std::map<std::size_t, std::vector<std::size_t> > _reaction_nbr_by_species;
         for (std::size_t species_nbr = 0;
              species_nbr < _model_data.getNumSpecies(); species_nbr++) {
@@ -279,7 +279,7 @@ namespace models {
     }
 
     std::string ChemicalReactionNetwork::_getOdeEquationForSpecies(size_t species_nbr,
-                                                                   const std::map<size_t, std::vector<size_t>> &_reaction_nbr_by_species) {
+                                                                   const std::map<size_t, std::vector<size_t> > &_reaction_nbr_by_species) {
         const std::vector<std::size_t> &involved_reactions =
                 _reaction_nbr_by_species.at(species_nbr);
         std::string propensity_string = "";

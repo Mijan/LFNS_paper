@@ -25,11 +25,11 @@ namespace models {
 
         const std::vector<std::string> &getUniformIntRandomNbrsName() const;
 
-        const std::vector<std::pair<double, double>> &getNormalRandomParams() const;
+        const std::vector<std::pair<double, double> > &getNormalRandomParams() const;
 
-        const std::vector<std::pair<double, double>> &getUniformRandomParams() const;
+        const std::vector<std::pair<double, double> > &getUniformRandomParams() const;
 
-        const std::vector<std::pair<int, int>> &getUniformIntRandomParams() const;
+        const std::vector<std::pair<int, int> > &getUniformIntRandomParams() const;
 
         std::size_t getNumNormalNumbers();
 
