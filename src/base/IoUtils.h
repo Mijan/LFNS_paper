@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <exception>
+#include <stdexcept>
 
 namespace base {
     class IoUtils {
