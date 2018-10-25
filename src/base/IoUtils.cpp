@@ -171,7 +171,7 @@ namespace base {
             }
             if (multiline.size() > 0) {
                 out_vector.push_back(multiline);
-                if (num_traj++ > max_traj) { return out_vector; };
+                if (++num_traj >= max_traj) { return out_vector; };
             }
         }
         return out_vector;
