@@ -20,6 +20,9 @@ int num_tasks;
 #include "src/base/Utils.h"
 
 
+static std::string model_summary_suffix = "model_summary";
+static std::stringstream model_summary_stream;
+
 typedef std::vector<double> Times;
 typedef std::vector<std::vector<double>> Trajectory;
 typedef std::vector<Trajectory> TrajectorySet;
@@ -149,6 +152,15 @@ void runWorker(lfns::LFNSSettings settings, base::RngPtr rng) {
         dynamics.printInfo(std::cout);
         init_value.printInfo(std::cout);
         measurement.printInfo(std::cout);
+
+        settings.print(model_summary_stream);
+        dynamics.printInfo(model_summary_stream);
+        init_value.printInfo(model_summary_stream);
+        measurement.printInfo(model_summary_stream);
+        std::string model_summary_file_name = base::IoUtils::appendToFileName(settings.output_file, model_summary_suffix);
+        std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
+        model_summary_file_stream << model_summary_stream.str();
+        model_summary_file_stream.close();
     }
 
     lfns::mpi::LFNSWorker worker(my_rank, settings.getUnfixedParameters().size(), mult_like_eval.getLogLikeFun());

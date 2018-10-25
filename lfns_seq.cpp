@@ -12,14 +12,17 @@
 #include "src/base/Utils.h"
 #include "src/options/LFNSOptions.h"
 
-typedef std::vector<double> Times;
-typedef std::vector<std::vector<double>> Trajectory;
-typedef std::vector<Trajectory> TrajectorySet;
+static std::string model_summary_suffix = "model_summary";
+static std::stringstream model_summary_stream;
 
-std::vector<simulator::SimulatorSsa_ptr> simulators_ssa;
-std::vector<particle_filter::ParticleFilter_ptr> particle_filters;
-std::vector<Times> times_vec;
-std::vector<TrajectorySet> data_vec;
+typedef std::vector<double> Times;
+typedef std::vector <std::vector<double>> Trajectory;
+typedef std::vector <Trajectory> TrajectorySet;
+
+std::vector <simulator::SimulatorSsa_ptr> simulators_ssa;
+std::vector <particle_filter::ParticleFilter_ptr> particle_filters;
+std::vector <Times> times_vec;
+std::vector <TrajectorySet> data_vec;
 
 options::LFNSOptions lfns_options;
 
@@ -121,6 +124,16 @@ int runLFNS(lfns::LFNSSettings settings) {
     init_value.printInfo(std::cout);
     measurement.printInfo(std::cout);
 
+    settings.print(model_summary_stream);
+    dynamics.printInfo(model_summary_stream);
+    init_value.printInfo(model_summary_stream);
+    measurement.printInfo(model_summary_stream);
+    std::string model_summary_file_name = base::IoUtils::appendToFileName(settings.output_file, model_summary_suffix);
+    std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
+    model_summary_file_stream << model_summary_stream.str();
+    model_summary_file_stream.close();
+
+
     lfns::seq::LFNSSeq lfns(settings, rng, mult_like_eval.getLogLikeFun());
     if (!settings.previous_log_file.empty()) { lfns.resumeRum(settings.previous_log_file); }
     if (settings.use_premature_cancelation) {
@@ -144,13 +157,13 @@ lfns::LFNSSettings readSettingsfromFile(std::string xml_file) {
     models::InitialValueData init_data(settings.initial_value_file);
     models::MeasurementModelData measure_data(settings.measurement_file);
 
-    std::vector<std::string> param_names = model_data.getParameterNames();
+    std::vector <std::string> param_names = model_data.getParameterNames();
     base::Utils::addOnlyNew<std::string>(param_names, init_data.getParameterNames());
     base::Utils::addOnlyNew<std::string>(param_names, measure_data.getParameterNames());
 
-    std::map<std::string, std::pair<double, double> > param_bounds = interpreter.getParameterBounds();
+    std::map <std::string, std::pair<double, double>> param_bounds = interpreter.getParameterBounds();
     std::map<std::string, double> fixed_values = interpreter.getFixedParameters();
-    std::map<std::string, std::string> scales = interpreter.getParameterScales();
+    std::map <std::string, std::string> scales = interpreter.getParameterScales();
 
     for (std::string &param : param_names) {
         lfns::ParameterSetting param_setting(param);
