@@ -138,3 +138,18 @@ target_link_libraries(test_models base models)
 target_link_libraries(lfns_seq base models particle_filter lfns lfnsSeq options)
 target_link_libraries(lfns_mpi base models particle_filter lfns lfnsMpi options)
 target_link_libraries(simulate base models simulator)
+
+install(TARGETS test_BEestimation test_lfns test_sampler test_simulator test_particle_filter test_models lfns_seq lfns_mpi simulate DESTINATION bin)
+install(TARGETS base models simulatior options io particle_filter data_structures sampler lfns lfnsSeq lfnsMpi DESTINATION lib)
+
+
+install(FILES src/base/EigenMatrices.h src/base/IoUtils.h src/base/MathUtils.h src/base/MultivariateNormal.h src/base/RandomDistributions.h src/base/Utils.h DESTINATION include)
+install(FILES src/io/TxtFileReader.cpp src/io/TxtFileReader.h src/io/ModelReactionReader.h src/io/ParserReader.h src/io/InitialValueReader.h src/io/MeasurementModelReader.h src/io/XmlPropertyMap.h src/io/XmlFileReader.h src/io/ConfigFileInterpreter.h DESTINATION include)
+install(FILES src/options/CommandLineOptions.h src/options/DataOptions.h src/options/LFNSOptions.h DESTINATION include)
+install(FILES src/LFNS/LFNSSettings.h src/LFNS/LFNS.h src/LFNS/DeadParticleSet.h src/LFNS/LiveParticleSet.h src/LFNS/LFNSParticle.h src/LFNS/LFNSLogger.h src/LFNS/PosteriorEstimator.h src/LFNS/LFNSSampler.h DESTINATION include)
+install(FILES src/LFNS/seq/LFNSSeq.h DESTINATION include)
+install(FILES src/LFNS/mpi/LFNSMpi.h src/LFNS/mpi/LFNSWorker.h src/LFNS/mpi/MpiRequest.h src/LFNS/mpi/RequestQueue.h src/LFNS/mpi/MpiTags.h DESTINATION include)
+install(FILES src/sampler/Sampler.h src/sampler/UniformSampler.h src/sampler/DensityEstimation.h src/sampler/DpGmmSampler.h src/sampler/EllipsoidSampler.h src/sampler/KernelDensityEstimation.h src/sampler/GaussianSampler.h src/sampler/KernelSupportEstimation.h src/sampler/RejectionSupportSampler.h DESTINATION include)
+install(FILES src/simulator/Simulator.h src/simulator/SimulatorSsa.h src/base/StoppingCriterion.h src/simulator/SimulatorOde.h DESTINATION include)
+install(FILES src/particle_filter/ParticleFilter.h src/particle_filter/SmcParticle.h src/particle_filter/SmcParticleSet.h DESTINATION include)
+install(FILES src/models/BaseData.h src/models/BaseObject.h src/models/ChemicalReactionNetwork.h src/models/ModelReactionData.h src/models/ParserBaseObject.h src/models/ParserData.h src/models/InitialValueProvider.h src/models/InitialValueData.h src/models/MeasurementModel.h src/models/MeasurementModelData.h DESTINATION include)
