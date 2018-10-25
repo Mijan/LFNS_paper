@@ -2,7 +2,7 @@
 // Created by jan on 10/10/18.
 //
 
-#include <bits/types/FILE.h>
+#include <memory>
 #include <cvode/cvode_direct.h>
 #include <iostream>
 #include <sstream>
