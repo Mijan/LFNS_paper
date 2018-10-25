@@ -206,14 +206,14 @@ namespace lfns {
             double delta_max = _max_L_contribution[i];
             log_file_file << std::setw(3) << num_simulation << "\t" << std::setw(15) << std::setprecision(6) << epsilon
                           << "\t" << std::setw(20) << std::setprecision(6) << acceptance_rate << "\t"
-                          << std::setw(12) << std::setprecision(8) << seconds << "\t" << std::setw(15)
-                          << std::setprecision(6) << log_z_tot << "\t" << std::setw(18)
-                          << std::setprecision(6) << lov_var_z_tot << "\t" << std::setw(18)
-                          << std::setprecision(6) << log_z_D << "\t" << std::setw(18)
-                          << std::setprecision(6) << log_var_z_D << "\t" << std::setw(18)
-                          << std::setprecision(6) << log_z_L << "\t" << std::setw(18)
-                          << std::setprecision(6) << log_var_z_L << "\t" << std::setw(18)
-                          << std::setprecision(6) << delta_max << "\t" << std::setw(18)
+                          << std::setw(12) << std::setprecision(8) << seconds << "\t" << std::setw(17)
+                          << std::setprecision(6) << log_z_tot << "\t" << std::setw(20)
+                          << std::setprecision(6) << lov_var_z_tot << "\t" << std::setw(20)
+                          << std::setprecision(6) << log_z_D << "\t" << std::setw(20)
+                          << std::setprecision(6) << log_var_z_D << "\t" << std::setw(20)
+                          << std::setprecision(6) << log_z_L << "\t" << std::setw(20)
+                          << std::setprecision(6) << log_var_z_L << "\t" << std::setw(20)
+                          << std::setprecision(6) << delta_max << "\t" << std::setw(20)
                           << std::setprecision(6) << delta_LFNS << std::endl;
         }
         log_file_file.close();
