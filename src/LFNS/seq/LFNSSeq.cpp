@@ -28,6 +28,7 @@ namespace lfns {
                     _logger.likelihoodComputed(l);
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l);
+                    _live_points.writeToFile(_settings.output_file, "live_points_0");
                 }
             } else {
                 m = _logger.iterationNumber();

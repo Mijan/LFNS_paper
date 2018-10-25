@@ -25,6 +25,7 @@ namespace lfns {
             if (!_resume_run) {
                 _logger.lfnsStarted(m, _epsilon);
                 _samplePrior(queue);
+                _live_points.writeToFile(_settings.output_file, "live_points_0");
             } else {
                 m = _logger.iterationNumber();
                 _epsilon = _logger.lastEpsilon();
