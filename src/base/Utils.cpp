@@ -26,7 +26,7 @@ namespace base {
             if (!string.empty()) {
                 string.erase(remove_if(string.begin(), string.end(), isspace), string.end());
                 string.erase(std::remove(string.begin(), string.end(), '\t'), string.end());
-                vector.push_back(std::atoi(string.c_str()));
+                vector.push_back(std::stoi(string.c_str()));
             }
         }
         return vector;
@@ -40,7 +40,7 @@ namespace base {
             if (!string.empty()) {
                 string.erase(remove_if(string.begin(), string.end(), isspace), string.end());
                 string.erase(std::remove(string.begin(), string.end(), '\t'), string.end());
-                vector.push_back((std::size_t) std::atoi(string.c_str()));
+                vector.push_back((std::size_t) std::stoi(string.c_str()));
             }
         }
         return vector;
@@ -54,7 +54,7 @@ namespace base {
             if (!string.empty()) {
                 string.erase(remove_if(string.begin(), string.end(), isspace), string.end());
                 string.erase(std::remove(string.begin(), string.end(), '\t'), string.end());
-                vector.push_back(std::atof(string.c_str()));
+                vector.push_back(std::stod(string.c_str()));
             }
         }
         return vector;

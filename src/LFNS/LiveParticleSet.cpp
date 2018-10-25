@@ -139,7 +139,7 @@ namespace lfns {
 
                 std::string log_like_str;
                 std::getline(likelihood_file, log_like_str);
-                log_likelihood = atof(log_like_str.c_str());
+                log_likelihood = std::stod(log_like_str.c_str());
 
                 LFNSParticle particle(theta, log_likelihood);
                 _live_points.insert(particle);

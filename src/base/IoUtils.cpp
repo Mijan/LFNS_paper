@@ -108,7 +108,7 @@ namespace base {
                     std::string subs;
                     iss >> subs;
                     if (subs.length() > 0) {
-                        val = std::atof(subs.c_str());
+                        val = std::stod(subs.c_str());
                         out_vector.push_back(val);
                     }
                 } while (iss);
@@ -163,7 +163,7 @@ namespace base {
                             if (line_nbr == 0) {
                                 multiline.push_back(std::vector<double>(num_lines_for_multiline, 0.0));
                             }
-                            val = std::atof(subs.c_str());
+                            val = std::stod(subs.c_str());
                             (multiline[col_nbr++])[line_nbr] = val;
                         }
                     } while (iss);

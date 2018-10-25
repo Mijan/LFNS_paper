@@ -259,17 +259,17 @@ namespace lfns {
 
                 std::string num_simulation_str;
                 iss >> num_simulation_str;
-                sim_nbr = atoi(num_simulation_str.c_str());
+                sim_nbr = std::stoi(num_simulation_str.c_str());
                 _iteration_nbrs.push_back(sim_nbr);
 
                 std::string epsilon_str;
                 iss >> epsilon_str;
-                epsilon = atof(epsilon_str.c_str());
+                epsilon = std::stod(epsilon_str.c_str());
                 _epsilons.push_back(epsilon);
 
                 std::string acceptance_rate_string;
                 iss >> acceptance_rate_string;
-                acceptance_rate = atof(acceptance_rate_string.c_str());
+                acceptance_rate = std::stod(acceptance_rate_string.c_str());
                 _acceptance_rates.push_back(acceptance_rate);
                 iss >> seconds;
                 _seconds_for_iteration.push_back(seconds);
