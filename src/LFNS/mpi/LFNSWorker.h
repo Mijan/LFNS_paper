@@ -44,6 +44,7 @@ namespace lfns {
             time_t _tic;
             double _checking_interval;
         };
+
         typedef std::shared_ptr<MPIStoppingCriterion> MPIStoppingCriterion_ptr;
 
 
@@ -58,11 +59,14 @@ namespace lfns {
 
             virtual void run();
 
+            double *getEpsilonPtr();
+
         protected:
             const std::size_t _my_rank;
             const std::size_t _num_parameters;
 
             double *_particle;
+            double _epsilon;
             bmpi::request *_stopping_flag_request;
             MPIStoppingCriterion_ptr _mpi_stopping_criterion;
 
@@ -74,6 +78,8 @@ namespace lfns {
             void _computeLikelihood();
 
             void _prepareStoppingFlag();
+
+            void _updateEpsilon();
         };
     }
 }

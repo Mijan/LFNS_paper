@@ -15,17 +15,30 @@ int num_tasks;
 #include "src/base/IoUtils.h"
 #include "src/particle_filter/ParticleFilter.h"
 #include "src/LFNS/mpi/LFNSWorker.h"
+#include "src/options/LFNSOptions.h"
+#include "src/io/ConfigFileInterpreter.h"
+#include "src/base/Utils.h"
+
+
+typedef std::vector<double> Times;
+typedef std::vector<std::vector<double>> Trajectory;
+typedef std::vector<Trajectory> TrajectorySet;
+
+std::vector<simulator::SimulatorSsa_ptr> simulators_ssa;
+std::vector<particle_filter::ParticleFilter_ptr> particle_filters;
+std::vector<Times> times_vec;
+std::vector<TrajectorySet> data_vec;
+
+options::LFNSOptions lfns_options;
+
+lfns::LFNSSettings readSettingsfromFile(std::string xml_file);
+
 
 namespace bmpi = boost::mpi;
 
 void runMaster(lfns::LFNSSettings settings, base::RngPtr rng);
 
 void runWorker(lfns::LFNSSettings settings, base::RngPtr rng);
-
-
-lfns::LFNSSettings getLacSettings();
-
-lfns::LFNSSettings getBdSettings();
 
 int main(int argc, char *argv[]) {
     bmpi::environment env;
@@ -40,11 +53,10 @@ int main(int argc, char *argv[]) {
     }
 
     try {
+        lfns_options.handleCommandLineOptions(argc, argv);
 
-        lfns::LFNSSettings settings_lac = getLacSettings();
-        lfns::LFNSSettings settings_bd = getBdSettings();
-
-        lfns::LFNSSettings settings = settings_bd;
+        std::cout << "Config file: " << lfns_options.config_file_name << std::endl;
+        lfns::LFNSSettings settings = readSettingsfromFile(lfns_options.config_file_name);
 
         base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
         if (my_rank == 0) { runMaster(settings, rng); }
@@ -65,7 +77,8 @@ void runMaster(lfns::LFNSSettings settings, base::RngPtr rng) {
 
 void runWorker(lfns::LFNSSettings settings, base::RngPtr rng) {
 
-    models::ChemicalReactionNetwork dynamics(settings.model_file);
+    models::ModelReactionData model_data(settings.model_file);
+    models::ChemicalReactionNetwork dynamics(model_data);
     dynamics.setInputParameterOrder(settings.getUnfixedParameters());
 
     models::InitialValueData init_data(settings.initial_value_file);
@@ -91,90 +104,127 @@ void runWorker(lfns::LFNSSettings settings, base::RngPtr rng) {
         }
     }
 
+    int max_num_traj = 0;
+    lfns::MultLikelihoodEval mult_like_eval;
+    for (std::string experiment : settings.experiments_for_LFNS) {
+        if (settings.data_files.count(experiment) == 0) {
+            std::stringstream ss;
+            ss << "No data file for experiment " << experiment << " provided!" << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+        if (settings.time_files.count(experiment) == 0) {
+            std::stringstream ss;
+            ss << "No time file for experiment " << experiment << " provided!" << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+        std::string input_times_file_name = settings.time_files[experiment];
+        Times times = base::IoUtils::readVector(input_times_file_name);
+        times_vec.push_back(times);
 
-    simulator::SimulatorSsa simulator_ssa(rng, dynamics.getPropensityFct(), dynamics.getReactionFct(),
-                                          dynamics.getNumReactions());
-    particle_filter::ParticleFilter part_filter(rng, simulator_ssa.getSimulationFct(), measurement.getLikelihoodFct(),
-                                                init_value.getInitialStateFct(), dynamics.getNumSpecies(), settings.H);
+        TrajectorySet data = base::IoUtils::readMultiline(settings.data_files[experiment],
+                                                          measurement.getMeasurementNames().size(),
+                                                          settings.num_used_trajectories);
+        max_num_traj = max_num_traj > data.size() ? max_num_traj : data.size();
+        data_vec.push_back(data);
 
+        simulator::SimulatorSsa simulator_ssa(rng, dynamics.getPropensityFct(), dynamics.getReactionFct(),
+                                              dynamics.getNumReactions());
+        simulators_ssa.push_back(std::make_shared<simulator::SimulatorSsa>(simulator_ssa));
 
-    std::string input_times_file_name = base::IoUtils::appendToFileName(settings.data_file, "times");
+        particle_filter::ParticleFilter part_filter(rng, simulators_ssa.back()->getSimulationFct(),
+                                                    measurement.getLikelihoodFct(), init_value.getInitialStateFct(),
+                                                    dynamics.getNumSpecies(), settings.H);
+        particle_filters.push_back(std::make_shared<particle_filter::ParticleFilter>(part_filter));
 
-    std::vector<double> times = base::IoUtils::readVector(input_times_file_name);
-    std::vector<std::vector<std::vector<double>>> data = base::IoUtils::readMultiline(settings.data_file,
-                                                                                      measurement.getMeasurementNames().size());
-    std::vector<std::vector<double> > traj = data[0];
-
-    if (my_rank == 1) {
-//        dynamics.printInfo(std::cout);
-//        init_value.printInfo(std::cout);
-//        measurement.printInfo(std::cout);
+        for (int traj_nbr = 0; traj_nbr < data.size(); traj_nbr++) {
+            mult_like_eval.addLogLikeFun(
+                    particle_filters.back()->getLikelihoodEvaluationForData(&data_vec.back()[traj_nbr],
+                                                                            &times_vec.back()));
+        }
     }
 
-    lfns::mpi::LFNSWorker worker(my_rank, settings.getUnfixedParameters().size(),
-                                 part_filter.getLikelihoodEvaluationForData(&traj, &times));
+    if (my_rank == 1) {
+        settings.num_used_trajectories = std::min(max_num_traj, settings.num_used_trajectories);
+        settings.print(std::cout);
+        dynamics.printInfo(std::cout);
+        init_value.printInfo(std::cout);
+        measurement.printInfo(std::cout);
+    }
 
-    simulator_ssa.addStoppingCriterion(worker.getStoppingFct());
-    part_filter.addStoppingCriterion(worker.getStoppingFct());
+    lfns::mpi::LFNSWorker worker(my_rank, settings.getUnfixedParameters().size(), mult_like_eval.getLogLikeFun());
+
+    for (int i = 0; i < particle_filters.size(); i++) {
+        simulators_ssa[i]->addStoppingCriterion(worker.getStoppingFct());
+        particle_filters[i]->addStoppingCriterion(worker.getStoppingFct());
+        if (settings.use_premature_cancelation) { particle_filters[i]->setThresholdPtr(worker.getEpsilonPtr()); }
+    }
     worker.run();
 }
 
-lfns::LFNSSettings getLacSettings() {
+lfns::LFNSSettings readSettingsfromFile(std::string xml_file) {
+    io::ConfigFileInterpreter interpreter(xml_file);
     lfns::LFNSSettings settings;
-    settings.parameters.push_back(lfns::ParameterSetting("theta_1", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_2", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_3", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_4", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_5", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_6", {1e-2, 3000}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_7", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_8", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_9", {1e-5, 1}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_10", {1e-2, 500}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_11", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_12", {1e-2, 500}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_13", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_14", {1e-5, 1}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_15", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_16", {1e-2, 50}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_17", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("theta_18", {1e-5, 10}));
-    settings.parameters.push_back(lfns::ParameterSetting("IPTG", {1e-5, 10}, true, true, 10));
-    settings.parameters.push_back(lfns::ParameterSetting("fl_mean", {1e-5, 100}, true, true, 22));
-    settings.parameters.push_back(lfns::ParameterSetting("fl_sigma", {1e-5, 100}, true, true, 5));
 
-    settings.uniform_prior = true;
-    settings.estimator = lfns::REJECT_DPGMM;
-    settings.model_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/lacgfp_model.txt";
-    settings.output_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/lac_output/lac.txt";
-    settings.initial_value_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/lacgfp_initial_states.txt";
-    settings.measurement_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/lacgfp_measurement.txt";
-    settings.data_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/lacgfp_data.txt";
-    settings.log_termination = -4.6;
-    settings.N = 1000;
-    settings.r = 100;
-    settings.H = 200;
+    settings.model_file = interpreter.getModelFileName();
+    settings.initial_value_file = interpreter.getInitialConditionsFile();
+    settings.measurement_file = interpreter.getMeasurementModelFile();
 
+    models::ModelReactionData model_data(settings.model_file);
+    models::InitialValueData init_data(settings.initial_value_file);
+    models::MeasurementModelData measure_data(settings.measurement_file);
+
+    std::vector<std::string> param_names = model_data.getParameterNames();
+    base::Utils::addOnlyNew<std::string>(param_names, init_data.getParameterNames());
+    base::Utils::addOnlyNew<std::string>(param_names, measure_data.getParameterNames());
+
+    std::map<std::string, std::pair<double, double> > param_bounds = interpreter.getParameterBounds();
+    std::map<std::string, double> fixed_values = interpreter.getFixedParameters();
+    std::map<std::string, std::string> scales = interpreter.getParameterScales();
+
+    for (std::string &param : param_names) {
+        lfns::ParameterSetting param_setting(param);
+        if (param_bounds.count(param) > 0) {
+            param_setting.bounds = param_bounds[param];
+        }
+        if (scales.count(param) > 0) {
+            std::string scale = scales[param];
+            if (scale.compare("lin") != 0 && scale.compare("log") != 0) {
+                std::stringstream ss;
+                ss << "Failed to set scale for parameter " << param
+                   << ". Scale needs to be 'lin' or 'log', but provided scale is :" << scale << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+            param_setting.log_scale = scale.compare("log") == 0;
+        }
+        if (fixed_values.count(param) > 0) {
+            param_setting.fixed = true;
+            param_setting.fixed_value = fixed_values[param];
+        }
+        settings.parameters.push_back(param_setting);
+    }
+
+    settings.data_files = interpreter.getDataFiles();
+    settings.time_files = interpreter.getTimesFiles();
+    settings.experiments_for_LFNS = interpreter.getExperimentsForLFNS();
+    settings.N = interpreter.getNForLFNS();
+    settings.r = interpreter.getRForLFNS();
+    settings.H = interpreter.getHForLFNS();
+    settings.log_termination = std::log(interpreter.getEpsilonForLFNS());
+
+
+    settings.output_file = lfns_options.output_file_name;
+    if (lfns_options.vm.count("LFNSparticles") > 0) { settings.N = lfns_options.N; }
+    if (lfns_options.vm.count("numberprallelsamples") > 0) { settings.r = lfns_options.r; }
+    if (lfns_options.vm.count("smcparticles") > 0) { settings.H = lfns_options.H; }
+    if (lfns_options.vm.count("tolerance") > 0) {
+        settings.log_termination = std::log(lfns_options.LFNS_tolerance);
+    }
+    if (lfns_options.vm.count("prematurecancelling") >
+        0) { settings.use_premature_cancelation = lfns_options.use_premature_cancelation; }
+    if (lfns_options.vm.count("previous_pop") >
+        0) { settings.previous_log_file = lfns_options.previous_population_file; }
+    if (lfns_options.vm.count("numuseddata") > 0) { settings.num_used_trajectories = lfns_options.num_used_data; }
+    if (lfns_options.vm.count("printinterval") > 0) { settings._print_interval = lfns_options.print_interval; }
     return settings;
-}
 
-lfns::LFNSSettings getBdSettings() {
-    lfns::LFNSSettings settings;
-    settings.parameters.push_back(lfns::ParameterSetting("k", {0.6310, 2.5119}));
-    settings.parameters.push_back(lfns::ParameterSetting("gamma", {0.6310, 2.5119}, true, true, 0.1));
-
-    settings.uniform_prior = true;
-    settings.estimator = lfns::REJECT_DPGMM;
-    settings.model_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_model.txt";
-    settings.output_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_output/bd_cont.txt";
-//    settings.previous_log_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_output/bd_log_file.txt";
-    settings.initial_value_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_initial.txt";
-    settings.measurement_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_measurement.txt";
-    settings.data_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_data.txt";
-    settings.log_termination = std::log(0.01);
-    settings.N = 50;
-    settings.r = 8;
-    settings.H = 1000;
-
-    return settings;
 }

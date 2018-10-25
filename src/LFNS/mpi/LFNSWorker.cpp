@@ -9,7 +9,7 @@ namespace lfns {
         LFNSWorker::LFNSWorker(std::size_t my_rank, int num_parameters,
                                LogLikelihodEvalFct_ptr log_likelihood_evaluation) :
                 _my_rank(my_rank), _num_parameters(num_parameters), _particle(new double[num_parameters]),
-                _stopping_flag_request(new bmpi::request()),
+                _epsilon(-DBL_MAX), _stopping_flag_request(new bmpi::request()),
                 _mpi_stopping_criterion(std::make_shared<MPIStoppingCriterion>(_stopping_flag_request)),
                 _log_likelihood_evaluation(log_likelihood_evaluation), _stop_iteration(false) {}
 
@@ -42,6 +42,10 @@ namespace lfns {
                         _computeLikelihood();
                         break;
 
+                    case UPDATE_EPSILON:
+                        _updateEpsilon();
+                        break;
+
                     case PREPARE_STOPPING:
                         _prepareStoppingFlag();
                         break;
@@ -53,6 +57,9 @@ namespace lfns {
 
             return;
         }
+
+
+        double *LFNSWorker::getEpsilonPtr() { return &_epsilon; }
 
         void LFNSWorker::_computeLikelihood() {
             world.recv(0, PARTICLE, _particle, _num_parameters);
@@ -66,5 +73,8 @@ namespace lfns {
             *_stopping_flag_request = world.irecv(0, STOP_SIMULATION, _stop_iteration);
             _mpi_stopping_criterion->updateRequest(_stopping_flag_request);
         }
+
+
+        void LFNSWorker::_updateEpsilon() { world.recv(0, EPSILON, _epsilon); }
     }
 }

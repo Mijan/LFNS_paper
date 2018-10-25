@@ -34,7 +34,11 @@ namespace lfns {
 
             void _samplePrior(lfns::mpi::RequestQueue &queue);
 
-            void sampleConstPrior(RequestQueue &queue);
+            void _sampleConstPrior(RequestQueue &queue);
+
+            void _updateEpsilon(double epsilon);
+
+            void _initializeQueue(RequestQueue &queue);
         };
     }
 }

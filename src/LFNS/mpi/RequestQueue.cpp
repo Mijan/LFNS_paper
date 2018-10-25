@@ -42,6 +42,7 @@ namespace lfns {
         bool RequestQueue::firstParticleFinished() { return process_finished.front(); }
 
         double RequestQueue::getFirstParticleClocks() { return clocks_for_particles.front(); }
+        int RequestQueue::getFirstUsedProcess() { return used_process.front(); }
 
         int RequestQueue::getFinishedProcess() {
             for (int i = 0; i < likelihood_requests.size(); i++) {

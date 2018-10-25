@@ -48,7 +48,8 @@ int runLFNS(lfns::LFNSSettings settings) {
 
     base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
 
-    models::ChemicalReactionNetwork dynamics(settings.model_file);
+    models::ModelReactionData model_data(settings.model_file);
+    models::ChemicalReactionNetwork dynamics(model_data);
     dynamics.setInputParameterOrder(settings.getUnfixedParameters());
 
     models::InitialValueData init_data(settings.initial_value_file);

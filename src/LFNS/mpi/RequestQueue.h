@@ -28,6 +28,8 @@ namespace lfns {
 
             double getFirstParticleClocks();
 
+            int getFirstUsedProcess();
+
             int getFinishedProcess();
 
             void clearFirstParticle();
@@ -42,9 +44,9 @@ namespace lfns {
             std::queue<bool> process_finished;
 
 
-            std::vector<double*> ptr_seconds_for_particles;
-            std::vector<double*> ptr_log_likelihoods;
-            std::vector<bool*> ptr_process_finished;
+            std::vector<double *> ptr_seconds_for_particles;
+            std::vector<double *> ptr_log_likelihoods;
+            std::vector<bool *> ptr_process_finished;
 
             std::vector<MpiLikelihoodRequest_ptr> likelihood_requests;
         };

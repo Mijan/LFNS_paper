@@ -49,7 +49,7 @@ namespace lfns {
         }
 
         void MpiLikelihoodRequest::requestNewLikelihood(const std::vector<double> &particle) {
-            if(!_request.test()){ _request.wait();}
+            if (!_request.test()) { _request.wait(); }
 
             world.send(_rank, INSTRUCTION, LIKELIHOOD_RECOMPU);
             world.send(_rank, PARTICLE, &particle[0], particle.size());

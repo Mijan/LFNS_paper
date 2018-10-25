@@ -14,8 +14,10 @@ namespace lfns {
 
         enum MPI_INSTRUCTION {
             DIETAG,
-            PARTICLE,
             LIKELIHOOD_RECOMPU,
+            UPDATE_EPSILON,
+            EPSILON,
+            PARTICLE,
             INSTRUCTION,
             STOP_SIMULATION,
             PREPARE_STOPPING,

@@ -59,6 +59,15 @@ namespace lfns {
         post_quant.log_ztot_var = log_ztot_var;
 
         post_quant.log_live_average = live_points.getLogAverageL();
+        post_quant.log_live_variance = live_points.getLogVariance();
+        post_quant.log_Ex2 = m * std::log(_E_t2[_r]);
+
+        double log_1 = 0.5 * post_quant.log_ztot_var;
+        double log_2 = live_points.getLogVariance() - std::log(live_points.numberParticles()) + m * std::log(_E_t2[_r]);
+        double log_3 = 0.5 * base::MathUtils::diffOfLog(post_quant.log_ztot_var, log_2);
+        post_quant.log_max_std_improvement = base::MathUtils::diffOfLog(log_1, log_3) - post_quant.log_ztot;
+
+
         post_quant.log_max_live = live_points.getHighestLogLikelihood();
         return post_quant;
 
@@ -213,7 +222,9 @@ namespace lfns {
 
         double lvar = live_points.getLogVariance(log_average_l);
         double n = std::log(live_points.numberParticles());
-        double log_var_l = 2*log_xm + live_points.getLogVariance(log_average_l)- std::log(live_points.numberParticles());
+//        double log_var_l =
+//                2 * log_xm + live_points.getLogVariance(log_average_l) - std::log(live_points.numberParticles());
+        double log_var_l = live_points.getLogVariance(log_average_l) - std::log(live_points.numberParticles());
         double log_var_xm = std::log(std::exp(log_xm2) - exp(2 * log_xm));
 
         double sum_1 = log_var_xm + log_var_l;

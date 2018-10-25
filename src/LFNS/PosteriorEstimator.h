@@ -20,8 +20,11 @@ namespace lfns {
         double log_zl_var;
         double log_ztot_var;
         double log_final_vol;
+        double log_Ex2;
         double log_live_average;
+        double log_live_variance;
         double log_max_live;
+        double log_max_std_improvement;
 
         std::vector<double> log_delta;
     };

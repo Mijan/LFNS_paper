@@ -21,6 +21,7 @@ namespace lfns {
             int m = 0;
 
             RequestQueue queue;
+            _initializeQueue(queue);
             if (!_resume_run) {
                 _logger.lfnsStarted(m, _epsilon);
                 _samplePrior(queue);
@@ -33,7 +34,7 @@ namespace lfns {
                 m++;
                 _logger.iterationStarted(m);
 
-                sampleConstPrior(queue);
+                _sampleConstPrior(queue);
 
                 lfns_terminate = _postIteration();
             }
@@ -42,10 +43,6 @@ namespace lfns {
         }
 
         void LFNSMpi::_samplePrior(RequestQueue &queue) {
-            for (int rank = 1; rank < _num_tasks; rank++) {
-                std::vector<double> theta = _sampler.samplePrior();
-                queue.addRequest(rank, theta);
-            }
             while (_live_points.numberParticles() < _settings.N) {
                 int finished_task = queue.getFinishedProcess();
                 if (finished_task) {
@@ -59,22 +56,30 @@ namespace lfns {
                     _logger.thetaSampled(theta);
                     _logger.likelihoodComputed(l);
                     _live_points.push_back(theta, l);
-                    _logger.particleAccepted(theta, l, queue.getFirstParticleClocks());
+                    _logger.particleAccepted(theta, l, queue.getFirstParticleClocks(), queue.getFirstUsedProcess());
                     queue.clearFirstParticle();
                 }
             }
             queue.stopPendingRequests();
         }
 
-        void LFNSMpi::sampleConstPrior(RequestQueue &queue) {
+        void LFNSMpi::_initializeQueue(RequestQueue &queue) {
+            for (int rank = 1; rank < _num_tasks; rank++) {
+                std::vector<double> theta = _sampler.samplePrior();
+                queue.addRequest(rank, theta);
+            }
+        }
+
+        void LFNSMpi::_sampleConstPrior(RequestQueue &queue) {
             for (int j = 0; j < _settings.r; j++) {
                 const LFNSParticle &particle = _live_points.removeLowestPartcile();
                 _dead_points.push_back(particle);
                 _logger.deadPointAdded(particle);
             }
 
-            double epsilon = _live_points.getLowestLikelihood();
-            _logger.epsilonUpdated(epsilon);
+            _epsilon = _live_points.getLowestLikelihood();
+            _updateEpsilon(_epsilon);
+            _logger.epsilonUpdated(_epsilon);
             _sampler.updateLiveSamples(_live_points);
             _logger.samplerUpdated(_sampler);
 
@@ -90,14 +95,22 @@ namespace lfns {
                     const std::vector<double> &theta = queue.getFirstTheta();
                     _logger.thetaSampled(theta);
                     _logger.likelihoodComputed(l);
-                    if (l >= epsilon) {
+                    if (l >= _epsilon) {
                         _live_points.push_back(theta, l);
-                        _logger.particleAccepted(theta, l, queue.getFirstParticleClocks());
+                        _logger.particleAccepted(theta, l, queue.getFirstParticleClocks(), queue.getFirstUsedProcess());
                     }
                     queue.clearFirstParticle();
                 }
             }
             queue.stopPendingRequests();
+        }
+
+
+        void LFNSMpi::_updateEpsilon(double epsilon) {
+            for (int rank = 1; rank < _num_tasks; rank++) {
+                world.send(rank, INSTRUCTION, UPDATE_EPSILON);
+                world.send(rank, EPSILON, epsilon);
+            }
         }
     }
 }

@@ -71,7 +71,8 @@ namespace lfns {
     }
 
 
-    void LFNSLogger::particleAccepted(const std::vector<double> &theta, double l, time_t clocks_particle) {
+    void LFNSLogger::particleAccepted(const std::vector<double> &theta, double l, time_t clocks_particle,
+                                      int origin_process) {
 
         _num_accepted_iteration++;
         _remaining_required_particles_iteration--;
@@ -80,6 +81,7 @@ namespace lfns {
             std::cout << "i = " << _num_accepted_iteration << ", log likelihood = " << l
                       << ", acceptance probability = " << 1.0 / _num_samples_particle << ", time for particle = "
                       << clocks_particle / (double) CLOCKS_PER_SEC;
+            if (origin_process > 0) { std::cout << ", process: " << origin_process; }
             std::cout << std::endl;
         }
 
@@ -113,13 +115,20 @@ namespace lfns {
         double log_BE_tot_var = post_quant.log_ztot_var;
         _log_BE_tot_var.push_back(log_BE_tot_var);
 
-        double var_L_contribution = post_quant.log_final_vol + 0.5 * post_quant.log_zl_var - log_BE_tot;
+        double var_L_contribution = post_quant.log_max_std_improvement;
         _var_L_contribution.push_back(var_L_contribution);
 
         double max_L_contribution = post_quant.log_final_vol + post_quant.log_max_live - log_BE_dead;
         _max_L_contribution.push_back(max_L_contribution);
 
-        double current_contribution = base::MathUtils::diffOfLog(log_BE_tot, *(_log_BE_tot.end() - 2));
+        double current_contribution;
+        if (_log_BE_tot.size() == 1) {
+            current_contribution = log_BE_tot;
+        } else {
+            double first = std::max(log_BE_tot, *(_log_BE_tot.end() - 2));
+            double second = std::min(log_BE_tot, *(_log_BE_tot.end() - 2));
+            current_contribution = base::MathUtils::diffOfLog(first, second);
+        }
         std::cout << std::endl << "\nIteration " << _iteration_nbrs.back()
                   << " needed " << base::Utils::getTimeFromClocks(toc2 - _iteration_tic) << std::endl;
         std::cout << "The total log Bayesian Evidence after this iteration is "
@@ -195,8 +204,8 @@ namespace lfns {
 
             double delta_LFNS = _var_L_contribution[i];
             double delta_max = _max_L_contribution[i];
-            log_file_file << std::setw(3) << num_simulation << "\t" << std::setw(12) << std::setprecision(6) << epsilon
-                          << "\t" << std::setw(18) << std::setprecision(6) << acceptance_rate << "\t"
+            log_file_file << std::setw(3) << num_simulation << "\t" << std::setw(15) << std::setprecision(6) << epsilon
+                          << "\t" << std::setw(20) << std::setprecision(6) << acceptance_rate << "\t"
                           << std::setw(12) << std::setprecision(8) << seconds << "\t" << std::setw(15)
                           << std::setprecision(6) << log_z_tot << "\t" << std::setw(18)
                           << std::setprecision(6) << lov_var_z_tot << "\t" << std::setw(18)
@@ -208,8 +217,7 @@ namespace lfns {
                           << std::setprecision(6) << delta_LFNS << std::endl;
         }
         log_file_file.close();
-        std::cout << "Log wrote into "
-                  << log_file_name.c_str() << std::endl;
+        std::cout << "Log wrote into " << log_file_name.c_str() << std::endl;
     }
 
     void LFNSLogger::readFromFile(std::string previous_log_file_name) {

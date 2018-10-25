@@ -8,6 +8,7 @@
 #include "DeadParticleSet.h"
 #include "LFNSParticle.h"
 #include "../base/IoUtils.h"
+#include "../base/MathUtils.h"
 
 namespace lfns {
     LFNS::LFNS(LFNSSettings settings, base::RngPtr rng)
@@ -51,7 +52,6 @@ namespace lfns {
     }
 
     bool LFNS::_testTermination(PosteriorQuantitites &post_quant) {
-        return (post_quant.log_final_vol + 0.5 * post_quant.log_zl_var - post_quant.log_ztot) <
-               _settings.log_termination;
+        return post_quant.log_max_std_improvement < _settings.log_termination;
     }
 }
