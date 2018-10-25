@@ -5,6 +5,7 @@
 #include <iomanip>
 #include "DeadParticleSet.h"
 #include "../base/IoUtils.h"
+#include <exception>
 
 namespace lfns {
     DeadParticleSet::DeadParticleSet() : _dead_points() {}
