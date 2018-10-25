@@ -140,7 +140,7 @@ target_link_libraries(lfns_mpi base models particle_filter lfns lfnsMpi options)
 target_link_libraries(simulate base models simulator)
 
 install(TARGETS test_BEestimation test_lfns test_sampler test_simulator test_particle_filter test_models lfns_seq lfns_mpi simulate DESTINATION bin)
-install(TARGETS base models simulatior options io particle_filter data_structures sampler lfns lfnsSeq lfnsMpi DESTINATION lib)
+install(TARGETS base models simulator options io particle_filter data_structures sampler lfns lfnsSeq lfnsMpi DESTINATION lib)
 
 
 install(FILES src/base/EigenMatrices.h src/base/IoUtils.h src/base/MathUtils.h src/base/MultivariateNormal.h src/base/RandomDistributions.h src/base/Utils.h DESTINATION include)
