@@ -130,7 +130,7 @@ add_executable(lfns_mpi lfns_mpi.cpp)
 add_executable(simulate simulate.cpp)
 
 target_link_libraries(test_BEestimation lfns)
-target_link_libraries(test_lfns lfns)
+target_link_libraries(test_lfns lfnsSeq)
 target_link_libraries(test_sampler sampler)
 target_link_libraries(test_simulator simulator base)
 target_link_libraries(test_particle_filter simulator particle_filter models)
