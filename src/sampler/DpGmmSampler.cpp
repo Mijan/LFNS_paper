@@ -37,7 +37,7 @@ namespace sampler {
         stream << "DPGMM sampler with " << _mixture_components.size() << " components." << std::endl;
     }
 
-    void DpGmmSampler::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
+    void DpGmmSampler::updateTransformedDensitySamples(base::EiMatrix transformed_samples) {
         DP_GMM::EstimationMixtureComponentSet mixtures(0);
         if (_hyper_params_set) {
             _estimator.estimate(transformed_samples, _hyper_parameters, &mixtures);

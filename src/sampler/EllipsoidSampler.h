@@ -29,7 +29,7 @@ namespace sampler {
 
         virtual ~EllipsoidSampler();
 
-        void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) override;
+        void updateTransformedDensitySamples(base::EiMatrix transformed_samples) override;
 
         void sampleTransformed(base::EiVector &trans_sample) override;
 

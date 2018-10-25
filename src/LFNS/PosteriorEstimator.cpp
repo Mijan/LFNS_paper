@@ -137,8 +137,8 @@ namespace lfns {
             }
             log_sum_2_2_1 = std::log(log_sum_2_2_1) + _f_log_scale[i - 1];
 
-            log_sums_2_2[j] = log_fac + log_sum_2_2_1;
-            max_tmp_2 = max_tmp_2 > log_sums_2_2[j] ? max_tmp_2 : log_sums_2_2[j];
+            log_sums_2_2[j-1] = log_fac + log_sum_2_2_1;
+            max_tmp_2 = max_tmp_2 > log_sums_2_2[j-1] ? max_tmp_2 : log_sums_2_2[j-1];
         }
         double log_sum_2_2 = 0;
         for (int j = 0; j < _r; j++) {

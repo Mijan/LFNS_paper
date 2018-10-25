@@ -9,7 +9,7 @@ namespace sampler {
     KernelSupportEstimation::KernelSupportEstimation(base::RngPtr rng, KernelSampler_ptr kernel, SamplerData data)
             : KernelDensityEstimation(rng, kernel, data) {}
 
-    void KernelSupportEstimation::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
+    void KernelSupportEstimation::updateTransformedDensitySamples(base::EiMatrix transformed_samples) {
         KernelDensityEstimation::updateTransformedDensitySamples(transformed_samples);
 
         base::EiVector weights(_means.size());

@@ -8,7 +8,7 @@
 
 namespace base {
     std::string IoUtils::appendToFileName(const std::string fileName,
-                                          const std::string string) {
+                                          const std::string ending_string) {
         size_t pos = fileName.find_last_of(".");
         if (pos == std::string::npos) {
             std::stringstream os;
@@ -21,7 +21,10 @@ namespace base {
         std::string file;
         fileStart.assign(fileName.begin(), fileName.begin() + pos);
         fileEnd.assign(fileName.begin() + pos, fileName.end());
-        file = fileStart + "_" + string + fileEnd;
+
+        std::stringstream ss;
+        ss << fileStart << "_" << ending_string << fileEnd;
+        file = ss.str();
         return file;
     }
 

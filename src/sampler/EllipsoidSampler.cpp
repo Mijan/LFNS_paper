@@ -18,7 +18,7 @@ namespace sampler {
 
     void EllipsoidSampler::setScale(double scale_var) { _scale = scale_var; }
 
-    void EllipsoidSampler::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
+    void EllipsoidSampler::updateTransformedDensitySamples(base::EiMatrix transformed_samples) {
 
         _scale = -1;
         for (std::size_t row = 0; row < transformed_samples.rows(); row++) {

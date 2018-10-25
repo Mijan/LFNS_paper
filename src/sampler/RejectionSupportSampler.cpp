@@ -70,7 +70,7 @@ namespace sampler {
     }
 
 
-    void RejectionSupportSampler::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
+    void RejectionSupportSampler::updateTransformedDensitySamples(const base::EiMatrix transformed_samples) {
         _current_sampler->updateTransformedDensitySamples(transformed_samples);
         computeRejectionConst(transformed_samples);
     }

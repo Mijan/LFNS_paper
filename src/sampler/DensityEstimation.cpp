@@ -33,8 +33,9 @@ namespace sampler {
         base::EiMatrixC transformed = work_inverse.real() * centered.transpose();
         transformed.transposeInPlace();
 
+        base::EiMatrix transformed_real = transformed.real();
 
-        updateTransformedDensitySamples(transformed.real());
+        updateTransformedDensitySamples(transformed_real);
     }
 
 

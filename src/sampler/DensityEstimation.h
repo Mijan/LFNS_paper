@@ -27,7 +27,7 @@ namespace sampler {
 
         void setEV(base::EiMatrixC evs, base::EiVectorC evals);
 
-        virtual void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) = 0;
+        virtual void updateTransformedDensitySamples(base::EiMatrix transformed_samples) = 0;
 
         virtual void sampleTransformed(base::EiVector &trans_sample) = 0;
 

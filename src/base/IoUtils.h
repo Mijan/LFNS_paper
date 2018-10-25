@@ -17,7 +17,7 @@ namespace base {
     class IoUtils {
     public:
         static std::string appendToFileName(const std::string fileName,
-                                            const std::string string);
+                                            const std::string ending_string);
 
         static std::string getAbsolutePath(std::string path, std::string base_path);
 
