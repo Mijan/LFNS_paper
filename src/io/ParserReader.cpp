@@ -85,7 +85,7 @@ namespace io {
                     std::string params_str = random_line_split[1].substr(begin_index, end_index - begin_index);
                     std::vector<std::string> params = _splitInTwo(params_str, ",");
                     normal_params.push_back(
-                            std::make_pair(std::atof(params[0].c_str()), std::atof(params[1].c_str())));
+                            std::make_pair(std::stod(params[0].c_str()), std::stod(params[1].c_str())));
                 }
             }
         } catch (const std::exception &e) {};
@@ -109,7 +109,7 @@ namespace io {
                     std::string params_str = random_line_split[1].substr(begin_index, end_index - begin_index);
                     std::vector<std::string> params = _splitInTwo(params_str, ",");
                     uniform_params.push_back(
-                            std::make_pair(std::atof(params[0].c_str()), std::atof(params[1].c_str())));
+                            std::make_pair(std::stod(params[0].c_str()), std::stod(params[1].c_str())));
                 }
             }
         } catch (const std::exception &e) {};
@@ -131,7 +131,7 @@ namespace io {
                     std::string params_str = random_line_split[1].substr(begin_index, end_index - begin_index);
                     std::vector<std::string> params = _splitInTwo(params_str, ",");
                     uniform_params.push_back(
-                            std::make_pair(std::atoi(params[0].c_str()), std::atoi(params[1].c_str())));
+                            std::make_pair(std::stoi(params[0].c_str()), std::stoi(params[1].c_str())));
                 }
             }
         } catch (const std::exception &e) {};
