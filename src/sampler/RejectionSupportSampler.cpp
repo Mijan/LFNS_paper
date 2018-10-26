@@ -71,13 +71,22 @@ namespace sampler {
         int num_runs = 1000;
         base::EiVector sample(transformed_samples.cols());
         std::vector<double> log_likes;
+        double min = DBL_MAX;
+        double max = -DBL_MAX;
         for (int i = 0; i < num_runs; i++) {
             _current_sampler->sampleTransformed(sample);
             double log_like = _current_sampler->getTransformedLogLikelihood(sample);
             log_likes.push_back(log_like);
+            max = max > log_like ? max : log_like;
+            min = min < log_like ? min : log_like;
         }
         std::sort(log_likes.begin(), log_likes.end());
         _log_rejection_const = log_likes[floor(_rejection_quantile * num_runs)];
+
+        std::cout << "rejection quantile " << _rejection_quantile << std::endl;
+        std::cout << "rejection const " << _log_rejection_const << std::endl;
+        std::cout << "max log like " << max << std::endl;
+        std::cout << "min log like " << min << std::endl;
     }
 
 

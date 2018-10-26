@@ -13,7 +13,7 @@
 namespace lfns {
 
 
-    LFNSSampler::LFNSSampler(LFNSSettings settings, base::RngPtr rng) : _rng(rng), _prior(), _density_estimation(),
+    LFNSSampler::LFNSSampler(LFNSSettings &settings, base::RngPtr rng) : _rng(rng), _prior(), _density_estimation(),
                                                                         _max_live_prior_value(0), _dist(),
                                                                         _uniform_prior(true), _log_params() {
 

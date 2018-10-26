@@ -16,7 +16,7 @@ namespace lfns {
         class LFNSMpi : public lfns::LFNS {
 
         public:
-            LFNSMpi(LFNSSettings settings, base::RngPtr rng, int num_tasks);
+            LFNSMpi(LFNSSettings &settings, base::RngPtr rng, int num_tasks);
 
             virtual ~LFNSMpi();
 

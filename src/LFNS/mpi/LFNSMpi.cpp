@@ -9,7 +9,7 @@
 
 namespace lfns {
     namespace mpi {
-        LFNSMpi::LFNSMpi(LFNSSettings settings, base::RngPtr rng, int num_tasks) : LFNS(settings, rng),
+        LFNSMpi::LFNSMpi(LFNSSettings &settings, base::RngPtr rng, int num_tasks) : LFNS(settings, rng),
                                                                                    _num_tasks(num_tasks) {}
 
         LFNSMpi::~LFNSMpi() {}

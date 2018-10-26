@@ -47,7 +47,7 @@ namespace lfns {
     class LFNS {
 
     public:
-        explicit LFNS(LFNSSettings settings, base::RngPtr rng);
+        explicit LFNS(LFNSSettings &settings, base::RngPtr rng);
 
         virtual ~LFNS();
 

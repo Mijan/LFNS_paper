@@ -7,7 +7,7 @@
 namespace lfns {
     namespace seq {
 
-        LFNSSeq::LFNSSeq(LFNSSettings settings, base::RngPtr rng, LogLikelihodEvalFct_ptr log_likelihood_evaluation)
+        LFNSSeq::LFNSSeq(LFNSSettings &settings, base::RngPtr rng, LogLikelihodEvalFct_ptr log_likelihood_evaluation)
                 : LFNS(settings, rng),
                   _log_likelihood_evaluation(
                           std::move(

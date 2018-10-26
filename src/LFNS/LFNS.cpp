@@ -11,7 +11,7 @@
 #include "../base/MathUtils.h"
 
 namespace lfns {
-    LFNS::LFNS(LFNSSettings settings, base::RngPtr rng)
+    LFNS::LFNS(LFNSSettings &settings, base::RngPtr rng)
             : _settings(settings), _live_points(), _dead_points(), _post_estimator(settings.N, settings.r),
               _sampler(settings, rng), _logger(settings), _resume_run(false), _epsilon(-DBL_MAX) {}
 
