@@ -91,7 +91,7 @@ namespace lfns {
                     queue.addRequest(finished_task, theta);
                 }
 
-                while (queue.firstParticleFinished()) {
+                while (queue.firstParticleFinished() && _live_points.numberParticles() < _settings.N) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();
                     _logger.thetaSampled(theta);

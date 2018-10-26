@@ -7,10 +7,11 @@
 namespace lfns {
     namespace seq {
 
-        LFNSSeq::LFNSSeq(LFNSSettings settings,  base::RngPtr rng, LogLikelihodEvalFct_ptr log_likelihood_evaluation) : LFNS(settings, rng),
-                                                                                                     _log_likelihood_evaluation(
-                                                                                                             std::move(
-                                                                                                                     log_likelihood_evaluation)) {}
+        LFNSSeq::LFNSSeq(LFNSSettings settings, base::RngPtr rng, LogLikelihodEvalFct_ptr log_likelihood_evaluation)
+                : LFNS(settings, rng),
+                  _log_likelihood_evaluation(
+                          std::move(
+                                  log_likelihood_evaluation)) {}
 
         void LFNSSeq::runLFNS() {
 
@@ -56,7 +57,6 @@ namespace lfns {
                     _logger.thetaSampled(theta);
                     double l = (*_log_likelihood_evaluation)(theta);
                     _logger.likelihoodComputed(l);
-
                     if (l >= _epsilon) {
                         _live_points.push_back(theta, l);
                         _logger.particleAccepted(theta, l);
