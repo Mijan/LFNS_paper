@@ -59,14 +59,25 @@ namespace sampler {
 
     void RejectionSupportSampler::computeRejectionConst(const base::EiMatrix &transformed_samples) {
 
-        double min_log_like = DBL_MAX;
-        for (int i = 0; i < transformed_samples.rows(); i++) {
-            base::EiConstSubVectorRow row = transformed_samples.row(i);
-            double log_like = _current_sampler->getTransformedLogLikelihood(row);
-            min_log_like = min_log_like < log_like ? min_log_like : log_like;
-        }
+//        double min_log_like = DBL_MAX;
+//        for (int i = 0; i < transformed_samples.rows(); i++) {
+//            base::EiConstSubVectorRow row = transformed_samples.row(i);
+//            double log_like = _current_sampler->getTransformedLogLikelihood(row);
+//            min_log_like = min_log_like < log_like ? min_log_like : log_like;
+//        }
+//
+//        _log_rejection_const = min_log_like;
 
-        _log_rejection_const = min_log_like;
+        int num_runs = 1000;
+        base::EiVector sample(transformed_samples.cols());
+        std::vector<double> log_likes;
+        for (int i = 0; i < num_runs; i++) {
+            _current_sampler->sampleTransformed(sample);
+            double log_like = _current_sampler->getTransformedLogLikelihood(sample);
+            log_likes.push_back(log_like);
+        }
+        std::sort(log_likes.begin(), log_likes.end());
+        _log_rejection_const = log_likes[floor(_rejection_quantile * num_runs)];
     }
 
 

@@ -40,7 +40,7 @@ namespace lfns {
 
 
                 sampler::RejectionSamplerData rej_data(sampler_data);
-                rej_data.rejection_quantile = 0.001;
+                rej_data.rejection_quantile = settings.rejection_quantile_for_density_estimation;
                 _density_estimation = std::make_shared<sampler::RejectionSupportSampler>(_rng, dpgmm_sampler, rej_data);
                 break;
             }

@@ -208,7 +208,8 @@ lfns::LFNSSettings readSettingsfromFile(std::string xml_file) {
     if (lfns_options.vm.count("previous_pop") >
         0) { settings.previous_log_file = lfns_options.previous_population_file; }
     if (lfns_options.vm.count("numuseddata") > 0) { settings.num_used_trajectories = lfns_options.num_used_data; }
-    if (lfns_options.vm.count("printinterval") > 0) { settings._print_interval = lfns_options.print_interval; }
+    if (lfns_options.vm.count("printinterval") > 0) { settings.print_interval = lfns_options.print_interval; }
+    if (lfns_options.vm.count("rej_quan") > 0) { settings.rejection_quantile_for_density_estimation = lfns_options.rejection_quantile; }
     return settings;
 
 }

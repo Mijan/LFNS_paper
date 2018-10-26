@@ -65,8 +65,9 @@ namespace lfns {
         DENSITY_ESTIMATOR estimator = REJECT_DPGMM;
         double log_termination = -4.6;
         bool use_premature_cancelation = false;
-        int _print_interval = 1;
-        int _acceptance_info_print_interval = 100;
+        int print_interval = 1;
+        int acceptance_info_print_interval = 100;
+        int rejection_quantile_for_density_estimation = 0.001;
         int H = 200;
     };
 };

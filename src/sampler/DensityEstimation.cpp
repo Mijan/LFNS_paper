@@ -58,7 +58,11 @@ namespace sampler {
     }
 
     double DensityEstimation::getLogLikelihood(const std::vector<double> &sample) {
-        _trans_sample = base::EiVector::Map(sample.data(), sample.size());
+        std::cout << "original_sample: ";
+        for (double d : sample) { std::cout << d << " "; }
+        std::cout << std::endl;
+        _trans_sample = Eigen::Map<const base::EiVector>(sample.data(), sample.size());
+        std::cout << "vec_sample: " << _trans_sample << std::endl;
         _trans_sample -= _mean;
         _trans_sample = _inv_evs.real() * _trans_sample;
         return getTransformedLogLikelihood(_trans_sample);

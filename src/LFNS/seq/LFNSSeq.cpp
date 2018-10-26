@@ -19,17 +19,25 @@ namespace lfns {
 
             int m = 0;
 
+            double seconds_sampling = 0;
             if (!_resume_run) {
                 _logger.lfnsStarted(m, _epsilon);
 
+
                 for (int i = 0; i < _settings.N; i++) {
+                    time_t tic = clock();
                     std::vector<double> theta = _sampler.samplePrior();
+                    time_t toc = clock();
+                    seconds_sampling += (toc - tic) / (double) CLOCKS_PER_SEC;
+
                     _logger.thetaSampled(theta);
                     double l = (*_log_likelihood_evaluation)(theta);
                     _logger.likelihoodComputed(l);
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l);
                 }
+                std::cout <<"time for sampling : " << seconds_sampling << std::endl;
+                seconds_sampling = 0;
                 _live_points.writeToFile(_settings.output_file, "live_points_0");
             } else {
                 m = _logger.iterationNumber();
@@ -53,7 +61,10 @@ namespace lfns {
                 _logger.samplerUpdated(_sampler);
 
                 while (_live_points.numberParticles() < _settings.N) {
+                    time_t tic = clock();
                     std::vector<double> theta = _sampler.sampleConstrPrior();
+                    time_t toc = clock();
+                    seconds_sampling += (toc - tic) / (double) CLOCKS_PER_SEC;
                     _logger.thetaSampled(theta);
                     double l = (*_log_likelihood_evaluation)(theta);
                     _logger.likelihoodComputed(l);
@@ -64,6 +75,8 @@ namespace lfns {
                 }
 
                 lfns_terminate = _postIteration();
+                std::cout <<"time for sampling : " << seconds_sampling << std::endl;
+                seconds_sampling = 0;
             }
 
             _logger.lfnsTerminated();
