@@ -91,11 +91,13 @@ namespace lfns {
                     queue.addRequest(finished_task, theta);
                 }
 
-                if (queue.firstParticleFinished()) {
+                while (queue.firstParticleFinished()) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();
                     _logger.thetaSampled(theta);
                     _logger.likelihoodComputed(l);
+//                    std::cout << "time for part: " << queue.getFirstParticleClocks() / CLOCKS_PER_SEC << "\tqueue size:"
+//                              << queue.size() << std::endl;
                     if (l >= _epsilon) {
                         _live_points.push_back(theta, l);
                         _logger.particleAccepted(theta, l, queue.getFirstParticleClocks(), queue.getFirstUsedProcess());

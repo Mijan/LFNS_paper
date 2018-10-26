@@ -36,6 +36,7 @@ namespace lfns {
 
             void stopPendingRequests();
 
+            std::size_t size() const;
         private:
             std::queue<std::vector<double> > computed_particles;
             std::queue<int> used_process;

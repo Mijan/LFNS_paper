@@ -46,6 +46,7 @@ namespace sampler {
     protected:
         base::EiVector _mean;
         base::EiMatrixC _evs;
+        base::EiMatrixC _inv_evs;
         base::EiVectorC _evals;
 
     };

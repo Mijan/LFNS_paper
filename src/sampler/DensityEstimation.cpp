@@ -12,6 +12,7 @@ namespace sampler {
                                                                                _trans_sample(data.size()),
                                                                                _mean(data.size()),
                                                                                _evs(data.size(), data.size()),
+                                                                               _inv_evs(data.size(), data.size()),
                                                                                _evals(data.size()) {}
 
     void DensityEstimation::updateDensitySamples(base::EiMatrix &samples) {
@@ -24,18 +25,17 @@ namespace sampler {
         for (std::size_t col = 0; col < _evs.cols(); col++) {
             _evs.col(col) = _evs.col(col) * _evals(col);
         }
-
         _mean = samples.colwise().mean();
 
+        _inv_evs = _evs.lu().inverse();
 
-        base::EiMatrixC work_inverse = _evs.lu().inverse();
-
-        base::EiMatrixC transformed = work_inverse.real() * centered.transpose();
+        base::EiMatrixC transformed = _inv_evs.real() * centered.transpose();
         transformed.transposeInPlace();
 
         base::EiMatrix transformed_real = transformed.real();
 
         updateTransformedDensitySamples(transformed_real);
+//        updateTransformedDensitySamples(samples);
     }
 
 
@@ -58,9 +58,9 @@ namespace sampler {
     }
 
     double DensityEstimation::getLogLikelihood(const std::vector<double> &sample) {
-        sampleTransformed(_trans_sample);
-        _trans_sample = (_evs * _trans_sample.cast<std::complex<double> >()).real();
-        _trans_sample += _mean;
+        _trans_sample = base::EiVector::Map(sample.data(), sample.size());
+        _trans_sample -= _mean;
+        _trans_sample = _inv_evs.real() * _trans_sample;
         return getTransformedLogLikelihood(_trans_sample);
     }
 }

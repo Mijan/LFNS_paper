@@ -42,6 +42,7 @@ namespace lfns {
         bool RequestQueue::firstParticleFinished() { return process_finished.front(); }
 
         double RequestQueue::getFirstParticleClocks() { return clocks_for_particles.front(); }
+
         int RequestQueue::getFirstUsedProcess() { return used_process.front(); }
 
         int RequestQueue::getFinishedProcess() {
@@ -68,6 +69,10 @@ namespace lfns {
 
         void RequestQueue::stopPendingRequests() {
             for (MpiLikelihoodRequest_ptr request : likelihood_requests) { request->interruptRequest(); }
+        }
+
+        std::size_t RequestQueue::size() const{
+            return log_likelihoods.size();
         }
     }
 }

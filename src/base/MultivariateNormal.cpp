@@ -7,11 +7,8 @@
 
 namespace base {
 
-    double MultivariateNormal::mvnorm(const int n, const EiVectorRef &x,
-                                                  const EiVectorRef &mean,
-                                                  const EiMatrix &var) {
-        /* multivariate normal density function    */
-        /*
+    double MultivariateNormal::mvnorm(const int n, const EiVectorRef &x, const EiVectorRef &mean,
+                                      const EiMatrix &var) {        /* multivariate normal density function    */        /*
          *	n	dimension of the random vetor
          *	mean	vector of means of size n
          *	var	variance matrix of dimension n x n
@@ -23,11 +20,8 @@ namespace base {
         return mvnormPrepared(n, x, mean, work_inverse, detVar);
     }
 
-    double MultivariateNormal::mvnormPrepared(const int n,
-                                                          const EiVector &x,
-                                                          const EiVector &mean,
-                                                          const EiMatrix &inv,
-                                                          double det_var) {
+    double MultivariateNormal::mvnormPrepared(const int n, const EiVector &x, const EiVector &mean, const EiMatrix &inv,
+                                              double det_var) {
         /* multivariate normal density function    */
         /*
          *	n	dimension of the random vector
@@ -38,11 +32,8 @@ namespace base {
         return _mvnormPreparedTransformedVar(n, (x - mean), inv, det_var);
     }
 
-    double MultivariateNormal::mvnormPrepared(const int n,
-                                                          const std::vector<double> &x,
-                                                          const EiVector &mean,
-                                                          const EiMatrix &inv,
-                                                          double det_var) {
+    double MultivariateNormal::mvnormPrepared(const int n, const std::vector<double> &x, const EiVector &mean,
+                                              const EiMatrix &inv, double det_var) {
         /* multivariate normal density function    */
         /*
          *	n	dimension of the random vector
@@ -58,11 +49,8 @@ namespace base {
         return _mvnormPreparedTransformedVar(n, transformed_x, inv, det_var);
     }
 
-    double MultivariateNormal::mvnormPrepared(const int n,
-                                                          const std::vector<double *> x,
-                                                          const EiVector &mean,
-                                                          const EiMatrix &inv,
-                                                          double det_var) {
+    double MultivariateNormal::mvnormPrepared(const int n, const std::vector<double *> x, const EiVector &mean,
+                                              const EiMatrix &inv, double det_var) {
         /* multivariate normal density function    */
         /*
          *	n	dimension of the random vector
@@ -78,9 +66,9 @@ namespace base {
         return _mvnormPreparedTransformedVar(n, transformed_x, inv, det_var);
     }
 
-    double MultivariateNormal::_mvnormPreparedTransformedVar(
-            const int n, const EiVector &transformed_x, const EiMatrix &inv,
-            double det_var) {
+    double
+    MultivariateNormal::_mvnormPreparedTransformedVar(const int n, const EiVector &transformed_x, const EiMatrix &inv,
+                                                      double det_var) {
         double ay = transformed_x.transpose() * inv * transformed_x;
         ay = std::exp(-0.5 * ay) / sqrt(pow((2 * M_PI), n) * det_var);
 
@@ -88,9 +76,7 @@ namespace base {
     }
 
 
-    void MultivariateNormal::mvnormRnd(RngPtr r, int n,
-                                                   const EiVector &mean, const EiMatrix &var,
-                                                   EiVector *result) {
+    void MultivariateNormal::mvnormRnd(RngPtr r, int n, const EiVector &mean, const EiMatrix &var, EiVector *result) {
         /* multivariate normal distribution random number generator */
         /*
          *    n       dimension of the random vector
@@ -104,11 +90,8 @@ namespace base {
         mvnormRndWithDecomposedVar(r, n, mean, work_decomp_scal, result);
     }
 
-    void MultivariateNormal::mvnormRndWithDecomposedVar(RngPtr r, int n,
-                                                                    EiConstVectorRef mean,
-                                                                    EiConstMatrixRef var,
-                                                                    EiVector *result) {
-        /* multivariate normal distribution random number generator */
+    void MultivariateNormal::mvnormRndWithDecomposedVar(RngPtr r, int n, EiConstVectorRef mean, EiConstMatrixRef var,
+                                                        EiVector *result) {        /* multivariate normal distribution random number generator */
         /*
          *    n       dimension of the random vector
          *    mean    vector of means of size n
@@ -125,9 +108,8 @@ namespace base {
         (*result) = var * (*result) + mean;
     }
 
-    void MultivariateNormal::mvnormRnd(RngPtr r, int n,
-                                                   const EiVector &mean, const EiMatrix &var,
-                                                   std::vector<double> *result) {
+    void MultivariateNormal::mvnormRnd(RngPtr r, int n, const EiVector &mean, const EiMatrix &var,
+                                       std::vector<double> *result) {
         /* multivariate normal distribution random number generator */
         /*
          *    n       dimension of the random vector
@@ -141,9 +123,8 @@ namespace base {
         mvnormRndWithDecomposedVar(r, n, mean, work_decomp_scal, result);
     }
 
-    void MultivariateNormal::mvnormRnd(RngPtr r, int n, const EiVector &mean,
-                                                   const EiMatrix &var, std::vector<double *> result) {
-        /* multivariate normal distribution random number generator */
+    void MultivariateNormal::mvnormRnd(RngPtr r, int n, const EiVector &mean, const EiMatrix &var,
+                                       std::vector<double *> result) {        /* multivariate normal distribution random number generator */
         /*
          *    n       dimension of the random vector
          *    mean    vector of means of size n
@@ -156,10 +137,8 @@ namespace base {
         mvnormRndWithDecomposedVar(r, n, mean, work_decomp_scal, result);
     }
 
-    void MultivariateNormal::mvnormRndWithDecomposedVar(RngPtr r, int n,
-                                                                    EiConstVectorRef mean,
-                                                                    EiConstMatrixRef var,
-                                                                    std::vector<double> *result) {
+    void MultivariateNormal::mvnormRndWithDecomposedVar(RngPtr r, int n, EiConstVectorRef mean, EiConstMatrixRef var,
+                                                        std::vector<double> *result) {
         /* multivariate normal distribution random number generator */
         /*
          *    n       dimension of the random vector
@@ -182,10 +161,8 @@ namespace base {
         }
     }
 
-    void MultivariateNormal::mvnormRndWithDecomposedVar(RngPtr r, int n,
-                                                                    EiConstVectorRef mean,
-                                                                    EiConstMatrixRef var,
-                                                                    std::vector<double *> result) {
+    void MultivariateNormal::mvnormRndWithDecomposedVar(RngPtr r, int n, EiConstVectorRef mean, EiConstMatrixRef var,
+                                                        std::vector<double *> result) {
         /* multivariate normal distribution random number generator */
         /*
          *    n       dimension of the random vector
@@ -208,8 +185,7 @@ namespace base {
         }
     }
 
-    void MultivariateNormal::decomposeVar(const EiMatrix &var,
-                                                      EiMatrix *work_decomp_scal) {
+    void MultivariateNormal::decomposeVar(const EiMatrix &var, EiMatrix *work_decomp_scal) {
         double max = fabs(var.maxCoeff());
         double min = fabs(var.minCoeff());
         double scale = fmax(max, min);
