@@ -235,4 +235,78 @@ namespace io {
             throw std::runtime_error(ss.str());
         }
     }
+
+
+    std::vector<double> ConfigFileInterpreter::getPulsePeriods(std::string experiment_name) {
+        std::vector<double> periods;
+        std::vector<std::string> periods_str = _getInputValues(experiment_name, "period");
+        for (std::string period: periods_str) { periods.push_back(std::stod(period)); }
+        return periods;
+    }
+
+    std::vector<double> ConfigFileInterpreter::getPulseStrengths(std::string experiment_name) {
+        std::vector<double> strengths;
+        std::vector<std::string> strength_str = _getInputValues(experiment_name, "strength");
+        for (std::string period: strength_str) { strengths.push_back(std::stod(period)); }
+        return strengths;
+    }
+
+    std::vector<double> ConfigFileInterpreter::getPulseDurations(std::string experiment_name) {
+        std::vector<double> durations;
+        std::vector<std::string> duration_str = _getInputValues(experiment_name, "duration");
+        for (std::string period: duration_str) { durations.push_back(std::stod(period)); }
+        return durations;
+    }
+
+    std::vector<int> ConfigFileInterpreter::getNumPulse(std::string experiment_name) {
+        std::vector<int> num_pulses;
+        std::vector<std::string> num_pulses_str = _getInputValues(experiment_name, "numpulses");
+        for (std::string period: num_pulses_str) { num_pulses.push_back(std::stod(period)); }
+        return num_pulses;
+    }
+
+    std::vector<std::string> ConfigFileInterpreter::getPulseInputNames(std::string experiment_name) {
+        std::vector<std::string> input_names = _getInputValues(experiment_name, "inputparam");
+        return input_names;
+    }
+
+    std::vector<double> ConfigFileInterpreter::getStartingTimes(std::string experiment_name) {
+        std::vector<double> starting_times;
+        std::vector<std::string> duration_str = _getInputValues(experiment_name, "startingtime");
+        for (std::string period: duration_str) { starting_times.push_back(std::stod(period)); }
+        return starting_times;
+    }
+
+    std::vector<std::string>
+    ConfigFileInterpreter::_getInputValues(std::string experiment_name, std::string field_name) {
+        std::vector<std::string> entries;
+        std::vector<XmlMap> input_entries = _reader.getEntryMaps("inputs", "input");
+
+        for (XmlMap input_entry: input_entries) {
+            std::string param_name_str = input_entry["experiments"].entry;
+            std::vector<std::string> experiment_names = base::Utils::StringToStringVector(param_name_str);
+            int num_found_experiment = 0;
+            for (std::string &experiment : experiment_names) {
+                if (experiment_name.compare(experiment) == 0) {
+                    if (num_found_experiment++ > 1) {
+                        std::stringstream ss;
+                        ss << "repeated entries for experiment " << experiment
+                           << " found in 'experiments' found for input provider." << std::endl;
+                        throw std::runtime_error(ss.str());
+                    }
+                    XmlPropertyMap input_map(input_entry);
+                    try {
+                        std::string period = input_map.getValueForKey("experiments", experiment, field_name);
+                        entries.push_back(period);
+                    } catch (const std::exception &e) {
+                        std::stringstream ss;
+                        ss << "Failed to obtain input value for experiment " << experiment << ":\n\t" << e.what()
+                           << std::endl;
+                        throw std::runtime_error(ss.str());
+                    }
+                }
+            }
+        }
+        return entries;
+    }
 }

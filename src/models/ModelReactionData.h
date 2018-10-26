@@ -18,6 +18,8 @@ namespace models {
 
         ModelReactionData(std::string model_file_name);
 
+        ModelReactionData(const ModelReactionData &rhs);
+
         std::size_t getNumReactions() const;
 
         bool isPropMassAction(std::size_t reaction_index) const;

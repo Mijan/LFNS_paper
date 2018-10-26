@@ -21,6 +21,10 @@ namespace models {
     typedef std::function<void(double *dx, const double *state, double t, const std::vector<double> &theta)> RhsFct;
     typedef std::shared_ptr<RhsFct> RhsFct_ptr;
 
+    typedef std::function<double(const double *state, double t)> RootFct;
+    typedef std::shared_ptr<RootFct> RootFct_ptr;
+
+
     class ChemicalReactionNetwork : public ParserBaseObject {
     public:
         ChemicalReactionNetwork(ModelReactionData model_data);
@@ -40,12 +44,17 @@ namespace models {
 
         RhsFct_ptr getRhsFct();
 
+        double root(const double *state, double t);
+
+        RootFct_ptr getRootFct();
+
 
         std::size_t getNumReactions();
 
         void _initialize();
 
         void printInfo(std::ostream &os) const;
+
     private:
         bool _initialized;
 

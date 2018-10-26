@@ -40,6 +40,7 @@ namespace models {
             throw std::runtime_error(os.str());
         }
         _updateTheta(theta);
+        _evaluateInput(state.data(), t, theta);
         _updateState(state.data());
         _createRandomNumbers();
 

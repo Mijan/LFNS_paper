@@ -35,15 +35,6 @@ namespace sampler {
         base::EiMatrix transformed_real = transformed.real();
 
         updateTransformedDensitySamples(transformed_real);
-//        updateTransformedDensitySamples(samples);
-    }
-
-
-    void DensityEstimation::setMean(base::EiVector mean) { _mean = mean; }
-
-    void DensityEstimation::setEV(base::EiMatrixC evs, base::EiVectorC evals) {
-        _evs = evs;
-        _evals = evals;
     }
 
     std::vector<double> &DensityEstimation::sample() {

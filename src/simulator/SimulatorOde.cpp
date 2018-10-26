@@ -180,8 +180,8 @@ namespace simulator {
         RhsData *rhs_data = (RhsData *) user_data;
 
         if (rhs_data->root_fct_ptr) {
-            std::vector<double> state(NV_DATA_S(y), NV_DATA_S(y) + rhs_data->num_states);
-            *gout = (*rhs_data->root_fct_ptr)(state, t);
+//            std::vector<double> state(NV_DATA_S(y), NV_DATA_S(y) + rhs_data->num_states);
+            *gout = (*rhs_data->root_fct_ptr)(NV_DATA_S(y), t);
         }
 
         return 0;

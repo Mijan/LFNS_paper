@@ -45,8 +45,6 @@ namespace simulator {
         ReactionFct_ptr _reaction_fct;
         int _root_sign;
 
-        std::shared_ptr<std::function<double(std::vector<double> &system_state, double t)> > _root_fct;
-
         void
         _simulateSystem(std::vector<double> &state, double &t, double final_time, const std::vector<double> &theta);
 

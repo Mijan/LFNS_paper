@@ -17,7 +17,7 @@ namespace simulator {
                                const std::vector<double> &theta)> SimulationFct;
     typedef std::shared_ptr<SimulationFct> SimulationFct_ptr;
 
-    typedef std::function<double(std::vector<double> &state, double t)> RootFct;
+    typedef std::function<double(const double* state, double t)> RootFct;
     typedef std::shared_ptr<RootFct> RootFct_ptr;
 
     class Simulator {

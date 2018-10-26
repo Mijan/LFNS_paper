@@ -13,6 +13,8 @@ namespace models {
 
         MeasurementModelData(std::string measurement_model_file_name);
 
+        MeasurementModelData(const MeasurementModelData &rhs);
+
         virtual ~MeasurementModelData();
 
         std::size_t getNumMeasurements() const;

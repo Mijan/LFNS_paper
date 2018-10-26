@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <set>
 #include "ChemicalReactionNetwork.h"
+#include "InputPulse.h"
 
 namespace models {
 
@@ -41,6 +42,7 @@ namespace models {
         }
 
         _updateTheta(theta);
+        _evaluateInput(state.data(), t, theta);
         _updateState(state.data());
         for (std::size_t prop_nbr = 0; prop_nbr < propensities.size(); prop_nbr++) {
             try {
@@ -95,9 +97,8 @@ namespace models {
             throw std::runtime_error(os.str());
         }
 
-        for (int state_nbr = 0; state_nbr < _base_data.getNumSpecies(); state_nbr++) {
-            *_state_ptrs[state_nbr] = state[state_nbr];
-        }
+        _evaluateInput(state, t, theta);
+        _updateState(state);
 
         std::size_t species_index = 0;
         for (mu::Parser &p : _rhs_parsers) {
@@ -120,6 +121,23 @@ namespace models {
 
     RhsFct_ptr ChemicalReactionNetwork::getRhsFct() {
         return std::make_shared<RhsFct>(std::bind(&ChemicalReactionNetwork::rhs, this, _1, _2, _3, _4));
+    }
+
+
+    double ChemicalReactionNetwork::root(const double *state, double t) {
+
+        double r = 0;
+        for (InputPulse &pulse : _inputs) {
+            for (int i = 0; i < pulse.pulse_beginnings.size(); i++) {
+                r *= (t - pulse.pulse_beginnings[i]) * (t - pulse.pulse_ends[i]);
+            }
+            r = r / pulse.pulse_ends.back();
+        }
+        return r;
+    }
+
+    RootFct_ptr ChemicalReactionNetwork::getRootFct(){
+        return std::make_shared<RootFct>(std::bind(&ChemicalReactionNetwork::root, this, _1, _2));
     }
 
     std::size_t ChemicalReactionNetwork::getNumReactions() { return _model_data.getNumReactions(); }
@@ -348,5 +366,6 @@ namespace models {
         }
         return propensity_str;
     }
+
 
 }

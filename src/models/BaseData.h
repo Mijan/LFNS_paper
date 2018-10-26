@@ -12,12 +12,15 @@
 
 namespace models {
     const static std::string TIME_NAME = "_t";
+
     class BaseData {
     public:
         BaseData(std::vector<std::string> parameter_names_,
                  std::vector<std::string> species_names_);
 
         BaseData();
+
+        BaseData(const BaseData &rhs);
 
         virtual ~BaseData();
 

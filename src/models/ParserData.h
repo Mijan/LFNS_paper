@@ -17,6 +17,8 @@ namespace models {
 
         ParserData(std::string file_name);
 
+        ParserData(const ParserData &data);
+
         virtual ~ParserData();
 
         const std::vector<std::string> &getNormalRandomNbrsName() const;

@@ -16,6 +16,8 @@ namespace models {
 
     BaseData::BaseData() : parameter_names(), species_names() {}
 
+    BaseData::BaseData(const BaseData &rhs) : parameter_names(rhs.parameter_names), species_names(rhs.species_names) {}
+
     BaseData::~BaseData() {}
 
     std::size_t BaseData::getNumParamters() const { return parameter_names.size(); }

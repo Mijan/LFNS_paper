@@ -38,6 +38,15 @@ namespace models {
         }
     }
 
+
+    ParserData::ParserData(const ParserData &data) : BaseData(data),
+                                                     _normal_random_nbr(data._normal_random_nbr),
+                                                     _uniform_random_nbr(data._uniform_random_nbr),
+                                                     _uniform_int_random_nbr(data._uniform_int_random_nbr),
+                                                     _normal_random_params(data._normal_random_params),
+                                                     _uniform_random_params(data._uniform_random_params),
+                                                     _uniform_int_random_params(data._uniform_int_random_params) {}
+
     ParserData::~ParserData() {}
 
     const std::vector<std::string> &ParserData::getNormalRandomNbrsName() const {

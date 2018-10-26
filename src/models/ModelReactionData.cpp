@@ -11,12 +11,14 @@ namespace models {
     ModelReactionData::ModelReactionData(std::vector<std::string> parameter_names_,
                                          std::vector<std::string> species_names_) : ParserData(parameter_names_,
                                                                                                species_names_),
+                                                                                    production_species(),
                                                                                     product_species(),
                                                                                     reaction_variables(),
                                                                                     propensities(),
                                                                                     stoichiometry_for_reaction() {}
 
-    ModelReactionData::ModelReactionData(std::string model_file_name) : ParserData(model_file_name), product_species(),
+    ModelReactionData::ModelReactionData(std::string model_file_name) : ParserData(model_file_name),
+                                                                        production_species(), product_species(),
                                                                         reaction_variables(), propensities(),
                                                                         stoichiometry_for_reaction() {
         io::ModelReactionReader reader(model_file_name);
@@ -26,6 +28,14 @@ namespace models {
         propensities = reader.readPropensities();
         createStoichiometry();
     }
+
+    ModelReactionData::ModelReactionData(const ModelReactionData &rhs) : ParserData(rhs),
+                                                                         production_species(rhs.production_species),
+                                                                         product_species(rhs.product_species),
+                                                                         reaction_variables(rhs.reaction_variables),
+                                                                         propensities(rhs.propensities),
+                                                                         stoichiometry_for_reaction(
+                                                                                 rhs.stoichiometry_for_reaction) {}
 
     std::size_t ModelReactionData::getNumReactions() const { return propensities.size(); }
 

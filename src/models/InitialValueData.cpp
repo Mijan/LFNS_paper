@@ -37,6 +37,12 @@ namespace models {
         }
     }
 
+    InitialValueData::InitialValueData(const InitialValueData &rhs) : ParserData(rhs),
+                                                                      _initial_values_by_species(
+                                                                              rhs._initial_values_by_species),
+                                                                      _initial_states(rhs._initial_states),
+                                                                      _initial_values(rhs._initial_values) {}
+
 
     InitialValueData::~InitialValueData() {};
 

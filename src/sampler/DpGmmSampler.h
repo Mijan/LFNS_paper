@@ -47,18 +47,6 @@ namespace sampler {
 
         double getTransformedLogLikelihood(const base::EiVector &trans_sample) override;
 
-        friend class ::boost::serialization::access;
-
-        template<class Archive>
-        friend void ::boost::serialization::save_construct_data(
-                Archive &ar, const ::sampler::DpGmmSampler *t,
-                const unsigned int file_version);
-
-        template<class Archive>
-        void serialize(Archive &ar, const unsigned int file_version) {
-            ar & boost::serialization::base_object<DensityEstimation>(*this);
-        }
-
     protected:
         DP_GMM::GaussMixtureComponentSet _mixture_components;
         base::UniformRealDistribution _dist;

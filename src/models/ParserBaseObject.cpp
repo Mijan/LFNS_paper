@@ -240,6 +240,14 @@ namespace models {
         return _base_data.isSpeciesName(species_name);
     }
 
+    void ParserBaseObject::addInputPulse(InputPulse pulse) {
+        if (_base_data.isParamName(pulse.input_name)) {
+            _inputs.push_back(pulse);
+            int param_index = _base_data.getParamIndex(pulse.input_name);
+            for (InputPulse &pulse: _inputs) { pulse.parameter_index = param_index; }
+        }
+    }
+
     void ParserBaseObject::_initializeParser(mu::Parser &p) {
         /*
          * This function initializes the parser, it can only be called after all pointers to the states and parameters have been set
@@ -323,6 +331,17 @@ namespace models {
             std::map<int, int>::iterator it;
             for (it = _input_parameter_ext_by_int.begin(); it != _input_parameter_ext_by_int.end(); it++) {
                 *_parameter_ptrs[it->first] = theta[it->second];
+            }
+        }
+    }
+
+    void ParserBaseObject::_evaluateInput(const double *state, double t, const std::vector<double> &theta) {
+        if (!_inputs.empty()) {
+            for (InputPulse &input : _inputs) {
+                if (input.pulseActive(t)) {
+                    *_parameter_ptrs[input.parameter_index] =
+                            *_parameter_ptrs[input.parameter_index] + input._input_strength;
+                }
             }
         }
     }

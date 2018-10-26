@@ -23,6 +23,11 @@ namespace models {
         }
     }
 
+    MeasurementModelData::MeasurementModelData(const MeasurementModelData &rhs) : ParserData(rhs), measurement_names(
+            rhs.measurement_names), measurement_equations_by_name(rhs.measurement_equations_by_name),
+                                                                                  log_likelihoods_by_name(
+                                                                                          rhs.log_likelihoods_by_name) {}
+
     MeasurementModelData::~MeasurementModelData() {}
 
     std::size_t MeasurementModelData::getNumMeasurements() const { return measurement_names.size(); }

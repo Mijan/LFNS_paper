@@ -25,7 +25,7 @@ namespace simulator {
     struct RhsData {
         RhsFct *rhs_fct;
         const std::vector<double> *theta;
-        std::shared_ptr<std::function<double(std::vector<double> &, double)> > root_fct_ptr;
+        RootFct_ptr root_fct_ptr;
         int num_states;
     };
 

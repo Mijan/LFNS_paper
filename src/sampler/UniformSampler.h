@@ -10,19 +10,6 @@
 #include "Sampler.h"
 
 namespace sampler {
-    class UniformSampler;
-}
-
-namespace boost {
-    namespace serialization {
-        template<class Archive>
-        inline void save_construct_data(Archive &ar,
-                                        const sampler::UniformSampler *t,
-                                        const unsigned int file_version);
-    } /* namespace serialization */
-} /* namespace boost */
-
-namespace sampler {
 
     class UniformSamplerData : public SamplerData {
     public:
@@ -62,19 +49,6 @@ namespace sampler {
 
         void setWidths(std::vector<double> width);
 
-        friend class ::boost::serialization::access;
-
-        template<class Archive>
-        friend void ::boost::serialization::save_construct_data(
-                Archive &ar, const ::sampler::UniformSampler *t,
-                const unsigned int file_version);
-
-        template<class Archive>
-        void serialize(Archive &ar, const unsigned int file_version) {
-            ar & boost::serialization::base_object<Sampler>(*this);
-        }
-
-
         virtual void writeToStream(std::ostream &output_file);
 
     private:
@@ -89,65 +63,6 @@ namespace sampler {
     };
 
     typedef std::shared_ptr<UniformSampler> UniformSampler_ptr;
-}
-
-
-namespace boost {
-    namespace serialization {
-        template<class Archive>
-        inline void save_construct_data(Archive &ar,
-                                        const sampler::UniformSampler *t,
-                                        const unsigned int file_version) {
-            int num_parameters = (t->_bounds).size();
-            ar << num_parameters;
-            for (int i = 0; i < t->_bounds.size(); i++) {
-                ar << t->_bounds[i].first;
-                ar << t->_bounds[i].second;
-            }
-
-            int width_size = t->_widths.size();
-            ar << width_size;
-
-            for (int j = 0; j < width_size; j++) {
-                ar << t->_widths[j];
-            }
-        }
-
-        template<class Archive>
-        inline void load_construct_data(Archive &ar, sampler::UniformSampler *t,
-                                        const unsigned int file_version) {
-
-
-            size_t num_parameters = 0;
-            ar >> num_parameters;
-            std::vector<std::pair<double, double> > bounds(0);
-            for (size_t i = 0; i < num_parameters; i++) {
-                std::pair<double, double> bound_pair = std::make_pair(0, 0);
-                ar >> bound_pair.first;
-                ar >> bound_pair.second;
-                bounds.push_back(bound_pair);
-            }
-
-            std::size_t size_widths;
-            ar >> size_widths;
-
-
-            sampler::UniformSamplerData data(bounds.size());
-            data.bounds = bounds;
-
-            if (size_widths > 0) {
-                std::vector<double> widths(size_widths);
-                for (std::size_t i = 0; i < size_widths; i++) {
-                    ar >> widths[i];
-                }
-                data.widths = widths;
-            }
-
-            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>();
-            // invoke inplace constructor to _initialize instance of my_class
-            ::new(t) sampler::UniformSampler(rng, data);
-        }
-    }
 }
 
 

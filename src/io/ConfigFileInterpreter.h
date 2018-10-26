@@ -9,6 +9,8 @@
 #include <vector>
 #include <map>
 #include "XmlFileReader.h"
+#include "XmlPropertyMap.h"
+#include "../base/Utils.h"
 
 namespace io {
 
@@ -48,8 +50,23 @@ namespace io {
 
         double getEpsilonForLFNS();
 
+        std::vector<double> getPulsePeriods(std::string experiment_name);
+
+        std::vector<double> getPulseStrengths(std::string experiment_name);
+
+        std::vector<double> getPulseDurations(std::string experiment_name);
+
+        std::vector<int> getNumPulse(std::string experiment_name);
+
+        std::vector<std::string> getPulseInputNames(std::string experiment_name);
+
+        std::vector<double> getStartingTimes(std::string experiment_name);
+
     protected:
         XmlFileReader _reader;
+
+        std::vector<std::string> _getInputValues(std::string experiment_name, std::string field_name);
+
 
     };
 }

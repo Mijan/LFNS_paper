@@ -14,6 +14,8 @@ namespace models {
 
         InitialValueData(std::string initial_value_file);
 
+        InitialValueData(const InitialValueData& rhs);
+
         virtual ~InitialValueData();
 
         void setInitialValues(std::string species, std::string initial_value);

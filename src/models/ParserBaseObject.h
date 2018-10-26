@@ -9,6 +9,7 @@
 #include "BaseObject.h"
 #include "../base/RandomDistributions.h"
 #include "ParserData.h"
+#include "InputPulse.h"
 
 namespace models {
     class ParserBaseObject : public BaseObject {
@@ -33,6 +34,8 @@ namespace models {
 
         bool isSpecies(std::string species_name);
 
+        void addInputPulse(InputPulse pulse);
+
 
     protected:
         base::RngPtr _rng;
@@ -43,6 +46,7 @@ namespace models {
         std::vector<base::NormalDistribution> _normal_dists;
         std::vector<base::UniformRealDistribution> _uniform_dists;
         std::vector<base::UniformIntDistribution> _uniform_int_dists;
+        std::vector<InputPulse> _inputs;
 
 
         std::vector<double> _parameter;
@@ -61,6 +65,8 @@ namespace models {
         void _createRandomNumbers();
 
         void _updateTheta(const std::vector<double> &theta);
+
+        void _evaluateInput(const double *state, double t, const std::vector<double> &theta);
 
         void _updateState(const double *state);
 

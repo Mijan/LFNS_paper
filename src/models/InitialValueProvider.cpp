@@ -46,6 +46,7 @@ namespace models {
                                                    const std::vector<double> &theta) {
         try {
             _updateTheta(theta);
+            _evaluateInput(state_0->data(), *t_0, theta);
             if (!_all_inputs_defined) {
                 std::stringstream os;
                 os << "The input order for InitialValueProvider must be defined before initial state can be computed!"

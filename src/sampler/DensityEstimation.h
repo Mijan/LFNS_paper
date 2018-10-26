@@ -23,22 +23,11 @@ namespace sampler {
 
         virtual double getLogLikelihood(const std::vector<double> &sample);
 
-        void setMean(base::EiVector mean);
-
-        void setEV(base::EiMatrixC evs, base::EiVectorC evals);
-
         virtual void updateTransformedDensitySamples(base::EiMatrix transformed_samples) = 0;
 
         virtual void sampleTransformed(base::EiVector &trans_sample) = 0;
 
         virtual double getTransformedLogLikelihood(const base::EiVector &trans_sample) = 0;
-
-        friend class ::boost::serialization::access;
-
-        template<class Archive>
-        void serialize(Archive &ar, const unsigned int version) {
-            ar & boost::serialization::base_object<Sampler>(*this);
-        }
 
     private:
         base::EiVector _trans_sample;

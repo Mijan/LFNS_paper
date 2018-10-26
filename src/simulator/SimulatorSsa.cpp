@@ -40,7 +40,7 @@ namespace simulator {
 
         if (_root_fct) {
             _root_sign = base::MathUtils::sgn<double>(
-                    (*_root_fct)(state, t));
+                    (*_root_fct)(state.data(), t));
         }
 
         (*_propensity_fct)(_propensities, state, t, theta);
@@ -92,7 +92,7 @@ namespace simulator {
         if (_root_fct) {
             double next_t = t;
             next_t += _time_to_next_reaction;
-            double root_fct_t = (*_root_fct)(state, next_t);
+            double root_fct_t = (*_root_fct)(state.data(), next_t);
             if (base::MathUtils::sgn<double>(root_fct_t) != _root_sign) {
                 _root_found = true;
                 t = _findRootTime(state, t, next_t, _root_sign);
@@ -107,7 +107,7 @@ namespace simulator {
     double SimulatorSsa::_findRootTime(std::vector<double> &system_state, double time_a, double time_b, int sgn_a) {
         double time_c = 0.5 * (time_a + time_b);
 
-        double root_fct_c = (*_root_fct)(system_state, time_c);
+        double root_fct_c = (*_root_fct)(system_state.data(), time_c);
         int sgn_c = base::MathUtils::sgn<double>(root_fct_c);
 
         if (time_b - time_a < 1e-8) {
