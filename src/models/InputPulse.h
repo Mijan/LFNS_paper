@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 namespace models {
 
@@ -26,6 +27,17 @@ namespace models {
         std::string input_name;
         double _input_strength;
         int parameter_index;
+    };
+
+    struct InputPulses {
+
+        InputPulses() : input_pram_indices(), modified_parameter(), pulses() {}
+
+        virtual ~InputPulses() {}
+
+        std::vector<double> modified_parameter;
+        std::set<int> input_pram_indices;
+        std::vector<InputPulse> pulses;
     };
 }
 

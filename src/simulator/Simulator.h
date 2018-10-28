@@ -13,8 +13,7 @@
 #include "../base/StoppingCriterion.h"
 
 namespace simulator {
-    typedef std::function<void(std::vector<double> &state, double &t, double final_t,
-                               const std::vector<double> &theta)> SimulationFct;
+    typedef std::function<void(std::vector<double> &state, double &t, double final_t)> SimulationFct;
     typedef std::shared_ptr<SimulationFct> SimulationFct_ptr;
 
     typedef std::function<double(const double* state, double t)> RootFct;
@@ -32,6 +31,7 @@ namespace simulator {
         }
 
         virtual SimulationFct_ptr getSimulationFct() = 0;
+        virtual void simulate(std::vector<double> &state, double &t, double final_time) = 0;
 
         virtual void clearStoppingCriterions() { _stopping_criterions.clear(); }
 

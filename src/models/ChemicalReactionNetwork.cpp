@@ -17,21 +17,19 @@ namespace models {
                                                                                              model_data.getNumReactions()),
                                                                                      _rhs_parsers(
                                                                                              model_data.getNumSpecies()),
-                                                                                     _model_data(model_data) {
-        _initialize();
-    }
+                                                                                     _model_data(model_data) {    }
 
     ChemicalReactionNetwork::~ChemicalReactionNetwork() {}
 
     void
-    ChemicalReactionNetwork::updatePropensities(std::vector<double> &propensities, std::vector<double> &state, double t,
-                                                const std::vector<double> &theta) {
+    ChemicalReactionNetwork::updatePropensities(std::vector<double> &propensities, std::vector<double> &state,
+                                                double t) {
 
-        if (!_all_inputs_defined) {
+        if (!_initialized) {
             std::stringstream os;
-            os << "The input order for ChemicalReactionNetwork must be defined before it can be simulated!"
+            os << "ChemicalReactionNetwork must be initialized before measurement can be computed!"
                << std::endl;
-            _printInputs();
+            if (!_allPointerSet()) { printPointer(os); }
             throw std::runtime_error(os.str());
         }
         if (propensities.size() != _propensity_parsers.size()) {
@@ -41,8 +39,7 @@ namespace models {
             throw std::runtime_error(os.str());
         }
 
-        _updateTheta(theta);
-        _evaluateInput(state.data(), t, theta);
+        if (_perturbation_fct) { (*_perturbation_fct)(state.data(), t); }
         _updateState(state.data());
         for (std::size_t prop_nbr = 0; prop_nbr < propensities.size(); prop_nbr++) {
             try {
@@ -64,15 +61,16 @@ namespace models {
 
     PropensityFct_ptr ChemicalReactionNetwork::getPropensityFct() {
         return std::make_shared<PropensityFct>(
-                std::bind(&ChemicalReactionNetwork::updatePropensities, this, _1, _2, _3, _4));
+                std::bind(&ChemicalReactionNetwork::updatePropensities, this, _1, _2, _3));
     }
 
     void ChemicalReactionNetwork::fireReaction(std::vector<double> &state, int reaction_index) {
-        if (!_all_inputs_defined) {
+
+        if (!_initialized) {
             std::stringstream os;
-            os << "The input order for ChemicalReactionNetwork must be defined before it can be simulated!"
+            os << "InitialValueProvider must be initialized before measurement can be computed!"
                << std::endl;
-            _printInputs();
+            if (!_allPointerSet()) { printPointer(os); }
             throw std::runtime_error(os.str());
         }
         const std::map<std::size_t, int> &stoichiometry_map = _model_data.stoichiometry_for_reaction[reaction_index];
@@ -87,17 +85,18 @@ namespace models {
     }
 
 
-    void ChemicalReactionNetwork::rhs(double *dx, const double *state, double t, const std::vector<double> &theta) {
+    void ChemicalReactionNetwork::rhs(double *dx, const double *state, double t) {
 
-        if (!_all_inputs_defined) {
+
+        if (!_initialized) {
             std::stringstream os;
-            os << "The input order for ChemicalReactionNetwork must be defined before it can be simulated!"
+            os << "ChemicalReactionNetwork must be initialized before measurement can be computed!"
                << std::endl;
-            _printInputs();
+            if (!_allPointerSet()) { printPointer(os); }
             throw std::runtime_error(os.str());
         }
 
-        _evaluateInput(state, t, theta);
+        if (_perturbation_fct) { (*_perturbation_fct)(state, t); }
         _updateState(state);
 
         std::size_t species_index = 0;
@@ -120,25 +119,9 @@ namespace models {
     }
 
     RhsFct_ptr ChemicalReactionNetwork::getRhsFct() {
-        return std::make_shared<RhsFct>(std::bind(&ChemicalReactionNetwork::rhs, this, _1, _2, _3, _4));
+        return std::make_shared<RhsFct>(std::bind(&ChemicalReactionNetwork::rhs, this, _1, _2, _3));
     }
 
-
-    double ChemicalReactionNetwork::root(const double *state, double t) {
-
-        double r = 0;
-        for (InputPulse &pulse : _inputs) {
-            for (int i = 0; i < pulse.pulse_beginnings.size(); i++) {
-                r *= (t - pulse.pulse_beginnings[i]) * (t - pulse.pulse_ends[i]);
-            }
-            r = r / pulse.pulse_ends.back();
-        }
-        return r;
-    }
-
-    RootFct_ptr ChemicalReactionNetwork::getRootFct(){
-        return std::make_shared<RootFct>(std::bind(&ChemicalReactionNetwork::root, this, _1, _2));
-    }
 
     std::size_t ChemicalReactionNetwork::getNumReactions() { return _model_data.getNumReactions(); }
 

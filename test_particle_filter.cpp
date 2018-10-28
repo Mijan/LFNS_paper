@@ -184,7 +184,7 @@ int testLacGfp() {
 
     models::ChemicalReactionNetwork lacgfp(model_file);
     lacgfp.fixParameter("IPTG", 10);
-    lacgfp.setInputParameterOrder(lacgfp.getUnfixedParameterNames());
+    lacgfp.setParameterOrder(lacgfp.getUnfixedParameterNames());
 
 
     base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
@@ -194,16 +194,16 @@ int testLacGfp() {
 
     models::InitialValueData init_data(initial_value_file);
     models::InitialValueProvider lac_init_value(rng, init_data);
-    lac_init_value.setInputParameterOrder(lacgfp.getUnfixedParameterNames());
-    lac_init_value.setInputStateOrder(lacgfp.getSpeciesNames());
+    lac_init_value.setParameterOrder(lacgfp.getUnfixedParameterNames());
+    lac_init_value.setStateOrder(lacgfp.getSpeciesNames());
 
 
     models::MeasurementModelData measure_data(measurement_file);
     models::MeasurementModel lac_measure(rng, measure_data);
     lac_measure.fixParameter("fl_mean", 22);
     lac_measure.fixParameter("fl_sigma", 5);
-    lac_measure.setInputParameterOrder(lacgfp.getUnfixedParameterNames());
-    lac_measure.setInputStateOrder(lacgfp.getSpeciesNames());
+    lac_measure.setParameterOrder(lacgfp.getUnfixedParameterNames());
+    lac_measure.setStateOrder(lacgfp.getSpeciesNames());
 
     particle_filter::ParticleFilter part_filter(rng, simulator_ssa.getSimulationFct(), lac_measure.getLikelihoodFct(),
                                                 lac_init_value.getInitialStateFct(), lacgfp.getNumSpecies(), 1000);
@@ -254,7 +254,7 @@ int testBD() {
     std::string data_file = "/home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/tmp/bd_data.txt";
 
     models::ChemicalReactionNetwork bd_model(model_file);
-    bd_model.setInputParameterOrder(bd_model.getUnfixedParameterNames());
+    bd_model.setParameterOrder(bd_model.getUnfixedParameterNames());
 
 
     base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
@@ -264,14 +264,14 @@ int testBD() {
 
     models::InitialValueData init_data(initial_value_file);
     models::InitialValueProvider bd_init_value(rng, init_data);
-    bd_init_value.setInputParameterOrder(bd_model.getUnfixedParameterNames());
-    bd_init_value.setInputStateOrder(bd_model.getSpeciesNames());
+    bd_init_value.setParameterOrder(bd_model.getUnfixedParameterNames());
+    bd_init_value.setStateOrder(bd_model.getSpeciesNames());
 
 
     models::MeasurementModelData measure_data(measurement_file);
     models::MeasurementModel bd_measure(rng, measure_data);
-    bd_measure.setInputParameterOrder(bd_model.getUnfixedParameterNames());
-    bd_measure.setInputStateOrder(bd_model.getSpeciesNames());
+    bd_measure.setParameterOrder(bd_model.getUnfixedParameterNames());
+    bd_measure.setStateOrder(bd_model.getSpeciesNames());
 
     particle_filter::ParticleFilter part_filter(rng, simulator_ssa.getSimulationFct(), bd_measure.getLikelihoodFct(),
                                                 bd_init_value.getInitialStateFct(), bd_model.getNumSpecies(), 200);

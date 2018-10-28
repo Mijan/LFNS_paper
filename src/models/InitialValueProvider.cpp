@@ -23,7 +23,6 @@ namespace models {
             _output_state_ordering[i] = i;
             _output_state_mapping[i] = i;
         }
-        _initialize();
     }
 
     InitialValueProvider::InitialValueProvider(InitialValueData data) : ParserBaseObject(data), _initialized(false),
@@ -36,29 +35,25 @@ namespace models {
             _output_state_ordering[i] = i;
             _output_state_mapping[i] = i;
         }
-        _initialize();
-
     }
 
     InitialValueProvider::~InitialValueProvider() {}
 
-    void InitialValueProvider::computeInitialState(std::vector<double> *state_0, double *t_0,
-                                                   const std::vector<double> &theta) {
+    void InitialValueProvider::computeInitialState(std::vector<double> *state_0, double *t_0) {
         try {
-            _updateTheta(theta);
-            _evaluateInput(state_0->data(), *t_0, theta);
-            if (!_all_inputs_defined) {
+            if (!_initialized) {
                 std::stringstream os;
-                os << "The input order for InitialValueProvider must be defined before initial state can be computed!"
+                os << "InitialValueProvider must be initialized before measurement can be computed!"
                    << std::endl;
-                _printInputs();
+                if (!_allPointerSet()) { printPointer(os); }
                 throw std::runtime_error(os.str());
             }
+            *t_0 = _initial_time.Eval();
+            if (_perturbation_fct) { (*_perturbation_fct)(nullptr, *t_0); }
             _createRandomNumbers();
             for (std::size_t state_index = 0; state_index < state_0->size(); state_index++) {
                 (*state_0)[_output_state_ordering[state_index]] = _initial_state_equations[state_index].Eval();
             }
-            *t_0 = _initial_time.Eval();
 
         } catch (mu::Parser::exception_type &e) {
             std::ostringstream os;
@@ -75,7 +70,7 @@ namespace models {
 
     InitialStateFct_ptr InitialValueProvider::getInitialStateFct() {
         return std::make_shared<InitialStateFct>(
-                std::bind(&InitialValueProvider::computeInitialState, this, _1, _2, _3));
+                std::bind(&InitialValueProvider::computeInitialState, this, _1, _2));
     }
 
 

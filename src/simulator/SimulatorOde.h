@@ -19,12 +19,11 @@
 
 namespace simulator {
 
-    typedef std::function<void(double *dx, const double *state, double t, const std::vector<double> &theta)> RhsFct;
+    typedef std::function<void(double *dx, const double *state, double t)> RhsFct;
     typedef std::shared_ptr<RhsFct> RhsFct_ptr;
 
     struct RhsData {
         RhsFct *rhs_fct;
-        const std::vector<double> *theta;
         RootFct_ptr root_fct_ptr;
         int num_states;
     };
@@ -47,10 +46,9 @@ namespace simulator {
 
         void initialize(std::vector<double> &state, double &t);
 
-        virtual void
-        simulate(std::vector<double> &state, double &t, double final_t, const std::vector<double> &theta);
+        virtual void simulate(std::vector<double> &state, double &t, double final_t);
 
-        virtual void continueSimulate(double final_time, const std::vector<double> &theta);
+        virtual void continueSimulate(double final_time);
 
         virtual SimulationFct_ptr getSimulationFct();
 

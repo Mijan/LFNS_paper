@@ -12,8 +12,7 @@
 #include "InitialValueData.h"
 
 namespace models {
-    typedef std::function<void(std::vector<double> *state_0, double *t_0,
-                               const std::vector<double> &theta)> InitialStateFct;
+    typedef std::function<void(std::vector<double> *state_0, double *t_0)> InitialStateFct;
     typedef std::shared_ptr<InitialStateFct> InitialStateFct_ptr;
 
     class InitialValueProvider : public ParserBaseObject {
@@ -24,8 +23,7 @@ namespace models {
 
         virtual ~InitialValueProvider();
 
-        virtual void computeInitialState(std::vector<double> *state_0, double *t_0,
-                                             const std::vector<double> &theta);
+        virtual void computeInitialState(std::vector<double> *state_0, double *t_0a);
 
         InitialStateFct_ptr getInitialStateFct();
 

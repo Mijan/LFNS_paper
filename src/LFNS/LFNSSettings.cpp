@@ -118,6 +118,20 @@ namespace lfns {
             }
             stream << std::endl;
         }
+
+        if (!input_datas.empty()) {
+            stream << "\n\nThe following experiments will be performed: " << std::endl;
+            std::map<std::string, std::vector<InputData> >::iterator it;
+            for (it = input_datas.begin(); it != input_datas.end(); it++) {
+                stream << "Experiment " << it->first << ": " << std::endl;
+                for (InputData &input_data : it->second) {
+                    stream << "pulses of strength " << input_data.pulse_strenght << " of parameter " << input_data.pulse_inpt_name
+                           << " for " << input_data.pulse_duration << " time units, every " << input_data.pulse_period
+                           << ", starting from " << input_data.starting_time << std::endl;
+                }
+            }
+            stream << std::endl;
+        }
     }
 
 }

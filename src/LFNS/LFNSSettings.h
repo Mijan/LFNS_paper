@@ -17,8 +17,8 @@ namespace lfns {
     enum class MODEL_TYPE {
         ODE, STOCH
     };
-    static std::map<MODEL_TYPE, std::string> MODEL_TYPE_NAME = {{MODEL_TYPE::ODE,   "DET"},
-                                                                {MODEL_TYPE::STOCH, "STOCH"}};
+    static std::map<std::string, MODEL_TYPE> MODEL_TYPE_NAME = {{"DET",   MODEL_TYPE::ODE},
+                                                                {"STOCH", MODEL_TYPE::STOCH}};
     enum class SAMPLER_TYPE {
         UNIFORM, NORMAL
     };
@@ -85,6 +85,7 @@ namespace lfns {
         std::vector<std::string> experiments_for_LFNS;
         std::string previous_log_file = "";
         DENSITY_ESTIMATOR estimator = REJECT_DPGMM;
+        MODEL_TYPE model_type = MODEL_TYPE::STOCH;
         double log_termination = -4.6;
         bool use_premature_cancelation = false;
         int print_interval = 1;

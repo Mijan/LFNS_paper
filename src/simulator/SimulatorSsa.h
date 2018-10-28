@@ -13,27 +13,24 @@
 
 namespace simulator {
 
-    typedef std::function<void(std::vector<double> &propensities, std::vector<double> &state, double t,
-                               const std::vector<double> &theta)> PropensityFct;
+    typedef std::function<void(std::vector<double> &propensities, std::vector<double> &state, double t)> PropensityFct;
     typedef std::shared_ptr<PropensityFct> PropensityFct_ptr;
 
     typedef std::function<void(std::vector<double> &state, int reaction_index)> ReactionFct;
     typedef std::shared_ptr<ReactionFct> ReactionFct_ptr;
 
-    class SimulatorSsa : public Simulator{
+    class SimulatorSsa : public Simulator {
     public:
         SimulatorSsa(base::RngPtr rng, PropensityFct_ptr propensity_fct, ReactionFct_ptr reaction_fct,
                      int num_reactions);
 
         virtual ~SimulatorSsa();
 
-        virtual void
-        simulate(std::vector<double> &state, double &t, double final_time, const std::vector<double> &theta);
+        virtual void simulate(std::vector<double> &state, double &t, double final_time);
 
         virtual SimulationFct_ptr getSimulationFct();
 
-        void
-        simulateReaction(std::vector<double> &state, double &t, double final_time, const std::vector<double> &theta);
+        void simulateReaction(std::vector<double> &state, double &t, double final_time);
 
     private:
         base::RngPtr _rng;
@@ -45,12 +42,11 @@ namespace simulator {
         ReactionFct_ptr _reaction_fct;
         int _root_sign;
 
-        void
-        _simulateSystem(std::vector<double> &state, double &t, double final_time, const std::vector<double> &theta);
+        void _simulateSystem(std::vector<double> &state, double &t, double final_time);
 
         double _getTimeToNextReaction(double prop_sum);
 
-        void _checkRoot(std::vector<double> &state, double &t);
+        void _checkRoot(std::vector<double> &state, double &t, double next_t);
 
         double _findRootTime(std::vector<double> &state, double time_a, double time_b, int sgn_a);
     };

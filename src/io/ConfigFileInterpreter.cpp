@@ -280,7 +280,10 @@ namespace io {
     std::vector<std::string>
     ConfigFileInterpreter::_getInputValues(std::string experiment_name, std::string field_name) {
         std::vector<std::string> entries;
-        std::vector<XmlMap> input_entries = _reader.getEntryMaps("inputs", "input");
+        std::vector<XmlMap> input_entries;
+        try {
+            input_entries = _reader.getEntryMaps("inputs", "input");
+        } catch (const std::exception &e) { return entries; }
 
         for (XmlMap input_entry: input_entries) {
             std::string param_name_str = input_entry["experiments"].entry;

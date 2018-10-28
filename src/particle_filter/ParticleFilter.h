@@ -11,27 +11,27 @@
 #include "../base/StoppingCriterion.h"
 
 namespace particle_filter {
+    typedef std::function<void(const std::vector<double> &theta)> SetParameterFct;
+    typedef std::shared_ptr<SetParameterFct> SetParameterFct_ptr;
 
-    typedef std::function<void(std::vector<double> &state, double &t, double final_t,
-                               const std::vector<double> &theta)> SimulationFct;
+    typedef std::function<void(std::vector<double> &state, double &t, double final_t)> SimulationFct;
     typedef std::shared_ptr<SimulationFct> SimulationFct_ptr;
 
-
     typedef std::function<double(const std::vector<double> &state, const std::vector<double> &data,
-                                 const std::vector<double> &theta)> LikelihoodFct;
+                                 double t)> LikelihoodFct;
     typedef std::shared_ptr<LikelihoodFct> LikelihoodFct_ptr;
 
-    typedef std::function<void(std::vector<double> *state_0, double *t_0,
-                               const std::vector<double> &theta)> InitialStateFct;
+    typedef std::function<void(std::vector<double> *state_0, double *t_0)> InitialStateFct;
     typedef std::shared_ptr<InitialStateFct> InitialStateFct_ptr;
 
 
-    typedef std::function<double(const std::vector<double> &)> LogLikelihodEvalFct;
+    typedef std::function<double(const std::vector<double> &theta)> LogLikelihodEvalFct;
     typedef std::shared_ptr<LogLikelihodEvalFct> LogLikelihodEvalFct_ptr;
 
     class ParticleFilter {
     public:
-        ParticleFilter(base::RngPtr rng, SimulationFct_ptr simulation_fct, LikelihoodFct_ptr likelihood_fct,
+        ParticleFilter(base::RngPtr rng, SetParameterFct_ptr setting_parameter_fct, SimulationFct_ptr simulation_fct,
+                       LikelihoodFct_ptr likelihood_fct,
                        InitialStateFct_ptr initial_state_fct, int num_states, int num_particles = 1000);
 
         virtual ~ParticleFilter();
@@ -41,14 +41,12 @@ namespace particle_filter {
                              const std::vector<double> &theta);
 
         virtual double computeLogLikelihoodNoResampling(const std::vector<std::vector<double> > &data,
-                                                        const std::vector<double> &times,
-                                                        const std::vector<double> &theta);
+                                                        const std::vector<double> &times);
 
         LogLikelihodEvalFct_ptr getLikelihoodEvaluationForData(const std::vector<std::vector<double> > *data,
                                                                const std::vector<double> *times);
 
-        virtual double
-        _runFilteringStep(const std::vector<double> &data, double final_time, const std::vector<double> &theta);
+        virtual double _runFilteringStep(const std::vector<double> &data, double final_time);
 
         void setThresholdPtr(double *threshold);
 
@@ -57,6 +55,7 @@ namespace particle_filter {
 
     protected:
         base::RngPtr _rng;
+        SetParameterFct_ptr _setting_parameter_fct;
         SimulationFct_ptr _simulation_fct;
         LikelihoodFct_ptr _likelihood_fct;
         InitialStateFct_ptr _initial_state_fct;
@@ -64,7 +63,7 @@ namespace particle_filter {
 
         SmcParticleSet_ptr _smc_particles;
         std::vector<double> _log_likelihoods_tmps;
-        double* _threshold_ptr;
+        double *_threshold_ptr;
 
         base::StoppingCriterions _stopping_criterions;
     };

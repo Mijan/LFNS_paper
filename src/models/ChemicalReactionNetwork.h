@@ -11,18 +11,14 @@
 #include "ModelReactionData.h"
 
 namespace models {
-    typedef std::function<void(std::vector<double> &propensities, std::vector<double> &state, double t,
-                               const std::vector<double> &theta)> PropensityFct;
+    typedef std::function<void(std::vector<double> &propensities, std::vector<double> &state, double t)> PropensityFct;
     typedef std::shared_ptr<PropensityFct> PropensityFct_ptr;
 
     typedef std::function<void(std::vector<double> &state, int reaction_index)> ReactionFct;
     typedef std::shared_ptr<ReactionFct> ReactionFct_ptr;
 
-    typedef std::function<void(double *dx, const double *state, double t, const std::vector<double> &theta)> RhsFct;
+    typedef std::function<void(double *dx, const double *state, double t)> RhsFct;
     typedef std::shared_ptr<RhsFct> RhsFct_ptr;
-
-    typedef std::function<double(const double *state, double t)> RootFct;
-    typedef std::shared_ptr<RootFct> RootFct_ptr;
 
 
     class ChemicalReactionNetwork : public ParserBaseObject {
@@ -31,8 +27,7 @@ namespace models {
 
         virtual ~ChemicalReactionNetwork();
 
-        void updatePropensities(std::vector<double> &propensities, std::vector<double> &state, double t,
-                                const std::vector<double> &theta);
+        void updatePropensities(std::vector<double> &propensities, std::vector<double> &state, double t);
 
         PropensityFct_ptr getPropensityFct();
 
@@ -40,14 +35,9 @@ namespace models {
 
         ReactionFct_ptr getReactionFct();
 
-        void rhs(double *dx, const double *state, double t, const std::vector<double> &theta);
+        void rhs(double *dx, const double *state, double t);
 
         RhsFct_ptr getRhsFct();
-
-        double root(const double *state, double t);
-
-        RootFct_ptr getRootFct();
-
 
         std::size_t getNumReactions();
 
@@ -74,7 +64,6 @@ namespace models {
                                               const std::map<size_t, std::vector<size_t> > &_reaction_nbr_by_species);
 
         std::string _getDetMassActionKinetics(std::size_t reaction_nbr);
-
     };
 
     typedef std::shared_ptr<ChemicalReactionNetwork> ChemicalReactionNetwork_ptr;

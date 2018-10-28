@@ -2,6 +2,7 @@
 // Created by jan on 12/10/18.
 ///
 
+#include <set>
 #include "ParserBaseObject.h"
 #include "../base/MathUtils.h"
 
@@ -17,16 +18,12 @@ namespace models {
                                                                                            parser_data.getNumUniformIntNumbers()),
                                                                                    _normal_dists(), _uniform_dists(),
                                                                                    _uniform_int_dists(),
-                                                                                   _parameter(
-                                                                                           parser_data.getNumParamters()),
                                                                                    _state(parser_data.getNumSpecies()),
                                                                                    _time(0),
-                                                                                   _input_parameter_ext_by_int(),
                                                                                    _input_state_ext_by_int(),
                                                                                    _num_input_param(
                                                                                            parser_data.getNumParamters()),
-                                                                                   _all_inputs_defined(false),
-                                                                                   _fixed_parameters() {
+                                                                                   _perturbation_fct(nullptr) {
 
         const std::vector<std::string> &normal_random_num = _parser_data.getNormalRandomNbrsName();
         const std::vector<std::pair<double, double> > &normal_params = _parser_data.getNormalRandomParams();
@@ -73,10 +70,6 @@ namespace models {
             _state_ptrs[i] = &_state[i];
             _input_state_ext_by_int[i] = i;
         }
-        for (int i = 0; i < _base_data.getNumParamters(); i++) {
-            _parameter_ptrs[i] = &_parameter[i];
-            _input_parameter_ext_by_int[i] = i;
-        }
         _time_ptr = &_time;
     }
 
@@ -90,16 +83,12 @@ namespace models {
                                                                          parser_data.getNumUniformIntNumbers()),
                                                                  _normal_dists(), _uniform_dists(),
                                                                  _uniform_int_dists(),
-                                                                 _parameter(
-                                                                         parser_data.getNumParamters()),
                                                                  _state(parser_data.getNumSpecies()),
                                                                  _time(0),
-                                                                 _input_parameter_ext_by_int(),
                                                                  _input_state_ext_by_int(),
                                                                  _num_input_param(
                                                                          parser_data.getNumParamters()),
-                                                                 _all_inputs_defined(false),
-                                                                 _fixed_parameters() {
+                                                                 _perturbation_fct(nullptr) {
 
         if (parser_data.getNumNormalNumbers() > 0 || parser_data.getNumUniformNumbers() > 0 ||
             parser_data.getNumUniformIntNumbers() > 0) {
@@ -112,13 +101,11 @@ namespace models {
             _state_ptrs[i] = &_state[i];
             _input_state_ext_by_int[i] = i;
         }
-        for (int i = 0; i < _base_data.getNumParamters(); i++) {
-            _parameter_ptrs[i] = &_parameter[i];
-            _input_parameter_ext_by_int[i] = i;
-        }
         _time_ptr = &_time;
     }
 
+
+    ParserBaseObject::~ParserBaseObject() {}
 
     void ParserBaseObject::printInfo(std::ostream &os) const {
         BaseObject::printInfo(os);
@@ -156,69 +143,12 @@ namespace models {
 
     }
 
-    void ParserBaseObject::fixParameter(std::string param_name, double val) {
-        bool param_found = _base_data.isParamName(param_name);
-        if (param_found) {
-            try {
-                _parameter[_base_data.getParamIndex(param_name)] = val;
-            } catch (const std::exception &e) {
-                std::ostringstream os;
-                os << "Failed to fix parameter " << param_name << ":" << std::endl;
-                os << "\t" << e.what() << std::endl;
-                throw std::runtime_error(os.str());
-            }
-            _fixed_parameters.push_back(param_name);
-            _input_parameter_ext_by_int.erase(_base_data.getParamIndex(param_name));
-        } else {
-            std::cerr << "Tried to fix parameter " << param_name << ", but no such parameter defined." << std::endl;
-        }
-        _all_inputs_defined = _allInputsDefined();
-    }
-
-    std::vector<std::string> ParserBaseObject::getUnfixedParameterNames() const {
-        std::vector<std::string> param_names = getParameterNames();
-        std::vector<std::string>::iterator it;
-        for (std::string fixed_param: _fixed_parameters) {
-            it = std::find(param_names.begin(), param_names.end(), fixed_param);
-            param_names.erase(it);
-        }
-
-        std::vector<std::string> param_names_;
-        for (std::map<int, int>::const_iterator it = _input_parameter_ext_by_int.begin();
-             it != _input_parameter_ext_by_int.end(); it++) {
-            param_names_.push_back(_base_data.getParameterNames()[it->first]);
-        }
-        return param_names;
-
-    }
-
     void ParserBaseObject::setPointer(double *ptr, std::string name) {
         BaseObject::setPointer(ptr, name);
         if (_allPointerSet()) { _initialize(); }
     }
 
-    /* TODO this solution is not very elegant. ParserBaseObject should have no information about input parameter, since
-     * this is something only the model files CRN and InputProvider and MeasurementModels have to deal with, nonetheless
-     * we need these functions for all of the above. maybe find a common intemediate class?
-    */
-    void ParserBaseObject::setInputParameterOrder(const std::vector<std::string> parameter_order) {
-        _input_parameter_ext_by_int.clear();
-        _num_input_param = parameter_order.size();
-        for (int i = 0; i < parameter_order.size(); i++) {
-            std::string param_name = parameter_order[i];
-            bool is_param = _base_data.isParamName(param_name);
-            bool is_fixed = std::find(_fixed_parameters.begin(), _fixed_parameters.end(), param_name) !=
-                            _fixed_parameters.end();
-            if (is_param && !is_fixed) {
-                int param_index = _base_data.getParamIndex(param_name);
-                _input_parameter_ext_by_int[param_index] = i;
-            }
-        }
-
-        _all_inputs_defined = _allInputsDefined();
-    }
-
-    void ParserBaseObject::setInputStateOrder(std::vector<std::string> state_order) {
+    void ParserBaseObject::setStateOrder(std::vector<std::string> state_order) {
         _input_state_ext_by_int.clear();
         for (int i = 0; i < state_order.size(); i++) {
             std::string state_name = state_order[i];
@@ -228,7 +158,6 @@ namespace models {
                 _input_state_ext_by_int[state_index] = i;
             }
         }
-        _all_inputs_defined = _allInputsDefined();
     }
 
 
@@ -240,12 +169,8 @@ namespace models {
         return _base_data.isSpeciesName(species_name);
     }
 
-    void ParserBaseObject::addInputPulse(InputPulse pulse) {
-        if (_base_data.isParamName(pulse.input_name)) {
-            _inputs.push_back(pulse);
-            int param_index = _base_data.getParamIndex(pulse.input_name);
-            for (InputPulse &pulse: _inputs) { pulse.parameter_index = param_index; }
-        }
+    void ParserBaseObject::setPerturbationFct(PerturbationFct_ptr perturb_fct) {
+        _perturbation_fct = perturb_fct;
     }
 
     void ParserBaseObject::_initializeParser(mu::Parser &p) {
@@ -317,69 +242,6 @@ namespace models {
         }
         for (std::size_t i = 0; i < _uniform_int_dists.size(); i++) {
             _uniform_int_numbers[i] = (_uniform_int_dists[i])(*_rng);
-        }
-    }
-
-    void ParserBaseObject::_updateTheta(const std::vector<double> &theta) {
-        if (!_input_parameter_ext_by_int.empty() && *_parameter_ptrs[_input_parameter_ext_by_int[0]] != theta[0]) {
-            if (theta.size() != _num_input_param) {
-                std::stringstream ss;
-                ss << "Expected " << _num_input_param << " parameters, but provided theta has "
-                   << theta.size() << " entries!" << std::endl;
-                throw std::runtime_error(ss.str());
-            }
-            std::map<int, int>::iterator it;
-            for (it = _input_parameter_ext_by_int.begin(); it != _input_parameter_ext_by_int.end(); it++) {
-                *_parameter_ptrs[it->first] = theta[it->second];
-            }
-        }
-    }
-
-    void ParserBaseObject::_evaluateInput(const double *state, double t, const std::vector<double> &theta) {
-        if (!_inputs.empty()) {
-            for (InputPulse &input : _inputs) {
-                if (input.pulseActive(t)) {
-                    *_parameter_ptrs[input.parameter_index] =
-                            *_parameter_ptrs[input.parameter_index] + input._input_strength;
-                }
-            }
-        }
-    }
-
-    bool ParserBaseObject::_allInputsDefined() {
-        for (int i = 0; i < _base_data.getNumParamters(); i++) {
-            bool param_defined = false;
-            if (_input_parameter_ext_by_int.count(i)) { param_defined = true; }
-            std::string param_name = _base_data.getParameterNames()[i];
-            if (std::find(_fixed_parameters.begin(), _fixed_parameters.end(), param_name) !=
-                _fixed_parameters.end()) { param_defined = true; }
-            if (!param_defined) { return false; }
-        }
-
-        for (int i = 0; i < _base_data.getNumSpecies(); i++) {
-            if (!_input_state_ext_by_int.count(i)) { return false; }
-        }
-        return true;
-    }
-
-
-    void ParserBaseObject::_printInputs() {
-        std::cout << "Parameters:" << std::endl;
-        for (int i = 0; i < _base_data.getNumParamters(); i++) {
-            std::string param_name = _base_data.getParameterNames()[i];
-            std::cout << param_name << ":\t";
-            if (_input_parameter_ext_by_int.count(i)) { std::cout << " input nbr " << _input_parameter_ext_by_int[i]; }
-            if (std::find(_fixed_parameters.begin(), _fixed_parameters.end(), param_name) !=
-                _fixed_parameters.end()) { std::cout << "fixed to " << *_parameter_ptrs[i]; }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        std::cout << "Species:" << std::endl;
-        for (int i = 0; i < _base_data.getNumSpecies(); i++) {
-            std::string species_name = _base_data.getSpeciesNames()[i];
-            std::cout << species_name << ":\t";
-            if (!_input_state_ext_by_int.count(i)) { std::cout << " input nbr " << _input_state_ext_by_int[i]; }
-            std::cout << std::endl;
         }
     }
 

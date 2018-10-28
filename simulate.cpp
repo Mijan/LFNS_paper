@@ -21,17 +21,17 @@ int main() {
     base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
 
     models::ChemicalReactionNetwork dynamics(model_file);
-    dynamics.setInputParameterOrder(dynamics.getParameterNames());
+    dynamics.setParameterOrder(dynamics.getParameterNames());
 
     models::InitialValueData init_data(initial_value_file);
     models::InitialValueProvider init_value(init_data);
-    init_value.setInputParameterOrder(dynamics.getParameterNames());
+    init_value.setParameterOrder(dynamics.getParameterNames());
 
 
     models::MeasurementModelData measure_data(measurement_file);
     models::MeasurementModel measurement(rng, measure_data);
-    measurement.setInputParameterOrder(dynamics.getParameterNames());
-    measurement.setInputStateOrder(dynamics.getSpeciesNames());
+    measurement.setParameterOrder(dynamics.getParameterNames());
+    measurement.setStateOrder(dynamics.getSpeciesNames());
 
 //        simulator::RhsFct_ptr rhs_fct = std::make_shared<simulator::RhsFct>(rhs_BD);
     simulator::OdeSettings settings;

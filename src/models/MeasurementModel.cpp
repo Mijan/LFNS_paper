@@ -15,32 +15,25 @@ namespace models {
               _log_likelihood_parsers(measurement_model_data.getNumMeasurements()),
               _measurement_model_data(measurement_model_data),
               _measurement_ptr(measurement_model_data.getNumMeasurements()),
-              _measurement(measurement_model_data.getNumMeasurements()), _output_measurement_ext_by_int(),
-              _input_measurement_ext_by_int() {
+              _measurement(measurement_model_data.getNumMeasurements()) {
 
-        for (int i = 0; i < measurement_model_data.getNumMeasurements(); i++) {
-            _measurement_ptr[i] = &_measurement[i];
-            _output_measurement_ext_by_int[i] = i;
-            _input_measurement_ext_by_int[i] = i;
-        }
-        _initialize();
+        for (int i = 0;
+             i < measurement_model_data.getNumMeasurements(); i++) { _measurement_ptr[i] = &_measurement[i]; }
     }
 
     MeasurementModel::~MeasurementModel() {}
 
     void
-    MeasurementModel::computeMeasurement(std::vector<double> *measurement, const std::vector<double> &state, double t,
-                                         const std::vector<double> &theta) {
+    MeasurementModel::computeMeasurement(std::vector<double> *measurement, const std::vector<double> &state, double t) {
 
-        if (!_all_inputs_defined) {
+        if (!_initialized) {
             std::stringstream os;
-            os << "The input order for MeasurementModel must be defined before measurement can be computed!"
+            os << "MeasurementModel must be initialized before measurement can be computed!"
                << std::endl;
-            _printInputs();
+            if (!_allPointerSet()) { printPointer(os); }
             throw std::runtime_error(os.str());
         }
-        _updateTheta(theta);
-        _evaluateInput(state.data(), t, theta);
+        if (_perturbation_fct) { (*_perturbation_fct)(state.data(), t); }
         _updateState(state.data());
         _createRandomNumbers();
 
@@ -52,7 +45,7 @@ namespace models {
         }
         for (std::size_t i = 0; i < _measurement_parsers.size(); i++) {
             try {
-                (*measurement)[_output_measurement_ext_by_int[i]] = _measurement_parsers[i].Eval();
+                (*measurement)[i] = _measurement_parsers[i].Eval();
             } catch (mu::ParserError &e) {
                 std::ostringstream os;
                 os << "Parser error for equation measurement simulation"
@@ -73,15 +66,15 @@ namespace models {
     }
 
     double MeasurementModel::getLogLikelihood(const std::vector<double> &state, const std::vector<double> &measurements,
-                                              const std::vector<double> &theta) {
-        if (!_all_inputs_defined) {
+                                              double t) {
+        if (!_initialized) {
             std::stringstream os;
-            os << "The input order for MeasurementModel must be defined before log likelihood can be computed!"
+            os << "MeasurementModel must be initialized before measurement can be computed!"
                << std::endl;
-            _printInputs();
+            if (!_allPointerSet()) { printPointer(os); }
             throw std::runtime_error(os.str());
         }
-        _updateTheta(theta);
+        if (_perturbation_fct) { (*_perturbation_fct)(state.data(), t); }
         _updateState(state.data());
         _updateMeasurement(measurements);
         try {
@@ -165,8 +158,6 @@ namespace models {
                 _initializeParser(_measurement_parsers[index]);
                 _measurement_parsers[index].SetExpr(
                         _measurement_model_data.getMeasurementEquationForMeasurment(measurement_name));
-
-
             }
             _initialized = true;
         } catch (const std::exception &e) {
@@ -178,9 +169,7 @@ namespace models {
     }
 
     bool MeasurementModel::_allPointerSet() const {
-
         if (!BaseObject::_allPointerSet()) { return false; }
-
         for (std::size_t i = 0; i < _measurement_ptr.size(); ++i) {
             if (!_measurement_ptr[i]) { return false; }
         }
@@ -202,69 +191,14 @@ namespace models {
     };
 
 
-    void MeasurementModel::setOutputMeasurementOrder(std::vector<std::string> measurement_order) {
-
-        _output_measurement_ext_by_int.clear();
-        for (int i = 0; i < measurement_order.size(); i++) {
-            std::string measurement_name = measurement_order[i];
-            bool is_measurement = _measurement_model_data.isMeasurementName(measurement_name);
-            if (is_measurement) {
-                int state_index = _measurement_model_data.getMeasurementIndex(measurement_name);
-                _input_measurement_ext_by_int[state_index] = i;
-            } else {
-                std::stringstream ss;
-                ss << "Failed to set order of output measurements for MeasurementModel. Output state "
-                   << measurement_name << " requested, but no such measurement defined!" << std::endl;
-                throw std::runtime_error(ss.str());
-            }
-        }
-        _all_inputs_defined = _allInputsDefined();
+    std::size_t MeasurementModel::getNumMeasurements() const {
+        return _measurement.size();
     }
-
-    void MeasurementModel::setInputMeasurementOrder(std::vector<std::string> measurement_order) {
-        _input_measurement_ext_by_int.clear();
-        for (int i = 0; i < measurement_order.size(); i++) {
-            std::string measurement_name = measurement_order[i];
-            bool is_measurement = _measurement_model_data.isMeasurementName(measurement_name);
-            if (is_measurement) {
-                int state_index = _measurement_model_data.getMeasurementIndex(measurement_name);
-                _input_measurement_ext_by_int[state_index] = i;
-            }
-        }
-        _all_inputs_defined = _allInputsDefined();
-    }
-
 
     void MeasurementModel::_updateMeasurement(const std::vector<double> &measurement) {
         for (int i = 0; i < _measurement_ptr.size(); i++) {
-            *_measurement_ptr[i] = measurement[_input_measurement_ext_by_int[i]];
+            *_measurement_ptr[i] = measurement[i];
         }
     }
-
-
-    bool MeasurementModel::_allInputsDefined() {
-        if (!ParserBaseObject::_allInputsDefined()) { return false; }
-        for (int i = 0; i < _measurement_model_data.getNumMeasurements(); i++) {
-            if (!_input_measurement_ext_by_int.count(i)) { return false; }
-            if (!_output_measurement_ext_by_int.count(i)) { return false; }
-        }
-        return true;
-    }
-
-    void MeasurementModel::_printInputs() {
-        ParserBaseObject::_printInputs();
-        std::cout << "Measurements:" << std::endl;
-        for (int i = 0; i < _measurement_model_data.getNumMeasurements(); i++) {
-            std::string measurement_name = _measurement_model_data.getMeasurementNames()[i];
-            std::cout << measurement_name << ":\t";
-            std::cout << " input nbr ";
-            if (_input_measurement_ext_by_int.count(i)) { std::cout << _input_parameter_ext_by_int[i]; }
-            std::cout << " output nbr ";
-            if (_output_measurement_ext_by_int.count(i)) { std::cout << _output_measurement_ext_by_int[i]; }
-            std::cout << std::endl;
-        }
-    }
-
-
 } /* namespace models */
 

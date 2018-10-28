@@ -96,20 +96,18 @@ namespace simulator {
     }
 
     void
-    SimulatorOde::simulate(std::vector<double> &state, double &t, double final_t,
-                           const std::vector<double> &theta) {
+    SimulatorOde::simulate(std::vector<double> &state, double &t, double final_t) {
         reset(state, t);
-        continueSimulate(final_t, theta);
+        continueSimulate(final_t);
     }
 
-    void SimulatorOde::continueSimulate(double final_time, const std::vector<double> &theta) {
-        _rhs_data.theta = &theta;
+    void SimulatorOde::continueSimulate(double final_time) {
         _runSolver(*_sim_state, *_t, final_time);
     }
 
 
     SimulationFct_ptr SimulatorOde::getSimulationFct() {
-        return std::make_shared<SimulationFct>(std::bind(&SimulatorOde::simulate, this, _1, _2, _3, _4));
+        return std::make_shared<SimulationFct>(std::bind(&SimulatorOde::simulate, this, _1, _2, _3));
     }
 
     void SimulatorOde::_runSolver(std::vector<double> &state, double &t, double final_time) {
@@ -170,8 +168,7 @@ namespace simulator {
 
     int SimulatorOde::cvOdeRhs_static(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
         RhsData *rhs_data = (RhsData *) user_data;
-        const std::vector<double> *theta_ptr = rhs_data->theta;
-        (*rhs_data->rhs_fct)(NV_DATA_S(ydot), NV_DATA_S(y), t, *theta_ptr);
+        (*rhs_data->rhs_fct)(NV_DATA_S(ydot), NV_DATA_S(y), t);
 
         return 0;
     }
