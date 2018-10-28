@@ -25,7 +25,7 @@ std::vector<double> theta = {1, 0.1};
 void simulate_ode_BD(std::vector<double> &state, double &t, double final_t, const std::vector<double> &theta,
                      simulator::SimulatorOde_ptr simulator) {
     simulator->reset(state, t);
-    simulator->continueSimulate(final_t, theta);
+    simulator->simulate(final_t, theta);
 }
 
 double

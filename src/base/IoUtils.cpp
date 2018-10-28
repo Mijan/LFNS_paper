@@ -5,6 +5,8 @@
 #include <sstream>
 #include <stdexcept>
 #include "IoUtils.h"
+#include "Utils.h"
+#include <algorithm>
 
 namespace base {
     std::string IoUtils::appendToFileName(const std::string fileName,
@@ -90,31 +92,21 @@ namespace base {
         return os.str();
     }
 
-    std::vector<double> IoUtils::readVector(std::string input_file_name, std::ios_base::openmode mode) {
+    std::vector<double> IoUtils::readVector(std::string input_file_name) {
         std::vector<double> out_vector;
 
-        std::ifstream data_file(input_file_name.c_str(), mode);
+        std::ifstream data_file(input_file_name.c_str());
         if (!data_file.is_open()) {
             std::ostringstream os;
             os << "Faild to read vector. Could not open file " << input_file_name << "!" << std::endl;
             throw std::runtime_error(os.str());
         }
         while (!data_file.eof()) {
-            double val;
             std::string val_str;
             std::getline(data_file, val_str);
 
             if (val_str.size() > 0) {
-                std::istringstream iss(val_str);
-
-                do {
-                    std::string subs;
-                    iss >> subs;
-                    if (subs.length() > 0) {
-                        val = std::stod(subs.c_str());
-                        out_vector.push_back(val);
-                    }
-                } while (iss);
+                out_vector = Utils::StringToDoubleVector(val_str, Utils::FindDelimiter(val_str));
             }
         }
         data_file.close();
@@ -148,7 +140,6 @@ namespace base {
             throw std::runtime_error(ss.str());
         }
 
-        double val;
         int num_traj = 0;
         while (!data_file.eof()) {
 
@@ -156,20 +147,20 @@ namespace base {
             for (int line_nbr = 0; line_nbr < num_lines_for_multiline; line_nbr++) {
                 std::getline(data_file, val_str);
                 if (val_str.size() > 0) {
-                    std::istringstream iss(val_str);
-
-                    int col_nbr = 0;
-                    do {
-                        std::string subs;
-                        iss >> subs;
-                        if (subs.length() > 0) {
-                            if (line_nbr == 0) {
-                                multiline.push_back(std::vector<double>(num_lines_for_multiline, 0.0));
-                            }
-                            val = std::stod(subs.c_str());
-                            (multiline[col_nbr++])[line_nbr] = val;
+                    std::vector<double> line = Utils::StringToDoubleVector(val_str, Utils::FindDelimiter(val_str));
+                    if (line_nbr > 0 && line.size() != multiline.size()) {
+                        std::stringstream ss;
+                        ss << "Data inconsistent! While reading multiline from " << input_file_name
+                           << " the first line had " << multiline.size() << " entries, while line nbr " << line_nbr + 1
+                           << " has " << line.size() << " entries!" << std::endl;
+                        throw std::runtime_error(ss.str());
+                    }
+                    for (int col_nbr = 0; col_nbr < line.size(); col_nbr++) {
+                        if (line_nbr == 0) {
+                            multiline.push_back(std::vector<double>(num_lines_for_multiline, 0.0));
                         }
-                    } while (iss);
+                        (multiline[col_nbr])[line_nbr] = line[col_nbr];
+                    }
                 }
             }
             if (multiline.size() > 0) {

@@ -132,7 +132,7 @@ int testReadModel(std::string output_file) {
     base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
     base::NormalDistribution dist(0, 1);
     while (current_time < final_time) {
-        simulator_ode.continueSimulate(t, theta);
+        simulator_ode.simulate(t, theta);
         time_ode.push_back(current_time);
         states_ode.push_back(current_state[0]);
         double rnd = dist(*rng);

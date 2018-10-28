@@ -26,9 +26,13 @@ namespace simulator {
 
         virtual ~SimulatorSsa();
 
-        virtual void simulate(std::vector<double> &state, double &t, double final_time);
-
         virtual SimulationFct_ptr getSimulationFct();
+
+        virtual void simulate(double final_time);
+
+        ResetFct_ptr getResetFct() override;
+
+        void reset(std::vector<double> &state, double &t) override;
 
         void simulateReaction(std::vector<double> &state, double &t, double final_time);
 

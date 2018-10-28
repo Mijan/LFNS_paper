@@ -13,31 +13,17 @@ namespace simulator {
     using namespace std::placeholders;
 
     SimulatorOde::SimulatorOde(OdeSettings settings, RhsFct_ptr rhs_fct, int num_states)
-            : Simulator(), _cvode_mem(nullptr), _rhs_data(), _settings(settings),
-              _current_state_n_vector(N_VMake_Serial(0, nullptr)), _A(SUNDenseMatrix(1, 1)),
-              _LS(SUNDenseLinearSolver(_current_state_n_vector, _A)), _sim_state(nullptr), _t(nullptr) {
+            : Simulator(), _cvode_mem(nullptr), _rhs_data(), _states(num_states, 0.0), _t(0.0), _settings(settings),
+              _current_state_n_vector(N_VMake_Serial(num_states, _states.data())),
+              _A(SUNDenseMatrix(num_states, num_states)),
+              _LS(SUNDenseLinearSolver(_current_state_n_vector, _A)) {
 
+        _t_ptr = &_t;
+        _states_ptr = &_states;
         _cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
 
-        _rhs_data.rhs_fct = rhs_fct.get();
+        _rhs_data.rhs_fct = rhs_fct;
         _rhs_data.num_states = num_states;
-    }
-
-    SimulatorOde::~SimulatorOde() {
-        CVodeFree(&_cvode_mem);
-        N_VDestroy_Serial(_current_state_n_vector);
-        SUNMatDestroy(_A);
-        SUNLinSolFree(_LS);
-    }
-
-
-    void SimulatorOde::initialize(std::vector<double> &state, double &t) {
-        _rhs_data.num_states = state.size();
-        _sim_state = &state;
-        _t = &t;
-
-        N_VDestroy_Serial(_current_state_n_vector);
-        _current_state_n_vector = N_VMake_Serial(_rhs_data.num_states, state.data());
         if (CVodeInit(_cvode_mem, CVRhsFn, 0, _current_state_n_vector) != CV_SUCCESS) {
             throw std::runtime_error("Initializing ODE solver went wrong!");
         }
@@ -46,12 +32,6 @@ namespace simulator {
         if (CVodeSetUserData(_cvode_mem, &_rhs_data) != CV_SUCCESS) {
             throw std::runtime_error("User data could not be set!");
         }
-
-        SUNMatDestroy(_A);
-        _A = SUNDenseMatrix(_rhs_data.num_states, _rhs_data.num_states);
-
-        SUNLinSolFree(_LS);
-        _LS = SUNDenseLinearSolver(_current_state_n_vector, _A);
 
         if (CVDlsSetLinearSolver(_cvode_mem, _LS, _A) != CV_SUCCESS) {
             throw std::runtime_error("ODE Solver could not be set!");
@@ -73,8 +53,59 @@ namespace simulator {
         if (CVodeSetMaxNumSteps(_cvode_mem, _settings.max_num_steps) != CV_SUCCESS) {
             throw std::runtime_error("Maximum number steps could not be set!");
         }
-
     }
+
+
+    SimulatorOde::SimulatorOde(const SimulatorOde &rhs)
+            : Simulator(), _cvode_mem(nullptr), _rhs_data(), _states(rhs._states.size(), 0.0), _t(0.0),
+              _settings(rhs._settings),
+              _current_state_n_vector(N_VMake_Serial(rhs._states.size(), _states.data())),
+              _A(SUNDenseMatrix(rhs._states.size(), rhs._states.size())),
+              _LS(SUNDenseLinearSolver(_current_state_n_vector, _A)) {
+
+        _cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+        _t_ptr = &_t;
+        _states_ptr = &_states;
+        _rhs_data.rhs_fct = rhs._rhs_data.rhs_fct;
+        _rhs_data.num_states = rhs._rhs_data.num_states;
+        if (CVodeInit(_cvode_mem, CVRhsFn, 0, _current_state_n_vector) != CV_SUCCESS) {
+            throw std::runtime_error("Initializing ODE solver went wrong!");
+        }
+
+
+        if (CVodeSetUserData(_cvode_mem, &_rhs_data) != CV_SUCCESS) {
+            throw std::runtime_error("User data could not be set!");
+        }
+
+        if (CVDlsSetLinearSolver(_cvode_mem, _LS, _A) != CV_SUCCESS) {
+            throw std::runtime_error("ODE Solver could not be set!");
+        }
+
+        if (CVodeSetErrHandlerFn(_cvode_mem, CVErrHandlerFn, nullptr) != CV_SUCCESS) {
+            throw std::runtime_error("Error handling could not be set!");
+        }
+        if (CVodeSStolerances(_cvode_mem, _settings.rel_tol, _settings.abs_tol) != CV_SUCCESS) {
+            throw std::runtime_error("Setting tolerances for ODE solver went wrong!");
+        }
+
+        if (CVodeSetMinStep(_cvode_mem, _settings.min_step_size) != CV_SUCCESS) {
+            throw std::runtime_error("Stepsize could not be set");
+        }
+        if (CVodeSetMaxErrTestFails(_cvode_mem, _settings.max_error_fails) != CV_SUCCESS) {
+            throw std::runtime_error("Maximum error test fails number could not be set!");
+        }
+        if (CVodeSetMaxNumSteps(_cvode_mem, _settings.max_num_steps) != CV_SUCCESS) {
+            throw std::runtime_error("Maximum number steps could not be set!");
+        }
+    }
+
+    SimulatorOde::~SimulatorOde() {
+        CVodeFree(&_cvode_mem);
+        N_VDestroy_Serial(_current_state_n_vector);
+        SUNMatDestroy(_A);
+        SUNLinSolFree(_LS);
+    }
+
 
     void SimulatorOde::setRootFunction(RootFct_ptr root_fct) {
         Simulator::setRootFunction(root_fct);
@@ -83,31 +114,27 @@ namespace simulator {
         }
     }
 
+    ResetFct_ptr SimulatorOde::getResetFct() {
+        return std::make_shared<ResetFct>(std::bind(&SimulatorOde::reset, this, _1, _2));
+    }
+
     void SimulatorOde::reset(std::vector<double> &state, double &t) {
 
-        if (&state != _sim_state || &t != _t) {
-            N_VSetArrayPointer(state.data(), _current_state_n_vector);
-            _sim_state = &state;
-            _t = &t;
-        }
+        N_VSetArrayPointer(state.data(), _current_state_n_vector);
+        _states_ptr = &state;
+        _t_ptr = &t;
+
         if (CVodeReInit(_cvode_mem, t, _current_state_n_vector) != CV_SUCCESS) {
             throw std::runtime_error("Reinitializing ODE solver went wrong!");
         }
     }
 
-    void
-    SimulatorOde::simulate(std::vector<double> &state, double &t, double final_t) {
-        reset(state, t);
-        continueSimulate(final_t);
-    }
-
-    void SimulatorOde::continueSimulate(double final_time) {
-        _runSolver(*_sim_state, *_t, final_time);
-    }
-
-
     SimulationFct_ptr SimulatorOde::getSimulationFct() {
-        return std::make_shared<SimulationFct>(std::bind(&SimulatorOde::simulate, this, _1, _2, _3));
+        return std::make_shared<SimulationFct>(std::bind(&SimulatorOde::simulate, this, _1));
+    }
+
+    void SimulatorOde::simulate(double final_time) {
+        _runSolver(*_states_ptr, *_t_ptr, final_time);
     }
 
     void SimulatorOde::_runSolver(std::vector<double> &state, double &t, double final_time) {
@@ -177,7 +204,6 @@ namespace simulator {
         RhsData *rhs_data = (RhsData *) user_data;
 
         if (rhs_data->root_fct_ptr) {
-//            std::vector<double> state(NV_DATA_S(y), NV_DATA_S(y) + rhs_data->num_states);
             *gout = (*rhs_data->root_fct_ptr)(NV_DATA_S(y), t);
         }
 

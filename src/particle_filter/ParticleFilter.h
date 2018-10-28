@@ -14,8 +14,11 @@ namespace particle_filter {
     typedef std::function<void(const std::vector<double> &theta)> SetParameterFct;
     typedef std::shared_ptr<SetParameterFct> SetParameterFct_ptr;
 
-    typedef std::function<void(std::vector<double> &state, double &t, double final_t)> SimulationFct;
+    typedef std::function<void(double final_t)> SimulationFct;
     typedef std::shared_ptr<SimulationFct> SimulationFct_ptr;
+
+    typedef std::function<void(std::vector<double> &state, double &t)> ResetFct;
+    typedef std::shared_ptr<ResetFct> ResetFct_ptr;
 
     typedef std::function<double(const std::vector<double> &state, const std::vector<double> &data,
                                  double t)> LikelihoodFct;
@@ -31,8 +34,8 @@ namespace particle_filter {
     class ParticleFilter {
     public:
         ParticleFilter(base::RngPtr rng, SetParameterFct_ptr setting_parameter_fct, SimulationFct_ptr simulation_fct,
-                       LikelihoodFct_ptr likelihood_fct,
-                       InitialStateFct_ptr initial_state_fct, int num_states, int num_particles = 1000);
+                       ResetFct_ptr _reset_fct, LikelihoodFct_ptr likelihood_fct, InitialStateFct_ptr initial_state_fct,
+                       int num_states, int num_particles = 1000);
 
         virtual ~ParticleFilter();
 
@@ -56,6 +59,7 @@ namespace particle_filter {
     protected:
         base::RngPtr _rng;
         SetParameterFct_ptr _setting_parameter_fct;
+        ResetFct_ptr _reset_fct;
         SimulationFct_ptr _simulation_fct;
         LikelihoodFct_ptr _likelihood_fct;
         InitialStateFct_ptr _initial_state_fct;

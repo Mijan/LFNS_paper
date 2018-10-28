@@ -75,7 +75,7 @@ namespace sampler {
         double max = -DBL_MAX;
         for (int i = 0; i < num_runs; i++) {
             _current_sampler->sampleTransformed(sample);
-            double log_like = _current_sampler->getTransformedLogLikelihood(sample);
+            double log_like = std::exp(_current_sampler->getTransformedLogLikelihood(sample));
             log_likes.push_back(log_like);
             max = max > log_like ? max : log_like;
             min = min < log_like ? min : log_like;
@@ -87,6 +87,7 @@ namespace sampler {
         std::cout << "rejection const " << _log_rejection_const << std::endl;
         std::cout << "max log like " << max << std::endl;
         std::cout << "min log like " << min << std::endl;
+        _log_rejection_const = std::log(_log_rejection_const);
     }
 
 

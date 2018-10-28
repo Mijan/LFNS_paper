@@ -30,7 +30,7 @@ void LFNSSetup::setUp(options::LFNSOptions &options) {
         setUpPerturbations(experiment, simulator, full_model, settings);
 
         particle_filter::ParticleFilter part_filter(rng, full_models.back()->getParameterSettingFct(),
-                                                    simulators.back()->getSimulationFct(),
+                                                    simulator->getSimulationFct(), simulator->getResetFct(),
                                                     full_model->measurement_model->getLikelihoodFct(),
                                                     full_model->initial_value_provider->getInitialStateFct(),
                                                     full_model->dynamics->getNumSpecies(), settings.H);
@@ -204,7 +204,8 @@ LFNSSetup::createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr
     } else {
         simulator::OdeSettings ode_settings;
         simulator::SimulatorOde simulator_ode(ode_settings, dynamics->getRhsFct(), dynamics->getNumSpecies());
-        sim_ptr = std::make_shared<simulator::SimulatorOde>(simulator_ode);
+        simulator::SimulatorOde_ptr simulator_ode_ptr = std::make_shared<simulator::SimulatorOde>(simulator_ode);
+        sim_ptr = simulator_ode_ptr;
     }
     return sim_ptr;
 }
@@ -216,11 +217,20 @@ LFNSSetup::setUpPerturbations(std::string experiment, simulator::Simulator_ptr s
                               lfns::LFNSSettings &settings) {
 
     if (settings.input_datas.count(experiment) > 0) {
+        double max_used_time = times_vec.back().back();
         for (lfns::InputData input_data : settings.input_datas[experiment]) {
-            models::InputPulse pulse(input_data.pulse_period, input_data.pulse_strenght, input_data.pulse_duration,
-                                     input_data.num_pulses, input_data.pulse_inpt_name, input_data.starting_time,
-                                     times_vec.back().back());
-            full_models.back()->addInputPulse(pulse);
+            if (input_data.starting_time > max_used_time) {
+                std::cerr << "For experiment " << experiment << " perturbation provided, but starting time "
+                          << input_data.starting_time << " is after the last data point time " << max_used_time
+                          << ", thus perturbation for experiment " << experiment << " on the parameter "
+                          << input_data.pulse_inpt_name << " starting at " << input_data.starting_time
+                          << " will be ignored!" << std::endl;
+            } else {
+                models::InputPulse pulse(input_data.pulse_period, input_data.pulse_strenght, input_data.pulse_duration,
+                                         input_data.num_pulses, input_data.pulse_inpt_name, input_data.starting_time,
+                                         times_vec.back().back());
+                full_models.back()->addInputPulse(pulse);
+            }
         }
         simulator->setRootFunction(full_model->getRootFct());
     }

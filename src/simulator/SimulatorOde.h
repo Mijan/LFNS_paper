@@ -23,13 +23,13 @@ namespace simulator {
     typedef std::shared_ptr<RhsFct> RhsFct_ptr;
 
     struct RhsData {
-        RhsFct *rhs_fct;
+        RhsFct_ptr rhs_fct;
         RootFct_ptr root_fct_ptr;
         int num_states;
     };
 
     struct OdeSettings {
-        double min_step_size = 1e-8;
+        double min_step_size = 1e-12;
         double rel_tol = 1e-8;
         double abs_tol = 1e-8;
         int max_num_steps = 10000;
@@ -40,24 +40,27 @@ namespace simulator {
     public:
         SimulatorOde(OdeSettings settings, RhsFct_ptr rhs_fct, int num_states);
 
+        SimulatorOde(const SimulatorOde &rhs);
+
         virtual ~SimulatorOde();
 
         virtual void setRootFunction(RootFct_ptr root_fct);
 
-        void initialize(std::vector<double> &state, double &t);
-
-        virtual void simulate(std::vector<double> &state, double &t, double final_t);
-
-        virtual void continueSimulate(double final_time);
-
         virtual SimulationFct_ptr getSimulationFct();
 
-        void reset(std::vector<double> &state, double &t);
+        virtual void simulate(double final_time);
+
+        virtual ResetFct_ptr getResetFct();
+
+        void reset(std::vector<double> &state, double &t) override;
 
 
     private:
         void *_cvode_mem;
         RhsData _rhs_data;
+
+        std::vector<double> _states;
+        double _t;
 
 
         OdeSettings _settings;
@@ -65,8 +68,6 @@ namespace simulator {
         SUNMatrix _A;
         SUNLinearSolver _LS;
 
-        std::vector<double> *_sim_state;
-        double *_t;
 
         void _runSolver(std::vector<double> &state, double &t, double final_time);
 

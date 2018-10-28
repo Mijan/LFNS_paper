@@ -66,8 +66,7 @@ namespace base {
             data_file.close();
         }
 
-        static std::vector<double>
-        readVector(std::string input_file_name, std::ios_base::openmode mode = std::ios_base::out);
+        static std::vector<double> readVector(std::string input_file_name);
 
         static std::vector<std::vector<std::vector<double> > >
         readMultiline(std::string input_file_name, int num_lines_for_multiline, int max_traj = 1000);

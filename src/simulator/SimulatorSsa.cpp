@@ -17,12 +17,21 @@ namespace simulator {
     SimulatorSsa::~SimulatorSsa() {}
 
     void
-    SimulatorSsa::simulate(std::vector<double> &state, double &t, double final_time) {
-        if (t < final_time) { _simulateSystem(state, t, final_time); }
+    SimulatorSsa::simulate(double final_time) {
+        if (*_t_ptr < final_time) { _simulateSystem(*_states_ptr, *_t_ptr, final_time); }
     }
 
     SimulationFct_ptr SimulatorSsa::getSimulationFct() {
-        return std::make_shared<SimulationFct>(std::bind(&SimulatorSsa::simulate, this, _1, _2, _3));
+        return std::make_shared<SimulationFct>(std::bind(&SimulatorSsa::simulate, this, _1));
+    }
+
+    ResetFct_ptr SimulatorSsa::getResetFct() {
+        return std::make_shared<ResetFct>(std::bind(&SimulatorSsa::reset, this, _1, _2));
+    }
+
+    void SimulatorSsa::reset(std::vector<double> &state, double &t) {
+        _states_ptr = &state;
+        _t_ptr = &t;
     }
 
     void SimulatorSsa::_simulateSystem(std::vector<double> &state, double &t, double final_time) {
