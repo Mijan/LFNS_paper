@@ -45,17 +45,18 @@ namespace lfns {
 
         int RequestQueue::getFirstUsedProcess() { return used_process.front(); }
 
-        int RequestQueue::getFinishedProcess() {
+        std::queue<std::size_t> RequestQueue::getFinishedProcessess() {
+            std::queue<std::size_t> finished_process;
             for (int i = 0; i < likelihood_requests.size(); i++) {
                 MpiLikelihoodRequest_ptr request = likelihood_requests[i];
                 if (request->test()) {
                     *ptr_seconds_for_particles[i] = request->getClocksSinceRequest();
                     *ptr_log_likelihoods[i] = request->getLogLikelihood();
                     *ptr_process_finished[i] = true;
-                    return request->getRank();
+                    finished_process.push(request->getRank());
                 }
             }
-            return 0;
+            return finished_process;
         }
 
 
@@ -71,7 +72,7 @@ namespace lfns {
             for (MpiLikelihoodRequest_ptr request : likelihood_requests) { request->interruptRequest(); }
         }
 
-        std::size_t RequestQueue::size() const{
+        std::size_t RequestQueue::size() const {
             return log_likelihoods.size();
         }
     }

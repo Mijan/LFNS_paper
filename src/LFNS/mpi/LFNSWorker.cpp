@@ -39,21 +39,21 @@ namespace lfns {
                         break;
 
                     case LIKELIHOOD_RECOMPU:
-                    std::cout <<"process " << _my_rank << " computes likelihood" << std::endl;
+//                    std::cout <<"process " << _my_rank << " computes likelihood" << std::endl;
                         _computeLikelihood();
-                        std::cout <<"process " << _my_rank << " finished with likelihood" << std::endl;
+//                        std::cout <<"process " << _my_rank << " finished with likelihood" << std::endl;
                         break;
 
                     case UPDATE_EPSILON:
-                        std::cout <<"process " << _my_rank << " updates epsilon" << std::endl;
+//                        std::cout <<"process " << _my_rank << " updates epsilon" << std::endl;
                         _updateEpsilon();
-                        std::cout <<"process " << _my_rank << " finished with epsilon" << std::endl;
+//                        std::cout <<"process " << _my_rank << " finished with epsilon" << std::endl;
                         break;
 
                     case PREPARE_STOPPING:
-                        std::cout <<"process " << _my_rank << " prepares stopping" << std::endl;
+//                        std::cout <<"process " << _my_rank << " prepares stopping" << std::endl;
                         _prepareStoppingFlag();
-                        std::cout <<"process " << _my_rank << " finished with stopping" << std::endl;
+//                        std::cout <<"process " << _my_rank << " finished with stopping" << std::endl;
                         break;
 
                     default:

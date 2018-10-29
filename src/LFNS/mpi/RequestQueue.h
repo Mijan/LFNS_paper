@@ -30,7 +30,7 @@ namespace lfns {
 
             int getFirstUsedProcess();
 
-            int getFinishedProcess();
+            std::queue<std::size_t> getFinishedProcessess();
 
             void clearFirstParticle();
 
