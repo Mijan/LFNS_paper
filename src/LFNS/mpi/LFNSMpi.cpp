@@ -10,7 +10,7 @@
 namespace lfns {
     namespace mpi {
         LFNSMpi::LFNSMpi(LFNSSettings &settings, base::RngPtr rng, int num_tasks) : LFNS(settings, rng),
-                                                                                   _num_tasks(num_tasks) {}
+                                                                                    _num_tasks(num_tasks) {}
 
         LFNSMpi::~LFNSMpi() {}
 
@@ -65,8 +65,9 @@ namespace lfns {
         }
 
         void LFNSMpi::_initializeQueue(RequestQueue &queue) {
-            for (int rank = 1; rank < _num_tasks; rank++) {
+            for (std::size_t rank = 1; rank < _num_tasks; rank++) {
                 std::vector<double> theta = _sampler.samplePrior();
+//                std::cout << "Master sends initializer to rank " << rank << std::endl;
                 queue.addRequest(rank, theta);
             }
         }
@@ -85,11 +86,18 @@ namespace lfns {
             _logger.samplerUpdated(_sampler);
 
             while (_live_points.numberParticles() < _settings.N) {
+                std::queue<std::size_t> finished_tasks;
                 int finished_task = queue.getFinishedProcess();
-                if (finished_task) {
+                while (finished_task) {
+                    finished_tasks.push(finished_task);
+                    finished_task = queue.getFinishedProcess();
+                }
+
+                if (!finished_tasks.empty()) {
                     std::vector<double> theta = _sampler.sampleConstrPrior();
-                    std::cout <<"Master sends request to " << finished_task << std::endl;
-                    queue.addRequest(finished_task, theta);
+//                    std::cout << "Master sends request to " << finished_task << std::endl;
+                    queue.addRequest(finished_tasks.front(), theta);
+                    finished_tasks.pop();
                 }
 
                 while (queue.firstParticleFinished() && _live_points.numberParticles() < _settings.N) {

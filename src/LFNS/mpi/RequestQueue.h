@@ -18,7 +18,7 @@ namespace lfns {
 
             virtual ~RequestQueue();
 
-            void addRequest(int rank, const std::vector<double> &theta);
+            void addRequest(std::size_t rank, const std::vector<double> &theta);
 
             double getFirstLikelihood();
 

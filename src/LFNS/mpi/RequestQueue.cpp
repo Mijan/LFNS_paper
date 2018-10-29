@@ -14,7 +14,7 @@ namespace lfns {
 
         RequestQueue::~RequestQueue() {}
 
-        void RequestQueue::addRequest(int rank, const std::vector<double> &theta) {
+        void RequestQueue::addRequest(std::size_t rank, const std::vector<double> &theta) {
             clocks_for_particles.push(0);
             log_likelihoods.push(-DBL_MAX);
             process_finished.push(false);
