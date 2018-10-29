@@ -45,11 +45,19 @@ namespace lfns {
 
         void LFNSMpi::_samplePrior(RequestQueue &queue) {
             while (_live_points.numberParticles() < _settings.N) {
+                std::queue<std::size_t> finished_tasks;
                 int finished_task = queue.getFinishedProcess();
-                if (finished_task) {
-                    std::vector<double> theta = _sampler.samplePrior();
-                    queue.addRequest(finished_task, theta);
+                while (finished_task) {
+                    finished_tasks.push(finished_task);
+                    finished_task = queue.getFinishedProcess();
                 }
+                while (!finished_tasks.empty()) {
+                    std::vector<double> theta = _sampler.samplePrior();
+//                    std::cout << "Master sends request to " << finished_task << std::endl;
+                    queue.addRequest(finished_tasks.front(), theta);
+                    finished_tasks.pop();
+                }
+
 
                 if (queue.firstParticleFinished()) {
                     double l = queue.getFirstLikelihood();
@@ -93,7 +101,7 @@ namespace lfns {
                     finished_task = queue.getFinishedProcess();
                 }
 
-                if (!finished_tasks.empty()) {
+                while (!finished_tasks.empty()) {
                     std::vector<double> theta = _sampler.sampleConstrPrior();
 //                    std::cout << "Master sends request to " << finished_task << std::endl;
                     queue.addRequest(finished_tasks.front(), theta);
