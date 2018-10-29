@@ -29,7 +29,7 @@ namespace simulator {
     };
 
     struct OdeSettings {
-        double min_step_size = 1e-12;
+        double min_step_size = 1e-8;
         double rel_tol = 1e-8;
         double abs_tol = 1e-8;
         int max_num_steps = 10000;

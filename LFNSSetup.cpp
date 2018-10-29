@@ -54,14 +54,14 @@ void LFNSSetup::readSettingsfromFile(options::LFNSOptions &options) {
     settings.measurement_file = interpreter.getMeasurementModelFile();
 
     std::string model_type = interpreter.getModelType();
-    if (lfns::MODEL_TYPE_NAME.count(model_type) == 0) {
+    if (simulator::MODEL_TYPE_NAME.count(model_type) == 0) {
         std::stringstream os;
         os << "Modeltype " << model_type << " not known. Possible options are: ";
-        std::map<std::string, lfns::MODEL_TYPE>::iterator it = lfns::MODEL_TYPE_NAME.begin();
-        for (it; it != lfns::MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
+        std::map<std::string, simulator::MODEL_TYPE>::iterator it = simulator::MODEL_TYPE_NAME.begin();
+        for (it; it != simulator::MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
         throw std::runtime_error(os.str());
     }
-    settings.model_type = lfns::MODEL_TYPE_NAME[model_type];
+    settings.model_type = simulator::MODEL_TYPE_NAME[model_type];
 
     models::ModelReactionData model_data(settings.model_file);
     models::InitialValueData init_data(settings.initial_value_file);
@@ -80,7 +80,7 @@ void LFNSSetup::readSettingsfromFile(options::LFNSOptions &options) {
                 "No experiment names for LFNS algorithm provided, please provide at least one experiment name to be used for the inference!");
     }
 
-    std::map<std::string, lfns::InputData> input_datas;
+    std::map<std::string, models::InputData> input_datas;
 
     for (std::string &experiment: settings.experiments_for_LFNS) {
         std::vector<double> periods = interpreter.getPulsePeriods(experiment);
@@ -197,7 +197,7 @@ simulator::Simulator_ptr
 LFNSSetup::createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics,
                            lfns::LFNSSettings &settings) {
     simulator::Simulator_ptr sim_ptr;
-    if (settings.model_type == lfns::MODEL_TYPE::STOCH) {
+    if (settings.model_type == simulator::MODEL_TYPE::STOCH) {
         simulator::SimulatorSsa simulator_ssa(rng, dynamics->getPropensityFct(), dynamics->getReactionFct(),
                                               dynamics->getNumReactions());
         sim_ptr = std::make_shared<simulator::SimulatorSsa>(simulator_ssa);
@@ -218,7 +218,7 @@ LFNSSetup::setUpPerturbations(std::string experiment, simulator::Simulator_ptr s
 
     if (settings.input_datas.count(experiment) > 0) {
         double max_used_time = times_vec.back().back();
-        for (lfns::InputData input_data : settings.input_datas[experiment]) {
+        for (models::InputData input_data : settings.input_datas[experiment]) {
             if (input_data.starting_time > max_used_time) {
                 std::cerr << "For experiment " << experiment << " perturbation provided, but starting time "
                           << input_data.starting_time << " is after the last data point time " << max_used_time
@@ -228,7 +228,7 @@ LFNSSetup::setUpPerturbations(std::string experiment, simulator::Simulator_ptr s
             } else {
                 models::InputPulse pulse(input_data.pulse_period, input_data.pulse_strenght, input_data.pulse_duration,
                                          input_data.num_pulses, input_data.pulse_inpt_name, input_data.starting_time,
-                                         times_vec.back().back());
+                                         max_used_time);
                 full_models.back()->addInputPulse(pulse);
             }
         }

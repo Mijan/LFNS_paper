@@ -8,17 +8,15 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "../simulator/SimulationSettings.h"
+#include "../models/InputPulse.h"
 
 namespace lfns {
 
     enum DENSITY_ESTIMATOR {
         REJECT_DPGMM, KDE_GAUSS, KDE_UNIFORM, ELLIPS
     };
-    enum class MODEL_TYPE {
-        ODE, STOCH
-    };
-    static std::map<std::string, MODEL_TYPE> MODEL_TYPE_NAME = {{"DET",   MODEL_TYPE::ODE},
-                                                                {"STOCH", MODEL_TYPE::STOCH}};
+
     enum class SAMPLER_TYPE {
         UNIFORM, NORMAL
     };
@@ -38,27 +36,8 @@ namespace lfns {
         double fixed_value;
     };
 
-    struct InputData {
-        InputData(double pulse_period_, double pulse_strenght_, double pulse_duration_, int num_pulses_,
-                  std::string pulse_inpt_name_, double starting_time_) : pulse_period(
-                pulse_period_), pulse_strenght(pulse_strenght_), pulse_duration(pulse_duration_),
-                                                                         num_pulses(num_pulses_),
-                                                                         pulse_inpt_name(pulse_inpt_name_),
-                                                                         starting_time(starting_time_) {}
-
-        double pulse_period;
-        double pulse_strenght;
-        double pulse_duration;
-        int num_pulses;
-        std::string pulse_inpt_name;
-        double starting_time;
-        double final_time;
-    };
-
     class LFNSSettings {
     public:
-
-        void readSettings();
 
         std::vector<std::string> getUnfixedParameters() const;
 
@@ -74,7 +53,7 @@ namespace lfns {
         bool uniform_prior = true;
         int num_used_trajectories = 1e5;
 
-        std::map<std::string, std::vector<InputData> > input_datas;
+        std::map<std::string, std::vector<models::InputData> > input_datas;
 
         std::string model_file = "";
         std::string output_file = "";
@@ -85,7 +64,7 @@ namespace lfns {
         std::vector<std::string> experiments_for_LFNS;
         std::string previous_log_file = "";
         DENSITY_ESTIMATOR estimator = REJECT_DPGMM;
-        MODEL_TYPE model_type = MODEL_TYPE::STOCH;
+        simulator::MODEL_TYPE model_type = simulator::MODEL_TYPE::STOCH;
         double log_termination = -4.6;
         bool use_premature_cancelation = false;
         int print_interval = 1;

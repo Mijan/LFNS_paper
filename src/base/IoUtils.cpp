@@ -114,6 +114,28 @@ namespace base {
     }
 
 
+    std::vector<std::vector<double> > IoUtils::readVectorOfVectors(std::string input_file_name) {
+        std::vector<std::vector<double> > out_vector;
+
+        std::ifstream data_file(input_file_name.c_str());
+        if (!data_file.is_open()) {
+            std::ostringstream os;
+            os << "Faild to read vector of vectors. Could not open file " << input_file_name << "!" << std::endl;
+            throw std::runtime_error(os.str());
+        }
+        while (!data_file.eof()) {
+            std::string val_str;
+            std::getline(data_file, val_str);
+
+            if (val_str.size() > 0) {
+                out_vector.push_back(Utils::StringToDoubleVector(val_str, Utils::FindDelimiter(val_str)));
+            }
+        }
+        data_file.close();
+        return out_vector;
+    }
+
+
     std::vector<std::vector<std::vector<double> > >
     IoUtils::readMultiline(std::string input_file_name, int num_lines_for_multiline, int max_traj) {
         std::vector<std::vector<std::vector<double> > > out_vector;

@@ -68,6 +68,8 @@ namespace base {
 
         static std::vector<double> readVector(std::string input_file_name);
 
+        static std::vector<std::vector<double> > readVectorOfVectors(std::string input_file_name);
+
         static std::vector<std::vector<std::vector<double> > >
         readMultiline(std::string input_file_name, int num_lines_for_multiline, int max_traj = 1000);
 

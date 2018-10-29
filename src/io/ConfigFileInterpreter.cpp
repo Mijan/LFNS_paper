@@ -312,4 +312,51 @@ namespace io {
         }
         return entries;
     }
+
+    std::vector<double> ConfigFileInterpreter::getParamForSimulation() {
+        std::vector<double> params = {};
+        try {
+            std::string param_string = _reader.getEntry("Simulation.parameter");
+            params = base::Utils::StringToDoubleVector(param_string);
+            return params;
+        }
+        catch (const std::exception &e) { return params; }
+    }
+
+    int ConfigFileInterpreter::getNForSimulation() {
+        int n = -1;
+        try {
+            std::string n_string = _reader.getEntry("Simulation.num_simulations");
+            n = std::stoi(n_string);
+            return n;
+        }
+        catch (const std::exception &e) { return n; }
+    }
+
+    std::string ConfigFileInterpreter::getParameterFileforSimulation() {
+        std::string param_file = "";
+        try {
+            param_file = _reader.getEntry("Simulation.parameter_file");
+            return param_file;
+        }
+        catch (const std::exception &e) { return param_file; }
+    }
+
+    double ConfigFileInterpreter::getInitialTimeForSimulation() {
+            std::string n_string = _reader.getEntry("Simulation.num_simulations");
+            int n = std::stoi(n_string);
+            return n;
+    }
+
+    double ConfigFileInterpreter::getFinalTimeForSimulation(){
+        std::string final_time_str = _reader.getEntry("Simulation.finaltime");
+        double final_time = std::stod(final_time_str);
+        return final_time;
+    }
+
+    double ConfigFileInterpreter::getIntervalForSimulation() {
+        std::string interval_str = _reader.getEntry("Simulation.interval");
+        double interval = std::stod(interval_str);
+        return interval;
+    }
 }

@@ -7,19 +7,21 @@
 #include <algorithm>
 
 namespace models {
-    InputPulse::InputPulse(double pulse_period, double pulse_strenght, double pulse_duration, int num_pulses,
-                           std::string pulse_inpt_name, double starting_time, double final_time)
-            : pulse_beginnings(), pulse_ends(), input_name(pulse_inpt_name), _input_strength(pulse_strenght),
+    InputPulse::InputPulse(InputData input_data, double final_time)
+            : pulse_beginnings(), pulse_ends(), input_name(input_data.pulse_inpt_name),
+              _input_strength(input_data.pulse_strenght),
               parameter_index(-1) {
-        int effective_num_pulses = std::min(num_pulses, (int) ((final_time - starting_time) / (pulse_period) + 1));
+        int effective_num_pulses = std::min(input_data.num_pulses,
+                                            (int) ((final_time - input_data.starting_time) / (input_data.pulse_period) +
+                                                   1));
         pulse_beginnings = std::vector<double>(effective_num_pulses, 0.0);
         pulse_ends = std::vector<double>(effective_num_pulses, 0.0);
-        pulse_beginnings[0] = starting_time;
-        pulse_ends[0] = starting_time + pulse_duration;
+        pulse_beginnings[0] = input_data.starting_time;
+        pulse_ends[0] = input_data.starting_time + input_data.pulse_duration;
 
         for (int i = 1; i < effective_num_pulses; i++) {
-            pulse_beginnings[i] = pulse_beginnings[i - 1] + pulse_period;
-            pulse_ends[i] = pulse_beginnings[i] + pulse_duration;
+            pulse_beginnings[i] = pulse_beginnings[i - 1] + input_data.pulse_period;
+            pulse_ends[i] = pulse_beginnings[i] + input_data.pulse_duration;
         }
     }
 

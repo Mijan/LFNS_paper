@@ -10,11 +10,26 @@
 #include <set>
 
 namespace models {
+    struct InputData {
+        InputData(double pulse_period_, double pulse_strenght_, double pulse_duration_, int num_pulses_,
+                  std::string pulse_inpt_name_, double starting_time_) : pulse_period(
+                pulse_period_), pulse_strenght(pulse_strenght_), pulse_duration(pulse_duration_),
+                                                                         num_pulses(num_pulses_),
+                                                                         pulse_inpt_name(pulse_inpt_name_),
+                                                                         starting_time(starting_time_) {}
+
+        double pulse_period;
+        double pulse_strenght;
+        double pulse_duration;
+        int num_pulses;
+        std::string pulse_inpt_name;
+        double starting_time;
+        double final_time;
+    };
 
     class InputPulse {
     public:
-        InputPulse(double pulse_period, double pulse_strenght, double pulse_duration, int num_pulses,
-                   std::string pulse_inpt_name, double starting_time, double final_time);
+        InputPulse(InputData input_data, double final_time);
 
         virtual ~InputPulse();
 

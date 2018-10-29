@@ -2,74 +2,114 @@
 // Created by jan on 22/10/18.
 //
 
-#include "src/models/ChemicalReactionNetwork.h"
-#include "src/models/InitialValueProvider.h"
-#include "src/models/MeasurementModel.h"
-#include "src/simulator/SimulatorOde.h"
+#include "src/options/SimulationOptions.h"
+#include "SimulationSetup.h"
+#include "src/base/IoUtils.h"
 
-int num_simulations = 1;
-double interval = 2;
-double final_time = 100;
+typedef std::vector<double> Times;
+typedef std::vector<double> State;
+typedef std::vector<State> Trajectory;
+typedef std::vector<Trajectory> TrajectorySet;
 
-std::string model_file = "/home/jan/crypt/Dropbox/BSSE/Transvac/models/tcell_model.txt";
-std::string initial_value_file = "/home/jan/crypt/Dropbox/BSSE/Transvac/models/tcell_initial.txt";
-std::string measurement_file = "/home/jan/crypt/Dropbox/BSSE/Transvac/models/tcell_measurement.txt";
-int main() {
+static std::string model_summary_suffix = "model_summary";
+static std::stringstream model_summary_stream;
 
-//
-//
-//    base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
-//
-//    models::ChemicalReactionNetwork dynamics(model_file);
-//    dynamics.setParameterOrder(dynamics.getParameterNames());
-//
-//    models::InitialValueData init_data(initial_value_file);
-//    models::InitialValueProvider init_value(init_data);
-//    init_value.setParameterOrder(dynamics.getParameterNames());
-//
-//
-//    models::MeasurementModelData measure_data(measurement_file);
-//    models::MeasurementModel measurement(rng, measure_data);
-//    measurement.setParameterOrder(dynamics.getParameterNames());
-//    measurement.setStateOrder(dynamics.getSpeciesNames());
-//
-////        simulator::RhsFct_ptr rhs_fct = std::make_shared<simulator::RhsFct>(rhs_BD);
-//    simulator::OdeSettings settings;
-//    simulator::SimulatorOde simulator_ode(settings, dynamics.getRhsFct(), dynamics.getNumSpecies());
-//
-//    std::vector<double> current_state = std::vector<double>(dynamics.getNumSpecies(), 0.0);
-//    double current_time = 0;
-//    simulator_ode.initialize(current_state, current_time);
-////    simulator_ode.setRootFunction(root_fct);
-//
-//
-//    std::vector<double> theta = {};
-//    for(int i = 0; i< num_simulations; i++) {
-//        std::vector<double> current_state = std::vector<double>(dynamics.getNumSpecies(), 0.0);
-//        double current_time = 0;
-//        init_value.computeInitialState(&current_state, &current_time, theta);
-//
-//        simulator_ode.reset(current_state, current_time);
-//
-//        std::vector<double> time_ode;
-//        std::vector<double> states_ode;
-//        std::vector<double> measurement_ode;
-//        double t = current_time;
-//
-//        base::NormalDistribution dist(0, 1);
-//        while (current_time < final_time) {
-//            simulator_ode.simulate(t, theta);
-//            time_ode.push_back(current_time);
-//            states_ode.push_back(current_state[0]);
-//            double rnd = dist(*rng);
-//
-//            measurement_ode.push_back(current_state[0] + rnd);
-//            t += interval;
-//        }
 
-//        std::string output_times_ode_file_name = base::IoUtils::appendToFileName(output_file, "times_ode");
-//        std::string output_state_ode_file_name = base::IoUtils::appendToFileName(output_file, "state_ode_2");
-//        std::string output_measure_ode_file_name = base::IoUtils::appendToFileName(output_file, "measure_ode");
-//    }
+static std::string latent_states_suffix = "latent_states";
+static std::string measurement_suffix = "measurements";
+static std::string times_suffix = "times";
 
+options::SimulationOptions simulation_options;
+SimulationSetup simulation_setup;
+
+int simulate();
+
+int main(int argc, char **argv) {
+    try {
+        simulation_options.handleCommandLineOptions(argc, argv);
+
+        std::cout << "Config file: " << simulation_options.config_file_name << std::endl;
+        simulation_setup.setUp(simulation_options);
+
+        return simulate();
+    } catch (const std::exception &e) {
+        std::cerr << "Failed to run simulate, exception thrown:\n\t" << e.what() << std::endl;
+        return 0;
+    }
+}
+
+int simulate() {
+    simulation_setup.settings.print(model_summary_stream);
+    simulation_setup.full_models.front()->printInfo(model_summary_stream);
+
+    std::cout << model_summary_stream.str();
+
+    std::string model_summary_file_name = base::IoUtils::appendToFileName(simulation_setup.settings.output_file,
+                                                                          model_summary_suffix);
+    std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
+    model_summary_file_stream << model_summary_stream.str();
+    model_summary_file_stream.close();
+
+    std::string times_file_name = base::IoUtils::appendToFileName(simulation_setup.settings.output_file, times_suffix);
+    base::IoUtils::writeVector(times_file_name, simulation_setup.times);
+
+    for (int exp_nbr = 0; exp_nbr < simulation_setup.settings.experiments_for_simulation.size(); exp_nbr++) {
+        std::string experiment = simulation_setup.settings.experiments_for_simulation[exp_nbr];
+        simulator::Simulator_ptr simulator = simulation_setup.simulators[exp_nbr];
+        models::FullModel_ptr full_model = simulation_setup.full_models[exp_nbr];
+
+        double t = 0.0;
+        State latentstate(full_model->dynamics->getNumSpecies(), 0.0);
+        State measurement(full_model->measurement_model->getNumMeasurements(), 0.0);
+
+        TrajectorySet latent_state_traj;
+        latent_state_traj.reserve(simulation_setup.parameters.size() * simulation_setup.settings.n);
+
+        TrajectorySet measurement_traj;
+        measurement_traj.reserve(simulation_setup.parameters.size() * simulation_setup.settings.n);
+
+
+        for (std::vector<double> &param : simulation_setup.parameters) {
+            full_model->setParameter(param);
+            for (int sim_nbr = 0; sim_nbr < simulation_setup.settings.n; sim_nbr++) {
+                Trajectory latent_states;
+                latent_states.reserve(simulation_setup.times.size());
+                Trajectory measurements;
+                measurements.reserve(simulation_setup.times.size());
+
+                full_model->initial_value_provider->computeInitialState(&latentstate, &t);
+                simulator->reset(latentstate, t);
+                for (double sim_time : simulation_setup.times) {
+                    simulator->simulate(sim_time);
+                    full_model->measurement_model->computeMeasurement(&measurement, latentstate, t);
+
+                    latent_states.push_back(latentstate);
+                    measurements.push_back(measurement);
+                }
+                latent_state_traj.push_back(latent_states);
+                measurement_traj.push_back(measurements);
+            }
+        }
+
+        std::string experiment_file_name = base::IoUtils::appendToFileName(simulation_setup.settings.output_file,
+                                                                           experiment);
+        std::string latent_file_name = base::IoUtils::appendToFileName(experiment_file_name, latent_states_suffix);
+        std::ofstream latent_file(latent_file_name.c_str());
+        latent_file << "";
+        latent_file.close();
+        for (Trajectory &latent_traj : latent_state_traj) {
+            base::IoUtils::writeVectorOfVectors(latent_file_name, latent_traj, true, std::ios_base::app);
+        }
+
+        std::string measurement_file_name = base::IoUtils::appendToFileName(experiment_file_name, measurement_suffix);
+        std::ofstream measurement_file(measurement_file_name.c_str());
+        measurement_file << "";
+        measurement_file.close();
+        for (Trajectory &measurement : measurement_traj) {
+            base::IoUtils::writeVectorOfVectors(measurement_file_name, measurement, true, std::ios_base::app);
+        }
+    }
+
+    std::cout << "Simulation successfully finished!" << std::endl;
+    return 1;
 }

@@ -62,6 +62,18 @@ namespace io {
 
         std::vector<double> getStartingTimes(std::string experiment_name);
 
+        std::vector<double> getParamForSimulation();
+
+        int getNForSimulation();
+
+        std::string getParameterFileforSimulation();
+
+        double getInitialTimeForSimulation();
+
+        double getFinalTimeForSimulation();
+
+        double getIntervalForSimulation();
+
     protected:
         XmlFileReader _reader;
 
