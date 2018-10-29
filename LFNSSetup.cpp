@@ -108,7 +108,7 @@ void LFNSSetup::readSettingsfromFile(options::LFNSOptions &options) {
         }
         if (scales.count(param) > 0) {
             std::string scale = scales[param];
-            if (scale.compare("lin") != 0 && scale.compare("log") != 0) {
+            if (scale.compare("lin") != 0 && scale.compare("log") != 0 && scale.compare("linear") != 0) {
                 std::stringstream ss;
                 ss << "Failed to set scale for parameter " << param
                    << ". Scale needs to be 'lin' or 'log', but provided scale is :" << scale << std::endl;

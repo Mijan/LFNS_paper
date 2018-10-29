@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
 
 }
 
+// TODO add check if output files can be saved BEFORE code runs!
 int runLFNS() {
     std::size_t max_num_traj = 0;
     for (TrajectorySet &data : lfns_setup.data_vec) {
