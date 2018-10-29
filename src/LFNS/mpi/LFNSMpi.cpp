@@ -88,6 +88,7 @@ namespace lfns {
                 int finished_task = queue.getFinishedProcess();
                 if (finished_task) {
                     std::vector<double> theta = _sampler.sampleConstrPrior();
+                    std::cout <<"Master sends request to " << finished_task;
                     queue.addRequest(finished_task, theta);
                 }
 

@@ -91,10 +91,10 @@ void LFNSSetup::readSettingsfromFile(options::LFNSOptions &options) {
             std::vector<std::string> names = interpreter.getPulseInputNames(experiment);
             std::vector<double> starting_times = interpreter.getStartingTimes(experiment);
 
-            std::vector<lfns::InputData> datas;
+            std::vector<models::InputData> datas;
             for (int i = 0; i < periods.size(); i++) {
-                datas.push_back(lfns::InputData(periods[i], strength[i], duration[i], num_pulses[i], names[i],
-                                                starting_times[i]));
+                datas.push_back(models::InputData(periods[i], strength[i], duration[i], num_pulses[i], names[i],
+                                                  starting_times[i]));
             }
             settings.input_datas[experiment] = datas;
         }
@@ -226,9 +226,7 @@ LFNSSetup::setUpPerturbations(std::string experiment, simulator::Simulator_ptr s
                           << input_data.pulse_inpt_name << " starting at " << input_data.starting_time
                           << " will be ignored!" << std::endl;
             } else {
-                models::InputPulse pulse(input_data.pulse_period, input_data.pulse_strenght, input_data.pulse_duration,
-                                         input_data.num_pulses, input_data.pulse_inpt_name, input_data.starting_time,
-                                         max_used_time);
+                models::InputPulse pulse(input_data, max_used_time);
                 full_models.back()->addInputPulse(pulse);
             }
         }
