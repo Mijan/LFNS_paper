@@ -351,7 +351,7 @@ namespace io {
     }
 
     double ConfigFileInterpreter::getInitialTimeForSimulation() {
-        std::string n_string = _reader.getEntry("Simulation.num_simulations");
+        std::string n_string = _reader.getEntry("Simulation.initialtime");
         int n = std::stoi(n_string);
         return n;
     }
