@@ -193,8 +193,7 @@ SimulationSetup::createSimulator(base::RngPtr rng, models::ChemicalReactionNetwo
 
 void
 SimulationSetup::setUpPerturbations(std::string experiment, simulator::Simulator_ptr simulator,
-                                    models::FullModel_ptr full_model,
-                                    simulator::SimulationSettings &settings) {
+                                    models::FullModel_ptr full_model, simulator::SimulationSettings &settings) {
     if (settings.input_datas.count(experiment) > 0) {
         double max_used_time = settings.final_time;
         for (models::InputData input_data : settings.input_datas[experiment]) {
@@ -206,10 +205,9 @@ SimulationSetup::setUpPerturbations(std::string experiment, simulator::Simulator
                           << " will be ignored!" << std::endl;
             } else {
                 models::InputPulse pulse(input_data, max_used_time);
-                full_models.back()->addInputPulse(pulse);
+                full_model->addInputPulse(pulse);
             }
         }
-//        simulator->setRootFunction(full_model->getRootFct());
         simulator->setDiscontTimes(full_model->getDiscontTimes());
     }
 }
