@@ -123,12 +123,17 @@ namespace io {
 
         for (XmlMap data_entry: data_entries) {
             try {
-                std::string experiment_name = data_entry["experiments"].entry;
-                std::string data_file = data_entry["datafile"].entry;
-                if (base::IoUtils::isPathAbsolute(data_file)) {
-                    data_files[experiment_name] = data_file;
-                } else {
-                    data_files[experiment_name] = _reader.getXmlFilePath() + data_file;
+                XmlPropertyMap data_entry_map(data_entry);
+                std::string experiment_names_str = data_entry["experiments"].entry;
+                std::vector<std::string> experiemnt_names = base::Utils::StringToStringVector(experiment_names_str);
+
+                for (std::string experiment_name : experiemnt_names) {
+                    std::string data_file = data_entry_map.getValueForKey("experiments", experiment_name, "datafile");
+                    if (base::IoUtils::isPathAbsolute(data_file)) {
+                        data_files[experiment_name] = data_file;
+                    } else {
+                        data_files[experiment_name] = _reader.getXmlFilePath() + data_file;
+                    }
                 }
 
             } catch (const std::exception &e) {
@@ -146,14 +151,17 @@ namespace io {
 
         for (XmlMap data_entry: data_entries) {
             try {
-                std::string experiment_name = data_entry["experiments"].entry;
-                std::string time_file = data_entry["timefile"].entry;
-                if (base::IoUtils::isPathAbsolute(time_file)) {
-                    time_files[experiment_name] = time_file;
-                } else {
-                    time_files[experiment_name] = _reader.getXmlFilePath() + time_file;
+                XmlPropertyMap data_entry_map(data_entry);
+                std::string experiment_names_str = data_entry["experiments"].entry;
+                std::vector<std::string> experiemnt_names = base::Utils::StringToStringVector(experiment_names_str);
+                for (std::string experiment_name : experiemnt_names) {
+                    std::string time_file = data_entry_map.getValueForKey("experiments", experiment_name, "timefile");
+                    if (base::IoUtils::isPathAbsolute(time_file)) {
+                        time_files[experiment_name] = time_file;
+                    } else {
+                        time_files[experiment_name] = _reader.getXmlFilePath() + time_file;
+                    }
                 }
-
             } catch (const std::exception &e) {
                 std::stringstream ss;
                 ss << "Failed to obtain times file:\n\t" << e.what() << std::endl;
@@ -343,12 +351,12 @@ namespace io {
     }
 
     double ConfigFileInterpreter::getInitialTimeForSimulation() {
-            std::string n_string = _reader.getEntry("Simulation.num_simulations");
-            int n = std::stoi(n_string);
-            return n;
+        std::string n_string = _reader.getEntry("Simulation.num_simulations");
+        int n = std::stoi(n_string);
+        return n;
     }
 
-    double ConfigFileInterpreter::getFinalTimeForSimulation(){
+    double ConfigFileInterpreter::getFinalTimeForSimulation() {
         std::string final_time_str = _reader.getEntry("Simulation.finaltime");
         double final_time = std::stod(final_time_str);
         return final_time;
