@@ -34,6 +34,7 @@ namespace models {
             dis_cont_times[j++] = pulse_beginnings[i];
             dis_cont_times[j++] = pulse_ends[i];
         }
+        return dis_cont_times;
     }
 
     bool InputPulse::pulseActive(double t) {

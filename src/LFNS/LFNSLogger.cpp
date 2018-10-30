@@ -179,12 +179,12 @@ namespace lfns {
         log_file_file << std::setw(3) << "i" << "\t" << std::setw(15) << std::setprecision(8) << "epsilon"
                       << "\t" << std::setw(20) << std::setprecision(8) << "Acceptance rate" << "\t"
                       << std::setw(12) << std::setprecision(8) << "seconds" << "\t" << std::setw(17)
-                      << std::setprecision(8) << "Z_tot" << "\t" << std::setw(20)
-                      << std::setprecision(8) << "Var(Z_tot)" << "\t" << std::setw(20)
-                      << std::setprecision(8) << "Z_D" << "\t" << std::setw(20)
-                      << std::setprecision(8) << "Var(Z_D)" << "\t" << std::setw(20)
-                      << std::setprecision(8) << "Z_L" << "\t" << std::setw(20)
-                      << std::setprecision(8) << "Var(Z_L)" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Z_tot)" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Var(Z_tot))" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Z_D)" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Var(Z_D))" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Z_L)" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Var(Z_L))" << "\t" << std::setw(20)
                       << std::setprecision(8) << "Delta_max" << "\t" << std::setw(20)
                       << std::setprecision(8) << "Delta_LFNS" << std::endl;
 

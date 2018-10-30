@@ -40,7 +40,7 @@ namespace options {
                         "No config file was provided, please provide the problem file name with its relative or absolute location");
             } else {
                 throw std::runtime_error(
-                        "Provided codfig file does not seem to be a .xml file. Please provide a xml problem file name with its relative or absolute location");
+                        "Provided config file does not seem to be a .xml file. Please provide a xml problem file name with its relative or absolute location");
             }
 
         }
@@ -50,6 +50,11 @@ namespace options {
             config_file_name = full_path.string() + "/" + config_file_name;
         }
 
+        if (output_file_name.empty()) {
+            std::string file_location = base::IoUtils::getFileLocation(config_file_name);
+            output_file_name = file_location + "/results.txt";
+            std::cerr << "No output file provided, results will be written into " << output_file_name << std::endl;
+        }
         if (output_file_name.find_last_of(".") == std::string::npos) {
             std::stringstream os;
             os << "The provided output file name " << output_file_name
@@ -66,7 +71,8 @@ namespace options {
         }
         if (base::IoUtils::getFileName(output_file_name).size() == 0) {
             output_file_name = output_file_name + "results.txt";
-            std::cerr << "No output file name provided! Using default value for filename:" << output_file_name << std::endl;
+            std::cerr << "No output file name provided! Using default value for filename:" << output_file_name
+                      << std::endl;
         }
         return 1;
     }

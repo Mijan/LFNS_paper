@@ -19,13 +19,10 @@ namespace simulator {
     typedef std::function<void(std::vector<double> &state, double &t)> ResetFct;
     typedef std::shared_ptr<ResetFct> ResetFct_ptr;
 
-    typedef std::function<double(const double *state, double t)> RootFct;
-    typedef std::shared_ptr<RootFct> RootFct_ptr;
-
     class Simulator {
     public:
         Simulator()
-                : _stopping_criterions(), _root_fct(nullptr), _root_found(false), _states_ptr(nullptr),
+                : _stopping_criterions(), _discont_times(), _discont_it(_discont_times.end()), _states_ptr(nullptr),
                   _t_ptr(nullptr) {}
 
         virtual ~Simulator() {}
@@ -45,13 +42,17 @@ namespace simulator {
 
         virtual void clearStoppingCriterions() { _stopping_criterions.clear(); }
 
-        virtual void setRootFunction(RootFct_ptr root_fct) { _root_fct = root_fct; }
+        void setDiscontTimes(std::vector<double> discont_times) {
+            _discont_times = discont_times;
+            _discont_it = discont_times.begin();
+        }
 
     protected:
 
         base::StoppingCriterions _stopping_criterions;
-        RootFct_ptr _root_fct;
-        bool _root_found;
+
+        std::vector<double> _discont_times;
+        std::vector<double>::iterator _discont_it;
 
         std::vector<double> *_states_ptr;
         double *_t_ptr;

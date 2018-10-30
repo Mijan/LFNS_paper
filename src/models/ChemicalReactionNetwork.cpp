@@ -131,7 +131,7 @@ namespace models {
         ParserBaseObject::printInfo(os);
         std::cout << std::endl << std::endl;
         for (std::size_t i = 0; i < _propensity_parsers.size(); i++) {
-            os << "Reaction " << std::setw(2) << i << ":";
+            os << "\nReaction " << std::setw(2) << i << ":";
 
             std::size_t max_prop_length = 0;
             for (const mu::Parser &p : _propensity_parsers) {

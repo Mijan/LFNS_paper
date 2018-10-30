@@ -18,13 +18,11 @@
 #include "Simulator.h"
 
 namespace simulator {
-
     typedef std::function<void(double *dx, const double *state, double t)> RhsFct;
     typedef std::shared_ptr<RhsFct> RhsFct_ptr;
 
     struct RhsData {
         RhsFct_ptr rhs_fct;
-        RootFct_ptr root_fct_ptr;
         int num_states;
     };
 
@@ -43,8 +41,6 @@ namespace simulator {
         SimulatorOde(const SimulatorOde &rhs);
 
         virtual ~SimulatorOde();
-
-        virtual void setRootFunction(RootFct_ptr root_fct);
 
         virtual SimulationFct_ptr getSimulationFct();
 
@@ -75,19 +71,13 @@ namespace simulator {
 
         static int cvOdeRhs_static(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-        static int cvOdeRoot_static(realtype t, N_Vector y, realtype *gout, void *user_data);
-
         static void
         cvOdeErrorHandling_static(int error_code, const char *module, const char *function, char *msg, void *eh_data);
 
         static constexpr void (*CVErrHandlerFn)(int error_code, const char *module, const char *function, char *msg,
                                                 void *eh_data) = &cvOdeErrorHandling_static;
 
-        static constexpr int (*CVRhsFn)(realtype t, N_Vector y, N_Vector ydot,
-                                        void *user_data) = &cvOdeRhs_static;
-
-        static constexpr int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
-                                         void *user_data) = &cvOdeRoot_static;
+        static constexpr int (*CVRhsFn)(realtype t, N_Vector y, N_Vector ydot, void *user_data) = &cvOdeRhs_static;
     };
 
     typedef std::shared_ptr<SimulatorOde> SimulatorOde_ptr;

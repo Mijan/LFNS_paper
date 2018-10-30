@@ -36,13 +36,15 @@ namespace models {
 
         void addInputPulse(InputPulse pulse);
 
-        void _evaluateInput(const double *state, double t);
+        void evaluateInput(const double *state, double t);
 
         PerturbationFct_ptr getInputFunction();
 
         double root(const double *state, double t);
 
         RootFct_ptr getRootFct();
+
+        std::vector<double> getDiscontTimes();
 
         void setParameter(const std::vector<double> &theta);
 

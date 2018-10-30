@@ -12,13 +12,15 @@ namespace simulator {
     SimulatorSsa::SimulatorSsa(base::RngPtr rng, PropensityFct_ptr propensity_fct, ReactionFct_ptr reaction_fct,
                                int num_reactions) : Simulator(), _rng(rng), _dis(0, 1), _time_to_next_reaction(0.0),
                                                     _propensity_fct(propensity_fct), _propensities(num_reactions),
-                                                    _reaction_fct(reaction_fct), _root_sign(0) {}
+                                                    _reaction_fct(reaction_fct) {}
 
     SimulatorSsa::~SimulatorSsa() {}
 
-    void
-    SimulatorSsa::simulate(double final_time) {
-        if (*_t_ptr < final_time) { _simulateSystem(*_states_ptr, *_t_ptr, final_time); }
+    void SimulatorSsa::simulate(double final_time) {
+        while (*_t_ptr < final_time) {
+            simulateReaction(*_states_ptr, *_t_ptr, final_time);
+            if (_stopping_criterions.processStopped()) { return; }
+        }
     }
 
     SimulationFct_ptr SimulatorSsa::getSimulationFct() {
@@ -32,23 +34,25 @@ namespace simulator {
     void SimulatorSsa::reset(std::vector<double> &state, double &t) {
         _states_ptr = &state;
         _t_ptr = &t;
-    }
-
-    void SimulatorSsa::_simulateSystem(std::vector<double> &state, double &t, double final_time) {
-        while (t < final_time) {
-            simulateReaction(state, t, final_time);
-            if (_stopping_criterions.processStopped()) {
-                return;
-            }
+        if (!_discont_times.empty() && t < _discont_times.back()) {
+            _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end(), t);
         }
     }
 
     void SimulatorSsa::simulateReaction(std::vector<double> &state, double &t, double final_time) {
+        bool run_next_step = final_time > t;
+        double T;
+        while (run_next_step) {
+            if (_discont_it != _discont_times.end() && *_discont_it <= final_time) { T = *_discont_it++; }
+            else { T = final_time; }
 
-        if (_root_fct) {
-            _root_sign = base::MathUtils::sgn<double>(
-                    (*_root_fct)(state.data(), t));
+            _simulateReaction(state, t, T);
+            if (_stopping_criterions.processStopped()) { return; }
+            run_next_step = final_time > t;
         }
+    }
+
+    void SimulatorSsa::_simulateReaction(std::vector<double> &state, double &t, double final_time) {
 
         (*_propensity_fct)(_propensities, state, t);
         double prop_sum = 0;
@@ -56,8 +60,14 @@ namespace simulator {
 
         _time_to_next_reaction = _getTimeToNextReaction(prop_sum);
 
-        _checkRoot(state, t, std::min(t + _time_to_next_reaction, final_time));
-        if (_root_found) { return; }
+        if (!_discont_times.empty() && *_discont_it < t + _time_to_next_reaction) {
+            t = *_discont_it;
+            (*_propensity_fct)(_propensities, state, t);
+            double prop_sum = 0;
+            for (double &p: _propensities) { prop_sum += p; }
+
+            _time_to_next_reaction = _getTimeToNextReaction(prop_sum);
+        }
         if (t + _time_to_next_reaction > final_time) {
             t = final_time;
             return;
@@ -93,39 +103,6 @@ namespace simulator {
     double SimulatorSsa::_getTimeToNextReaction(double prop_sum) {
         double r = _dis(*_rng);
         return (1 / prop_sum) * log(1 / r);
-    }
-
-    void SimulatorSsa::_checkRoot(std::vector<double> &state, double &t, double next_time) {
-        if (_root_fct) {
-            double root_fct_t = (*_root_fct)(state.data(), next_time);
-            if (base::MathUtils::sgn<double>(root_fct_t) != _root_sign) {
-                _root_found = true;
-                t = _findRootTime(state, t, next_time, _root_sign);
-            } else {
-                _root_found = false;
-            }
-        } else {
-            _root_found = false;
-        }
-    }
-
-    double SimulatorSsa::_findRootTime(std::vector<double> &system_state, double time_a, double time_b, int sgn_a) {
-        double time_c = 0.5 * (time_a + time_b);
-
-        double root_fct_c = (*_root_fct)(system_state.data(), time_c);
-        int sgn_c = base::MathUtils::sgn<double>(root_fct_c);
-
-        if (time_b - time_a < 1e-8) {
-            if (sgn_a != sgn_c) {
-                return time_c;
-            } else { return _findRootTime(system_state, time_c, time_b, sgn_c); }
-        }
-
-        if (sgn_a != sgn_c) {
-            return _findRootTime(system_state, time_a, time_c, sgn_a);
-        } else {
-            return _findRootTime(system_state, time_c, time_b, sgn_c);
-        }
     }
 
 }

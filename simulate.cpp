@@ -110,6 +110,6 @@ int simulate() {
         }
     }
 
-    std::cout << "Simulation successfully finished!" << std::endl;
+    std::cout << "\n\nSimulation successfully finished!" << std::endl;
     return 1;
 }

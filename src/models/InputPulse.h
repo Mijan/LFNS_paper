@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include "../base/Utils.h"
 
 namespace models {
     struct InputData {
@@ -49,6 +50,13 @@ namespace models {
         InputPulses() : input_pram_indices(), modified_parameter(), pulses() {}
 
         virtual ~InputPulses() {}
+
+        std::vector<double> getDisContTime() {
+            std::vector<double> times;
+            for (InputPulse &pulse: pulses) { base::Utils::addOnlyNew(times, pulse.getDisContTimes()); }
+            std::sort(times.begin(), times.end());
+            return times;
+        }
 
         std::vector<double> modified_parameter;
         std::set<int> input_pram_indices;

@@ -8,6 +8,7 @@
 #include <sstream>
 #include <cstring>
 #include "SimulatorOde.h"
+#include "../base/MathUtils.h"
 
 namespace simulator {
     using namespace std::placeholders;
@@ -106,14 +107,6 @@ namespace simulator {
         SUNLinSolFree(_LS);
     }
 
-
-    void SimulatorOde::setRootFunction(RootFct_ptr root_fct) {
-        Simulator::setRootFunction(root_fct);
-        if (CVodeRootInit(_cvode_mem, 1, CVRootFn) != CV_SUCCESS) {
-            throw std::runtime_error("Failed to _initialize root function!");
-        }
-    }
-
     ResetFct_ptr SimulatorOde::getResetFct() {
         return std::make_shared<ResetFct>(std::bind(&SimulatorOde::reset, this, _1, _2));
     }
@@ -127,37 +120,36 @@ namespace simulator {
         if (CVodeReInit(_cvode_mem, t, _current_state_n_vector) != CV_SUCCESS) {
             throw std::runtime_error("Reinitializing ODE solver went wrong!");
         }
+
+        if (!_discont_times.empty() && t < _discont_times.back()) {
+            _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end(), t);
+        }
     }
 
     SimulationFct_ptr SimulatorOde::getSimulationFct() {
         return std::make_shared<SimulationFct>(std::bind(&SimulatorOde::simulate, this, _1));
     }
 
-    void SimulatorOde::simulate(double final_time) {
-        _runSolver(*_states_ptr, *_t_ptr, final_time);
-    }
+    void SimulatorOde::simulate(double final_time) { _runSolver(*_states_ptr, *_t_ptr, final_time); }
 
     void SimulatorOde::_runSolver(std::vector<double> &state, double &t, double final_time) {
 
         bool run_next_step = final_time > t + _settings.min_step_size;
+        double T;
         while (run_next_step) {
-            _runSingleStep(state, t, final_time);
-            if (_root_found) { t += _settings.min_step_size; }
-            if (_stopping_criterions.processStopped()) { return; }
+            if (_discont_it != _discont_times.end() && *_discont_it <= final_time) { T = *_discont_it++; }
+            else { T = final_time; }
 
+            _runSingleStep(state, t, T);
+            t += _settings.min_step_size;
+            if (_stopping_criterions.processStopped()) { return; }
             run_next_step = final_time > t + _settings.min_step_size;
         }
     }
 
 
     void SimulatorOde::_runSingleStep(std::vector<double> &state, double &t, double final_time) {
-        if (_root_found) { CVodeReInit(_cvode_mem, t, _current_state_n_vector); }
         int flag = CVode(_cvode_mem, final_time, _current_state_n_vector, &t, CV_NORMAL);
-        if (flag == CV_ROOT_RETURN) {
-            _root_found = true;
-        } else {
-            _root_found = false;
-        }
         if (flag != CV_SUCCESS && flag != CV_ROOT_RETURN) {
             std::stringstream os;
             os << "Error while solving Ode; t = " << t << ", final time " << final_time << std::endl;
@@ -196,17 +188,6 @@ namespace simulator {
     int SimulatorOde::cvOdeRhs_static(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
         RhsData *rhs_data = (RhsData *) user_data;
         (*rhs_data->rhs_fct)(NV_DATA_S(ydot), NV_DATA_S(y), t);
-
-        return 0;
-    }
-
-    int SimulatorOde::cvOdeRoot_static(realtype t, N_Vector y, realtype *gout, void *user_data) {
-        RhsData *rhs_data = (RhsData *) user_data;
-
-        if (rhs_data->root_fct_ptr) {
-            *gout = (*rhs_data->root_fct_ptr)(NV_DATA_S(y), t);
-        }
-
         return 0;
     }
 

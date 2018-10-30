@@ -35,7 +35,6 @@ namespace simulator {
         void reset(std::vector<double> &state, double &t) override;
 
         void simulateReaction(std::vector<double> &state, double &t, double final_time);
-
     private:
         base::RngPtr _rng;
         base::UniformRealDistribution _dis;
@@ -44,15 +43,15 @@ namespace simulator {
         PropensityFct_ptr _propensity_fct;
         std::vector<double> _propensities;
         ReactionFct_ptr _reaction_fct;
-        int _root_sign;
-
-        void _simulateSystem(std::vector<double> &state, double &t, double final_time);
+//        int _root_sign;
 
         double _getTimeToNextReaction(double prop_sum);
 
-        void _checkRoot(std::vector<double> &state, double &t, double next_t);
+//        void _checkRoot(std::vector<double> &state, double &t, double next_t);
 
-        double _findRootTime(std::vector<double> &state, double time_a, double time_b, int sgn_a);
+//        double _findRootTime(std::vector<double> &state, double time_a, double time_b, int sgn_a);
+
+        void _simulateReaction(std::vector<double> &state, double &t, double final_time);
     };
 
     typedef std::shared_ptr<SimulatorSsa> SimulatorSsa_ptr;

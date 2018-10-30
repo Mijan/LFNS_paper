@@ -116,6 +116,7 @@ namespace models {
                 os << param_name << " ";
             }
         }
+        os << std::endl;
     }
 
     BaseData &BaseObject::getBaseData() { return _base_data; }

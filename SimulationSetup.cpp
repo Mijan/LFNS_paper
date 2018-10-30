@@ -209,7 +209,8 @@ SimulationSetup::setUpPerturbations(std::string experiment, simulator::Simulator
                 full_models.back()->addInputPulse(pulse);
             }
         }
-        simulator->setRootFunction(full_model->getRootFct());
+//        simulator->setRootFunction(full_model->getRootFct());
+        simulator->setDiscontTimes(full_model->getDiscontTimes());
     }
 }
 
