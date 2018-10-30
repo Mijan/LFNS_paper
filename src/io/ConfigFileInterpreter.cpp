@@ -21,18 +21,16 @@ namespace io {
 
     std::string ConfigFileInterpreter::getModelFileName() {
         std::string model_file = _reader.getEntry("model.model");
-        if (base::IoUtils::isPathAbsolute(model_file)) {
-            return model_file;
-        } else {
+        if (base::IoUtils::isPathAbsolute(model_file)) { return model_file; }
+        else {
             return _reader.getXmlFilePath() + model_file;
         }
     }
 
     std::string ConfigFileInterpreter::getMeasurementModelFile() {
         std::string measurement_file = _reader.getEntry("model.measurement");
-        if (base::IoUtils::isPathAbsolute(measurement_file)) {
-            return measurement_file;
-        } else {
+        if (base::IoUtils::isPathAbsolute(measurement_file)) { return measurement_file; }
+        else {
             return _reader.getXmlFilePath() + measurement_file;
         }
     }
