@@ -35,7 +35,7 @@ namespace simulator {
         _states_ptr = &state;
         _t_ptr = &t;
         if (!_discont_times.empty() && t < _discont_times.back()) {
-            _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end(), t);
+            _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end() - 1, t);
         }
     }
 

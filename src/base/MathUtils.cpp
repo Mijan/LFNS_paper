@@ -27,10 +27,9 @@ namespace base {
         double end_val = *end;
         double begin_val = *begin;
         std::size_t size = end - begin + 1;
-        if (entry == end_val) { return end; }
-        if (entry <= begin_val) { return begin; }
+        if (entry < begin_val) { return begin; }
 
-        if (entry > end_val) {
+        if (entry >= end_val) {
             std::ostringstream os;
             os << "Entry not in range for binary search! Entry: " << entry << ", first element: " << begin_val <<
                ", last element: " << end_val << std::endl;
@@ -52,8 +51,7 @@ namespace base {
         double end_val = *end;
         double begin_val = *begin;
         std::size_t size = end - begin + 1;
-        if (entry == begin_val) { return begin; }
-        if (entry >= end_val) { return end; }
+        if (entry > end_val) { return end; }
 
         if (entry < begin_val) {
             std::ostringstream os;
