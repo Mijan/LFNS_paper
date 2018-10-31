@@ -5,10 +5,26 @@
 #ifndef LFNS_COMPUTELIKELIHOODOPTIONS_H
 #define LFNS_COMPUTELIKELIHOODOPTIONS_H
 
+#include "DataOptions.h"
 
-class ComputeLikelihoodOptions {
+namespace options {
+    class ComputeLikelihoodOptions : public DataOptions {
+    public:
+        ComputeLikelihoodOptions();
 
-};
+        virtual ~ComputeLikelihoodOptions();
+
+        int handleCommandLineOptions(int argc, char **argv);
+
+        std::vector<double> params;
+        std::string param_file;
+        int num_computations;
+        int num_used_data;
+        int H;
+        bool use_proper_resampling;
+        double max_time;
+    };
+}
 
 
 #endif //LFNS_COMPUTELIKELIHOODOPTIONS_H

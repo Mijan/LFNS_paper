@@ -15,6 +15,8 @@
 #include "src/io/IoSettings.h"
 #include "src/particle_filter/ParticleFilterSettings.h"
 #include "src/sampler/SamplerSettings.h"
+#include "src/particle_filter/MultLikelihoodEval.h"
+#include "src/io/ConfigFileInterpreter.h"
 
 typedef std::vector<double> Times;
 typedef std::vector<std::vector<double>> Trajectory;
@@ -36,14 +38,15 @@ public:
     sampler::SamplerSettings sampler_settings;
 
     base::RngPtr rng;
-    lfns::MultLikelihoodEval mult_like_eval;
+    particle_filter::MultLikelihoodEval mult_like_eval;
 
 
     void setUp(options::LFNSOptions &options);
 
     void readSettingsfromFile(options::LFNSOptions &options);
 
-    TrajectorySet createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings);
+    TrajectorySet
+    createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings);
 
     Times createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings);
 
@@ -53,6 +56,10 @@ public:
 
     void printSettings(std::ostream &os);
 
+private:
+    models::ModelSettings _readModelSettings(io::ConfigFileInterpreter &interpreter, std::vector<std::string> experiments);
+
+    lfns::LFNSSettings _readLFNSSettings(io::ConfigFileInterpreter &interpreter, options::LFNSOptions &options);
 };
 
 

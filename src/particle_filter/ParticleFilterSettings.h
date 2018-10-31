@@ -17,7 +17,6 @@ namespace particle_filter {
         int num_used_trajectories = 1e5;
         std::map<std::string, std::string> data_files;
         std::map<std::string, std::string> time_files;
-        std::vector<std::string> experiments_for_particle_filter;
 
         bool use_premature_cancelation = false;
         int H = 200;
@@ -27,15 +26,16 @@ namespace particle_filter {
 
             stream << "H:\t" << H << std::endl;
             stream << "Data used:" << std::endl;
-            for (std::string experiment: experiments_for_particle_filter) {
-                stream << "Experiment:\t" << experiment << "\t\tData file: " << data_files[experiment]
-                       << "\ttimes file: "
-                       << time_files[experiment] << std::endl;
+            std::map<std::string, std::string>::iterator it;
+            for (it = data_files.begin(); it != data_files.end(); it++) {
+                stream << "Experiment:\t" << it->first << "\t\tData file: " << it->second
+                       << "\ttimes file: " << time_files[it->first] << std::endl;
             }
             stream << "Nnumber of trajectories used for each experiment: " << num_used_trajectories << std::endl;
             stream << "\n\n" << std::endl;
         }
 
+        std::vector<std::string> param_names;
     };
 }
 

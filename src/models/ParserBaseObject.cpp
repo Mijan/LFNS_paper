@@ -118,6 +118,7 @@ namespace models {
                 os << normal_names[i] << ":\tmean: " << normal_params[i].first << "\tstd: " << normal_params[i].second
                    << std::endl;
             }
+            os << std::endl << std::endl;
         }
 
         std::vector<std::string> uniform_names = _parser_data.getUniformRandomNbrsName();
@@ -128,6 +129,7 @@ namespace models {
                 os << uniform_names[i] << ":\tmin: " << uniform_params[i].first << "\tmax: " << uniform_params[i].second
                    << std::endl;
             }
+            os << std::endl << std::endl;
         }
 
         std::vector<std::string> uniform_int_names = _parser_data.getUniformIntRandomNbrsName();
@@ -139,6 +141,7 @@ namespace models {
                    << uniform_int_params[i].second
                    << std::endl;
             }
+            os << std::endl << std::endl;
         }
 
     }

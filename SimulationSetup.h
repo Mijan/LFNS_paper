@@ -22,6 +22,7 @@ public:
     std::vector<simulator::Simulator_ptr> simulators;
     std::vector<models::FullModel_ptr> full_models;
     simulator::SimulationSettings simulation_settings;
+
     io::IoSettings io_settings;
     models::ModelSettings model_settings;
 
@@ -29,6 +30,14 @@ public:
     std::vector<std::vector<double> > parameters;
     Times times;
 
+
+    int number_simulations = 1;
+    std::vector<std::string> experiments;
+    std::vector<double> parameter = {};
+    std::string parameter_file = "";
+    double initial_time = 0;
+    double final_time = 100;
+    double interval = 1;
 
     void setUp(options::SimulationOptions &options);
 
@@ -39,9 +48,20 @@ public:
                     simulator::SimulationSettings &settings);
 
     void createParameterVector();
+
     void createOutputTimes();
 
     void printSettings(std::ostream &os);
+
+
+private:
+    models::ModelSettings
+    _readModelSettings(io::ConfigFileInterpreter &interpreter, std::vector<std::string> experiments);
+
+    void _setInputData(models::ModelSettings &model_settings, io::ConfigFileInterpreter &interpreter);
+
+    simulator::SimulationSettings
+    _setSimulationSettings(io::ConfigFileInterpreter &interpreter, options::SimulationOptions &options);
 
 
 };

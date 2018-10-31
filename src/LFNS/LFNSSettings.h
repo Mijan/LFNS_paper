@@ -23,7 +23,7 @@ namespace lfns {
         int N = 1000;
         int r = 100;
         bool uniform_prior = true;
-        std::vector<std::string> experiments_for_LFNS;
+        std::vector<std::string> experiments;
         std::string previous_log_file = "";
         DENSITY_ESTIMATOR estimator = REJECT_DPGMM;
         double log_termination = -4.6;

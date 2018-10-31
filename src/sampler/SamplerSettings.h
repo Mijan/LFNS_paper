@@ -59,6 +59,7 @@ namespace sampler {
                 }
                 stream << std::endl;
             }
+            stream << std::endl;
         }
 
 

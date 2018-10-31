@@ -49,8 +49,8 @@ int simulate() {
     std::string times_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file, times_suffix);
     base::IoUtils::writeVector(times_file_name, simulation_setup.times);
 
-    for (int exp_nbr = 0; exp_nbr < simulation_setup.simulation_settings.experiments_for_simulation.size(); exp_nbr++) {
-        std::string experiment = simulation_setup.simulation_settings.experiments_for_simulation[exp_nbr];
+    for (int exp_nbr = 0; exp_nbr < simulation_setup.experiments.size(); exp_nbr++) {
+        std::string experiment = simulation_setup.experiments[exp_nbr];
         simulator::Simulator_ptr simulator = simulation_setup.simulators[exp_nbr];
         models::FullModel_ptr full_model = simulation_setup.full_models[exp_nbr];
 
@@ -59,15 +59,15 @@ int simulate() {
         State measurement(full_model->measurement_model->getNumMeasurements(), 0.0);
 
         TrajectorySet latent_state_traj;
-        latent_state_traj.reserve(simulation_setup.parameters.size() * simulation_setup.simulation_settings.n);
+        latent_state_traj.reserve(simulation_setup.parameters.size() * simulation_setup.number_simulations);
 
         TrajectorySet measurement_traj;
-        measurement_traj.reserve(simulation_setup.parameters.size() * simulation_setup.simulation_settings.n);
+        measurement_traj.reserve(simulation_setup.parameters.size() * simulation_setup.number_simulations);
 
 
         for (std::vector<double> &param : simulation_setup.parameters) {
             full_model->setParameter(param);
-            for (int sim_nbr = 0; sim_nbr < simulation_setup.simulation_settings.n; sim_nbr++) {
+            for (int sim_nbr = 0; sim_nbr < simulation_setup.number_simulations; sim_nbr++) {
                 Trajectory latent_states;
                 latent_states.reserve(simulation_setup.times.size());
                 Trajectory measurements;

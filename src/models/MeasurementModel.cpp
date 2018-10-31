@@ -118,7 +118,7 @@ namespace models {
             if (max_output_name < name.size()) { max_output_name = name.size(); }
         }
 
-        os << "\n\nMeasurements:" << std::endl;
+        os << "Measurements:" << std::endl;
         for (std::size_t i = 0; i < _measurement_parsers.size(); i++) {
             os << std::setw(max_output_name + 7) << _measurement_model_data.getMeasurementNames()[i] << " = "
                << _measurement_parsers[i].GetExpr() << std::endl;

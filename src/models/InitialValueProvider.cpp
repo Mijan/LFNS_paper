@@ -76,9 +76,8 @@ namespace models {
 
     void InitialValueProvider::printInfo(std::ostream &os) {
         os << std::endl;
-        os << "\n\n----------   Initial Values   ---------- " << std::endl;
+        os << "\n----------   Initial Values   ---------- " << std::endl;
         ParserBaseObject::printInfo(os);
-        os << std::endl << std::endl;
         try {
             std::size_t max_length = 0;
             for (const std::string &name : _initial_data.getInitialStates()) {

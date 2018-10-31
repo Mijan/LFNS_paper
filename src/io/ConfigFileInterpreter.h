@@ -42,11 +42,15 @@ namespace io {
 
         std::vector<std::string> getExperimentsForSimulations();
 
+        std::vector<std::string> getExperimentsForEvaluateLikelihood();
+
         int getNForLFNS();
 
         int getRForLFNS();
 
         int getHForLFNS();
+
+        int getHForEvaluateLikelihood();
 
         int getDPGMMItForLFNS();
 
@@ -66,9 +70,13 @@ namespace io {
 
         std::vector<double> getParamForSimulation();
 
+        std::vector<double> getParamForEvaluateLikelihood();
+
         int getNForSimulation();
 
         std::string getParameterFileforSimulation();
+
+        std::string getParameterFileforEvaluateLikelihood();
 
         double getInitialTimeForSimulation();
 

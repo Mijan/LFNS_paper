@@ -182,7 +182,7 @@ namespace io {
         }
     }
 
-    std::vector<std::string> ConfigFileInterpreter::getExperimentsForSimulations(){
+    std::vector<std::string> ConfigFileInterpreter::getExperimentsForSimulations() {
         try {
             std::string experiment_str = _reader.getEntry("Simulation.experiments");
             std::vector<std::string> experiements = base::Utils::StringToStringVector(experiment_str);
@@ -190,6 +190,18 @@ namespace io {
         } catch (const std::exception &e) {
             std::stringstream ss;
             ss << "Failed to obtain experiments for Simulation:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    std::vector<std::string> ConfigFileInterpreter::getExperimentsForEvaluateLikelihood() {
+        try {
+            std::string experiment_str = _reader.getEntry("ComputeLikelihood.experiments");
+            std::vector<std::string> experiements = base::Utils::StringToStringVector(experiment_str);
+            return experiements;
+        } catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain experiments for Likelihood Computation:\n\t" << e.what() << std::endl;
             throw std::runtime_error(ss.str());
         }
     }
@@ -229,6 +241,19 @@ namespace io {
             throw std::runtime_error(ss.str());
         }
     }
+
+    int ConfigFileInterpreter::getHForEvaluateLikelihood() {
+        try {
+            std::string r_str = _reader.getEntry("ComputeLikelihood.H");
+            return stoi(r_str);
+        }
+        catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain H for ComputeLikelihood:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    };
+
 
     int ConfigFileInterpreter::getDPGMMItForLFNS() {
         try {
@@ -341,6 +366,16 @@ namespace io {
         catch (const std::exception &e) { return params; }
     }
 
+    std::vector<double> ConfigFileInterpreter::getParamForEvaluateLikelihood() {
+        std::vector<double> params = {};
+        try {
+            std::string param_string = _reader.getEntry("ComputeLikelihood.parameter");
+            params = base::Utils::StringToDoubleVector(param_string);
+            return params;
+        }
+        catch (const std::exception &e) { return params; }
+    }
+
     int ConfigFileInterpreter::getNForSimulation() {
         int n = -1;
         try {
@@ -358,6 +393,16 @@ namespace io {
             return param_file;
         }
         catch (const std::exception &e) { return param_file; }
+    }
+
+    std::string ConfigFileInterpreter::getParameterFileforEvaluateLikelihood() {
+        std::string param_file = "";
+        try {
+            param_file = _reader.getEntry("ComputeLikelihood.parameter_file");
+            return param_file;
+        }
+        catch (const std::exception &e) { return param_file; }
+
     }
 
     double ConfigFileInterpreter::getInitialTimeForSimulation() {
