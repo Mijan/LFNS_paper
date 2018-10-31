@@ -108,6 +108,7 @@ namespace models {
             for (const std::string &param_name : _base_data.getParameterNames()) {
                 os << param_name << " ";
             }
+            os << std::endl;
         }
 
         if (!_base_data.getSpeciesNames().empty()) {
@@ -115,8 +116,8 @@ namespace models {
             for (const std::string &param_name : _base_data.getSpeciesNames()) {
                 os << param_name << " ";
             }
+            os << std::endl;
         }
-        os << std::endl;
     }
 
     BaseData &BaseObject::getBaseData() { return _base_data; }

@@ -30,7 +30,7 @@ namespace models {
 
     class InputPulse {
     public:
-        InputPulse(InputData input_data, double final_time);
+        InputPulse(InputData input_data);
 
         virtual ~InputPulse();
 

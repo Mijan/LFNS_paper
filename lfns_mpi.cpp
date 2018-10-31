@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
 
 void runMaster() {
 
-    lfns::mpi::LFNSMpi lfns(lfns_setup.settings, lfns_setup.rng, num_tasks);
-    if (!lfns_setup.settings.previous_log_file.empty()) { lfns.resumeRum(lfns_setup.settings.previous_log_file); }
+    lfns::mpi::LFNSMpi lfns(lfns_setup.lfns_settings, lfns_setup.rng, num_tasks);
+    if (!lfns_setup.lfns_settings.previous_log_file.empty()) { lfns.resumeRum(lfns_setup.lfns_settings.previous_log_file); }
     lfns.runLFNS();
 }
 
@@ -69,14 +69,14 @@ void runWorker() {
             max_num_traj = max_num_traj > data.size() ? max_num_traj : data.size();
         }
 
-        lfns_setup.settings.num_used_trajectories = std::min((int) max_num_traj,
-                                                             lfns_setup.settings.num_used_trajectories);
-        lfns_setup.settings.print(model_summary_stream);
+        lfns_setup.lfns_settings.num_used_trajectories = std::min((int) max_num_traj,
+                                                             lfns_setup.lfns_settings.num_used_trajectories);
+        lfns_setup.lfns_settings.print(model_summary_stream);
         lfns_setup.full_models.front()->printInfo(model_summary_stream);
 
         std::cout << model_summary_stream.str();
 
-        std::string model_summary_file_name = base::IoUtils::appendToFileName(lfns_setup.settings.output_file,
+        std::string model_summary_file_name = base::IoUtils::appendToFileName(lfns_setup.lfns_settings.output_file,
                                                                               model_summary_suffix);
         std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
         model_summary_file_stream << model_summary_stream.str();
@@ -89,7 +89,7 @@ void runWorker() {
     for (int i = 0; i < lfns_setup.particle_filters.size(); i++) {
         lfns_setup.simulators[i]->addStoppingCriterion(worker.getStoppingFct());
         lfns_setup.particle_filters[i]->addStoppingCriterion(worker.getStoppingFct());
-        if (lfns_setup.settings.use_premature_cancelation) {
+        if (lfns_setup.lfns_settings.use_premature_cancelation) {
             lfns_setup.particle_filters[i]->setThresholdPtr(worker.getEpsilonPtr());
         }
     }

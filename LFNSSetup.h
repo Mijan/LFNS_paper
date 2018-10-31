@@ -12,6 +12,9 @@
 #include "src/LFNS/LFNSSettings.h"
 #include "src/options/LFNSOptions.h"
 #include "src/LFNS/LFNS.h"
+#include "src/io/IoSettings.h"
+#include "src/particle_filter/ParticleFilterSettings.h"
+#include "src/sampler/SamplerSettings.h"
 
 typedef std::vector<double> Times;
 typedef std::vector<std::vector<double>> Trajectory;
@@ -24,7 +27,14 @@ public:
     std::vector<models::FullModel_ptr> full_models;
     std::vector<Times> times_vec;
     std::vector<TrajectorySet> data_vec;
-    lfns::LFNSSettings settings;
+
+    lfns::LFNSSettings lfns_settings;
+    simulator::SimulationSettings simulation_settings;
+    io::IoSettings io_settings;
+    models::ModelSettings model_settings;
+    particle_filter::ParticleFilterSettings particle_filter_settings;
+    sampler::SamplerSettings sampler_settings;
+
     base::RngPtr rng;
     lfns::MultLikelihoodEval mult_like_eval;
 
@@ -33,18 +43,15 @@ public:
 
     void readSettingsfromFile(options::LFNSOptions &options);
 
-    models::FullModel_ptr createModel(base::RngPtr rng, lfns::LFNSSettings &settings);
+    TrajectorySet createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings);
 
-    TrajectorySet createData(int num_outputs, std::string experiment, lfns::LFNSSettings &settings);
-
-    Times createDataTimes(std::string experiment, lfns::LFNSSettings &settings);
+    Times createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings);
 
     simulator::Simulator_ptr
-    createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics, lfns::LFNSSettings &settings);
+    createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics,
+                    simulator::SimulationSettings &settings);
 
-    void
-    setUpPerturbations(std::string experiment, simulator::Simulator_ptr simulator, models::FullModel_ptr full_model,
-                       lfns::LFNSSettings &settings);
+    void printSettings(std::ostream &os);
 
 };
 

@@ -12,7 +12,7 @@ typedef std::vector<State> Trajectory;
 typedef std::vector<Trajectory> TrajectorySet;
 
 static std::string model_summary_suffix = "model_summary";
-static std::stringstream model_summary_stream;
+static std::stringstream summary_stream;
 
 
 static std::string latent_states_suffix = "latent_states";
@@ -27,10 +27,10 @@ int simulate();
 int main(int argc, char **argv) {
     try {
         simulation_options.handleCommandLineOptions(argc, argv);
-
-        std::cout << "Config file: " << simulation_options.config_file_name << std::endl;
         simulation_setup.setUp(simulation_options);
 
+        simulation_setup.printSettings(summary_stream);
+        std::cout << summary_stream.str();
         return simulate();
     } catch (const std::exception &e) {
         std::cerr << "Failed to run simulate, exception thrown:\n\t" << e.what() << std::endl;
@@ -39,22 +39,18 @@ int main(int argc, char **argv) {
 }
 
 int simulate() {
-    simulation_setup.settings.print(model_summary_stream);
-    simulation_setup.full_models.front()->printInfo(model_summary_stream);
 
-    std::cout << model_summary_stream.str();
-
-    std::string model_summary_file_name = base::IoUtils::appendToFileName(simulation_setup.settings.output_file,
+    std::string model_summary_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file,
                                                                           model_summary_suffix);
     std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
-    model_summary_file_stream << model_summary_stream.str();
+    model_summary_file_stream << summary_stream.str();
     model_summary_file_stream.close();
 
-    std::string times_file_name = base::IoUtils::appendToFileName(simulation_setup.settings.output_file, times_suffix);
+    std::string times_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file, times_suffix);
     base::IoUtils::writeVector(times_file_name, simulation_setup.times);
 
-    for (int exp_nbr = 0; exp_nbr < simulation_setup.settings.experiments_for_simulation.size(); exp_nbr++) {
-        std::string experiment = simulation_setup.settings.experiments_for_simulation[exp_nbr];
+    for (int exp_nbr = 0; exp_nbr < simulation_setup.simulation_settings.experiments_for_simulation.size(); exp_nbr++) {
+        std::string experiment = simulation_setup.simulation_settings.experiments_for_simulation[exp_nbr];
         simulator::Simulator_ptr simulator = simulation_setup.simulators[exp_nbr];
         models::FullModel_ptr full_model = simulation_setup.full_models[exp_nbr];
 
@@ -63,15 +59,15 @@ int simulate() {
         State measurement(full_model->measurement_model->getNumMeasurements(), 0.0);
 
         TrajectorySet latent_state_traj;
-        latent_state_traj.reserve(simulation_setup.parameters.size() * simulation_setup.settings.n);
+        latent_state_traj.reserve(simulation_setup.parameters.size() * simulation_setup.simulation_settings.n);
 
         TrajectorySet measurement_traj;
-        measurement_traj.reserve(simulation_setup.parameters.size() * simulation_setup.settings.n);
+        measurement_traj.reserve(simulation_setup.parameters.size() * simulation_setup.simulation_settings.n);
 
 
         for (std::vector<double> &param : simulation_setup.parameters) {
             full_model->setParameter(param);
-            for (int sim_nbr = 0; sim_nbr < simulation_setup.settings.n; sim_nbr++) {
+            for (int sim_nbr = 0; sim_nbr < simulation_setup.simulation_settings.n; sim_nbr++) {
                 Trajectory latent_states;
                 latent_states.reserve(simulation_setup.times.size());
                 Trajectory measurements;
@@ -91,7 +87,7 @@ int simulate() {
             }
         }
 
-        std::string experiment_file_name = base::IoUtils::appendToFileName(simulation_setup.settings.output_file,
+        std::string experiment_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file,
                                                                            experiment);
         std::string latent_file_name = base::IoUtils::appendToFileName(experiment_file_name, latent_states_suffix);
         std::ofstream latent_file(latent_file_name.c_str());

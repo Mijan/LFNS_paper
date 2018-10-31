@@ -78,11 +78,10 @@ namespace models {
         os << std::endl;
         os << "\n\n----------   Initial Values   ---------- " << std::endl;
         ParserBaseObject::printInfo(os);
-        std::cout << std::endl << std::endl;
+        os << std::endl << std::endl;
         try {
-
             std::size_t max_length = 0;
-            for (const std::string &name : _base_data.getSpeciesNames()) {
+            for (const std::string &name : _initial_data.getInitialStates()) {
                 if (max_length < name.size()) { max_length = name.size(); }
             }
 

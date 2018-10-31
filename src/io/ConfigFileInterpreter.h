@@ -40,6 +40,8 @@ namespace io {
 
         std::vector<std::string> getExperimentsForLFNS();
 
+        std::vector<std::string> getExperimentsForSimulations();
+
         int getNForLFNS();
 
         int getRForLFNS();

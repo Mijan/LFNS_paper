@@ -11,7 +11,8 @@ namespace lfns {
     namespace seq {
         class LFNSSeq : public lfns::LFNS {
         public:
-            LFNSSeq(LFNSSettings &settings, base::RngPtr rng, LogLikelihodEvalFct_ptr log_likelihood_evaluation);
+            LFNSSeq(LFNSSettings &settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
+                    LogLikelihodEvalFct_ptr log_likelihood_evaluation);
 
             void runLFNS() override;
 

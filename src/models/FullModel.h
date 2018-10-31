@@ -8,6 +8,7 @@
 #include "ChemicalReactionNetwork.h"
 #include "InitialValueProvider.h"
 #include "MeasurementModel.h"
+#include "ModelSettings.h"
 
 namespace models {
     typedef std::function<void(const std::vector<double> &theta)> SetParameterFct;
@@ -21,6 +22,8 @@ namespace models {
     public:
         FullModel(ChemicalReactionNetwork_ptr dynamics, InitialValueProvider_ptr init_val,
                   MeasurementModel_ptr measurement);
+
+        FullModel(models::ModelSettings &settings, base::RngPtr rng, std::string experiment = "");
 
         FullModel(const FullModel &rhs);
 

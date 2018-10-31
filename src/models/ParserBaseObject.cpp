@@ -113,7 +113,7 @@ namespace models {
         std::vector<std::string> normal_names = _parser_data.getNormalRandomNbrsName();
         std::vector<std::pair<double, double> > normal_params = _parser_data.getNormalRandomParams();
         if (!normal_names.empty()) {
-            os << "\n\nNormal numbers:" << std::endl;
+            os << "\nNormal numbers:" << std::endl;
             for (std::size_t i = 0; i < normal_names.size(); i++) {
                 os << normal_names[i] << ":\tmean: " << normal_params[i].first << "\tstd: " << normal_params[i].second
                    << std::endl;

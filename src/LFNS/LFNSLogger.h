@@ -39,7 +39,8 @@ namespace lfns {
 
         void particleAccepted(const std::vector<double> &theta, double l);
 
-        void particleAccepted(const std::vector<double> &theta, double l, time_t clocks_particle, int origin_process = 0);
+        void
+        particleAccepted(const std::vector<double> &theta, double l, time_t clocks_particle, int origin_process = 0);
 
         void logIterationResults(PosteriorQuantitites &post_quant);
 

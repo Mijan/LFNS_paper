@@ -182,6 +182,18 @@ namespace io {
         }
     }
 
+    std::vector<std::string> ConfigFileInterpreter::getExperimentsForSimulations(){
+        try {
+            std::string experiment_str = _reader.getEntry("Simulation.experiments");
+            std::vector<std::string> experiements = base::Utils::StringToStringVector(experiment_str);
+            return experiements;
+        } catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to obtain experiments for Simulation:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
     int ConfigFileInterpreter::getNForLFNS() {
         try {
             std::string N_str = _reader.getEntry("LFNS.N");

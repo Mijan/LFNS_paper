@@ -9,6 +9,7 @@
 #include "LiveParticleSet.h"
 #include "../sampler/Sampler.h"
 #include "../sampler/DensityEstimation.h"
+#include "../sampler/SamplerSettings.h"
 #include "LFNSSettings.h"
 
 namespace lfns {
@@ -16,7 +17,7 @@ namespace lfns {
     public:
         LFNSSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation);
 
-        LFNSSampler(LFNSSettings &settings, base::RngPtr rng);
+        LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng);
 
         virtual ~LFNSSampler();
 

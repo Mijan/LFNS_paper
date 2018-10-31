@@ -17,7 +17,7 @@ namespace models {
                                                                                              model_data.getNumReactions()),
                                                                                      _rhs_parsers(
                                                                                              model_data.getNumSpecies()),
-                                                                                     _model_data(model_data) {    }
+                                                                                     _model_data(model_data) {}
 
     ChemicalReactionNetwork::~ChemicalReactionNetwork() {}
 
@@ -129,9 +129,9 @@ namespace models {
     void ChemicalReactionNetwork::printInfo(std::ostream &os) const {
         os << "\n\n-----------   Model   -----------" << std::endl;
         ParserBaseObject::printInfo(os);
-        std::cout << std::endl << std::endl;
+        os << std::endl << std::endl;
         for (std::size_t i = 0; i < _propensity_parsers.size(); i++) {
-            os << "\nReaction " << std::setw(2) << i << ":";
+            os << "Reaction " << std::setw(2) << i << ":";
 
             std::size_t max_prop_length = 0;
             for (const mu::Parser &p : _propensity_parsers) {
@@ -141,15 +141,12 @@ namespace models {
 
             os << "\t\tStoichiometry: ";
             const std::map<std::size_t, int> &stoich = _model_data.stoichiometry_for_reaction[i];
-            for (std::size_t species_nbr = 0; species_nbr < _model_data.getNumSpecies();
-                 species_nbr++) {
+            for (std::size_t species_nbr = 0; species_nbr < _model_data.getNumSpecies(); species_nbr++) {
                 if (stoich.count(species_nbr) > 0) {
                     bool print_stoich = stoich.at(species_nbr) != 0;
                     if (print_stoich) {
                         os << _model_data.getSpeciesNames()[species_nbr] << " ";
-                        if (stoich.at(species_nbr) > 0) {
-                            os << "+";
-                        }
+                        if (stoich.at(species_nbr) > 0) { os << "+"; }
                         os << stoich.at(species_nbr) << ", ";
                     }
                 }

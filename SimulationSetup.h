@@ -13,13 +13,18 @@
 #include "src/options/SimulationOptions.h"
 #include "LFNSSetup.h"
 #include "src/base/IoUtils.h"
+#include "src/io/IoSettings.h"
+#include "src/models/ModelSettings.h"
 
 class SimulationSetup {
 
 public:
     std::vector<simulator::Simulator_ptr> simulators;
     std::vector<models::FullModel_ptr> full_models;
-    simulator::SimulationSettings settings;
+    simulator::SimulationSettings simulation_settings;
+    io::IoSettings io_settings;
+    models::ModelSettings model_settings;
+
     base::RngPtr rng;
     std::vector<std::vector<double> > parameters;
     Times times;
@@ -29,18 +34,14 @@ public:
 
     void readSettingsfromFile(options::SimulationOptions &options);
 
-    models::FullModel_ptr createModel(base::RngPtr rng, simulator::SimulationSettings &settings);
-
     simulator::Simulator_ptr
     createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics,
                     simulator::SimulationSettings &settings);
 
-    void
-    setUpPerturbations(std::string experiment, simulator::Simulator_ptr simulator, models::FullModel_ptr full_model,
-                       simulator::SimulationSettings &settings);
-
     void createParameterVector();
     void createOutputTimes();
+
+    void printSettings(std::ostream &os);
 
 
 };

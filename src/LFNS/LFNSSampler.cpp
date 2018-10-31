@@ -9,15 +9,21 @@
 #include "../sampler/EllipsoidSampler.h"
 #include "../sampler/GaussianSampler.h"
 #include "../sampler/KernelSupportEstimation.h"
+#include "../particle_filter/ParticleFilterSettings.h"
 
 namespace lfns {
 
 
-    LFNSSampler::LFNSSampler(LFNSSettings &settings, base::RngPtr rng) : _rng(rng), _prior(), _density_estimation(),
-                                                                        _max_live_prior_value(0), _dist(),
-                                                                        _uniform_prior(true), _log_params() {
+    LFNSSampler::LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng) : _rng(
+            rng), _prior(), _density_estimation(),
+                                                                                                                  _max_live_prior_value(
+                                                                                                                          0),
+                                                                                                                  _dist(),
+                                                                                                                  _uniform_prior(
+                                                                                                                          true),
+                                                                                                                  _log_params() {
 
-        std::vector<std::string> unfixed_params = settings.getUnfixedParameters();
+        std::vector<std::string> unfixed_params = settings.param_names;
         sampler::SamplerData sampler_data(unfixed_params.size());
         sampler_data.bounds = settings.getBounds(unfixed_params);
         _log_params = settings.getLogParams(unfixed_params);
@@ -27,12 +33,12 @@ namespace lfns {
             sampler_data.bounds[i].second = std::log10(sampler_data.bounds[i].second);
         }
 
-        if (settings.uniform_prior) {
+        if (lfns_settings.uniform_prior) {
             sampler::UniformSamplerData uni_data(sampler_data);
             _prior = std::make_shared<sampler::UniformSampler>(_rng, uni_data);
         }
 
-        switch (settings.estimator) {
+        switch (lfns_settings.estimator) {
             case REJECT_DPGMM  : {
                 sampler::DpGmmSamplerData dpgmm_data(sampler_data);
                 dpgmm_data.num_dp_iterations = 50;
@@ -40,7 +46,7 @@ namespace lfns {
 
 
                 sampler::RejectionSamplerData rej_data(sampler_data);
-                rej_data.rejection_quantile = settings.rejection_quantile_for_density_estimation;
+                rej_data.rejection_quantile = lfns_settings.rejection_quantile_for_density_estimation;
                 _density_estimation = std::make_shared<sampler::RejectionSupportSampler>(_rng, dpgmm_sampler, rej_data);
                 break;
             }
