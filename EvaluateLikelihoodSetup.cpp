@@ -176,7 +176,7 @@ void EvaluateLikelihoodSetup::_readModelSettings(io::ConfigFileInterpreter &inte
     models::InitialValueData init_data(model_settings.initial_value_file);
     models::MeasurementModelData measure_data(model_settings.measurement_file);
 
-    std::vector<std::__cxx11::string> param_names = model_data.getParameterNames();
+    std::vector<std::string> param_names = model_data.getParameterNames();
     base::Utils::addOnlyNew<std::string>(param_names, init_data.getParameterNames());
     base::Utils::addOnlyNew<std::string>(param_names, measure_data.getParameterNames());
     model_settings.param_names = param_names;
