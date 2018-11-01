@@ -15,7 +15,6 @@
 static std::string model_summary_suffix = "model_summary";
 static std::stringstream model_summary_stream;
 
-LFNSSetup lfns_setup;
 
 options::LFNSOptions lfns_options;
 
@@ -24,9 +23,9 @@ int num_tasks;
 
 namespace bmpi = boost::mpi;
 
-void runMaster();
+void runMaster(LFNSSetup &lfns_setup);
 
-void runWorker();
+void runWorker(LFNSSetup &lfns_setup);
 
 int main(int argc, char *argv[]) {
     bmpi::environment env;
@@ -43,10 +42,10 @@ int main(int argc, char *argv[]) {
     try {
         lfns_options.handleCommandLineOptions(argc, argv);
 
-        std::cout << "Config file: " << lfns_options.config_file_name << std::endl;
-        lfns_setup.setUp(lfns_options);
-        if (my_rank == 0) { runMaster(); }
-        else { runWorker(); }
+        LFNSSetup lfns_setup(lfns_options);
+        lfns_setup.setUp();
+        if (my_rank == 0) { runMaster(lfns_setup); }
+        else { runWorker(lfns_setup); }
     } catch (const std::exception &e) {
         std::cerr << "Failed to run LFNS, exception thrown:\n\t" << e.what() << std::endl;
         return 0;
@@ -54,7 +53,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-void runMaster() {
+void runMaster(LFNSSetup &lfns_setup) {
 
     lfns::mpi::LFNSMpi lfns(lfns_setup.lfns_settings, lfns_setup.sampler_settings, lfns_setup.rng,
                             num_tasks);
@@ -64,21 +63,10 @@ void runMaster() {
     lfns.runLFNS();
 }
 
-void runWorker() {
+void runWorker(LFNSSetup &lfns_setup) {
 
     if (my_rank == 1) {
-        std::size_t max_num_traj = 0;
-        for (TrajectorySet &data : lfns_setup.data_vec) {
-            max_num_traj = max_num_traj > data.size() ? max_num_traj : data.size();
-        }
-
-        lfns_setup.particle_filter_settings.num_used_trajectories = std::min((int) max_num_traj,
-                                                                             lfns_setup.particle_filter_settings.num_used_trajectories);
-
-
-        lfns_setup.lfns_settings.print(model_summary_stream);
-        lfns_setup.full_models.front()->printInfo(model_summary_stream);
-
+        lfns_setup.printSettings(model_summary_stream);
         std::cout << model_summary_stream.str();
 
         std::string model_summary_file_name = base::IoUtils::appendToFileName(

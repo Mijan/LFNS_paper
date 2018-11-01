@@ -13,7 +13,7 @@ static std::stringstream model_summary_stream;
 
 options::ComputeLikelihoodOptions likelihood_options;
 
-int computeLikelihood( LikelihoodSetup &likelihood_setup);
+int computeLikelihood(LikelihoodSetup &likelihood_setup);
 
 int main(int argc, char **argv) {
     try {
@@ -32,14 +32,7 @@ int main(int argc, char **argv) {
 }
 
 // TODO add check if output files can be saved BEFORE code runs!
-int computeLikelihood( LikelihoodSetup &likelihood_setup) {
-    std::size_t max_num_traj = 0;
-    for (TrajectorySet &data : likelihood_setup.data_vec) {
-        max_num_traj = max_num_traj > data.size() ? max_num_traj : data.size();
-    }
-
-    likelihood_setup.particle_filter_settings.num_used_trajectories = std::min((int) max_num_traj,
-                                                                               likelihood_setup.particle_filter_settings.num_used_trajectories);
+int computeLikelihood(LikelihoodSetup &likelihood_setup) {
     likelihood_setup.printSettings(model_summary_stream);
 
     std::cout << model_summary_stream.str();

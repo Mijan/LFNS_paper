@@ -17,6 +17,7 @@ LFNSSetup::~LFNSSetup() {}
 void LFNSSetup::setUp() {
     _readSettingsfromFile();
 
+    int max_num_traj = 0;
     for (std::string experiment : experiments) {
 
         models::FullModel_ptr full_model = std::make_shared<models::FullModel>(model_settings, rng);
@@ -26,6 +27,7 @@ void LFNSSetup::setUp() {
         times_vec.push_back(_createDataTimes(experiment, particle_filter_settings));
         TrajectorySet data = _createData(full_model->measurement_model->getNumMeasurements(), experiment,
                                          particle_filter_settings);
+        max_num_traj = max_num_traj > data.size() ? max_num_traj : data.size();
         data_vec.push_back(data);
 
         simulator::Simulator_ptr simulator = _createSimulator(full_model->dynamics);
@@ -45,6 +47,7 @@ void LFNSSetup::setUp() {
                                                                             &times_vec.back()));
         }
     }
+    particle_filter_settings.num_used_trajectories = max_num_traj;
 }
 
 void LFNSSetup::printSettings(std::ostream &os) {
