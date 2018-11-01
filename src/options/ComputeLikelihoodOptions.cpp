@@ -9,8 +9,7 @@
 
 namespace options {
     ComputeLikelihoodOptions::ComputeLikelihoodOptions()
-            : DataOptions(), params(0), num_computations(0), num_used_data(0), H(0),
-              use_proper_resampling(false), max_time(-1) {
+            : DataOptions(), params(0), num_computations(0), H(0), use_proper_resampling(false), max_time(-1) {
         desc.add_options()("parameter,p", po::value<std::vector<double> >(&params)->multitoken(),
                            "The parameters used for the simulation")("parameter-file,P",
                                                                      po::value<std::string>(&param_file),

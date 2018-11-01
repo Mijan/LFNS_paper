@@ -19,7 +19,6 @@ namespace options {
         std::vector<double> params;
         std::string param_file;
         int num_computations;
-        int num_used_data;
         int H;
         bool use_proper_resampling;
         double max_time;

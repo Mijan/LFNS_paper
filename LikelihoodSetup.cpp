@@ -181,13 +181,13 @@ particle_filter::ParticleFilterSettings LikelihoodSetup::_readParticleFilterSett
         }
     }
 
-    if (_likelihood_options.vm.count("smcparticles") > 0) { filter_settings.H = _likelihood_options.H; }
+    if (_likelihood_options.vm.count("numsmcparticles") > 0) { filter_settings.H = _likelihood_options.H; }
     else {
         try {
             filter_settings.H = interpreter.getHForEvaluateLikelihood();
         } catch (const std::exception &e) {
-            std::cout
-                    << "No number of particles for particle H for particle filter provided (either with -H through the command line or 'ComputeLikelihood.H' in the config file). Assume H = "
+            std::cerr
+                    << "\tNo number of particles for particle H for particle filter provided (either with -H through the command line or 'ComputeLikelihood.H' in the config file). Assume H = "
                     << filter_settings.H << std::endl;
         }
     }
