@@ -9,8 +9,8 @@
 #include <string>
 #include <map>
 #include <cmath>
-#include "../simulator/SimulationSettings.h"
 #include "../models/InputPulse.h"
+#include <iostream>
 
 namespace lfns {
 
@@ -23,7 +23,6 @@ namespace lfns {
         int N = 1000;
         int r = 100;
         bool uniform_prior = true;
-        std::vector<std::string> experiments;
         std::string previous_log_file = "";
         DENSITY_ESTIMATOR estimator = REJECT_DPGMM;
         double log_termination = -4.6;
@@ -37,9 +36,10 @@ namespace lfns {
             stream << "N:\t" << N << std::endl;
             stream << "r:\t" << r << std::endl;
             stream << "Termination threshold:\t" << std::exp(log_termination) << std::endl;
-            stream << std::endl;
+            stream << "For Density estimation the " << rejection_quantile_for_density_estimation * 100
+                   << "% quantile will be used. " << std::endl;
             if (previous_log_file.size() > 0) {
-                stream << "A previous log file was provided:\t" << previous_log_file
+                stream << "\nA previous log file was provided:\t" << previous_log_file
                        << ", and LFNS will continue from the last iteration." << std::endl;
             }
         }

@@ -20,25 +20,27 @@ static std::string measurement_suffix = "measurements";
 static std::string times_suffix = "times";
 
 options::SimulationOptions simulation_options;
-SimulationSetup simulation_setup;
 
-int simulate();
+int simulate(SimulationSetup &simulation_setup);
 
 int main(int argc, char **argv) {
     try {
         simulation_options.handleCommandLineOptions(argc, argv);
-        simulation_setup.setUp(simulation_options);
+
+        SimulationSetup simulation_setup(simulation_options);
+        simulation_setup.setUp();
 
         simulation_setup.printSettings(summary_stream);
         std::cout << summary_stream.str();
-        return simulate();
+
+        return simulate(simulation_setup);
     } catch (const std::exception &e) {
         std::cerr << "Failed to run simulate, exception thrown:\n\t" << e.what() << std::endl;
         return 0;
     }
 }
 
-int simulate() {
+int simulate(SimulationSetup &simulation_setup) {
 
     std::string model_summary_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file,
                                                                           model_summary_suffix);
@@ -46,7 +48,8 @@ int simulate() {
     model_summary_file_stream << summary_stream.str();
     model_summary_file_stream.close();
 
-    std::string times_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file, times_suffix);
+    std::string times_file_name = base::IoUtils::appendToFileName(simulation_setup.io_settings.output_file,
+                                                                  times_suffix);
     base::IoUtils::writeVector(times_file_name, simulation_setup.times);
 
     for (int exp_nbr = 0; exp_nbr < simulation_setup.experiments.size(); exp_nbr++) {

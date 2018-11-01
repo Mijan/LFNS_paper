@@ -7,18 +7,19 @@
 static std::string model_summary_suffix = "model_summary";
 static std::stringstream model_summary_stream;
 
-LFNSSetup likelihood_setup;
 
 options::LFNSOptions likelihood_options;
 
-int runLFNS();
+int runLFNS(LFNSSetup &likelihood_setup);
 
 int main(int argc, char **argv) {
     try {
         likelihood_options.handleCommandLineOptions(argc, argv);
 
-        likelihood_setup.setUp(likelihood_options);
-        return runLFNS();
+
+        LFNSSetup likelihood_setup(likelihood_options);
+        likelihood_setup.setUp();
+        return runLFNS(likelihood_setup);
     } catch (const std::exception &e) {
         std::cerr << "Failed to run LFNS, exception thrown:\n\t" << e.what() << std::endl;
         return 0;
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
 }
 
 // TODO add check if output files can be saved BEFORE code runs!
-int runLFNS() {
+int runLFNS(LFNSSetup &likelihood_setup) {
     std::size_t max_num_traj = 0;
     for (TrajectorySet &data : likelihood_setup.data_vec) {
         max_num_traj = max_num_traj > data.size() ? max_num_traj : data.size();

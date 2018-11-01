@@ -10,22 +10,25 @@
 #include "src/simulator/SimulatorSsa.h"
 
 
-void LFNSSetup::setUp(options::LFNSOptions &options) {
-    readSettingsfromFile(options);
+LFNSSetup::LFNSSetup(options::LFNSOptions options) : GeneralSetup(options), _lfns_options(options) {}
 
-    rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
-    for (std::string experiment : lfns_settings.experiments) {
+LFNSSetup::~LFNSSetup() {}
+
+void LFNSSetup::setUp() {
+    _readSettingsfromFile();
+
+    for (std::string experiment : experiments) {
 
         models::FullModel_ptr full_model = std::make_shared<models::FullModel>(model_settings, rng);
         full_models.push_back(full_model);
 
 
-        times_vec.push_back(createDataTimes(experiment, particle_filter_settings));
-        TrajectorySet data = createData(full_model->measurement_model->getNumMeasurements(), experiment,
-                                        particle_filter_settings);
+        times_vec.push_back(_createDataTimes(experiment, particle_filter_settings));
+        TrajectorySet data = _createData(full_model->measurement_model->getNumMeasurements(), experiment,
+                                         particle_filter_settings);
         data_vec.push_back(data);
 
-        simulator::Simulator_ptr simulator = createSimulator(rng, full_model->dynamics, simulation_settings);
+        simulator::Simulator_ptr simulator = _createSimulator(full_model->dynamics);
         simulator->setDiscontTimes(full_model->getDiscontTimes());
         simulators.push_back(simulator);
 
@@ -44,36 +47,62 @@ void LFNSSetup::setUp(options::LFNSOptions &options) {
     }
 }
 
-void LFNSSetup::readSettingsfromFile(options::LFNSOptions &options) {
+void LFNSSetup::printSettings(std::ostream &os) {
+    io_settings.print(os);
+    lfns_settings.print(os);
+    os << std::endl;
+    particle_filter_settings.print(os);
+    sampler_settings.print(os);
+    full_models.back()->printInfo(os);
+}
 
-    io_settings.config_file = options.config_file_name;
-    io_settings.output_file = options.output_file_name;
-    io::ConfigFileInterpreter interpreter(io_settings.config_file);
 
+std::vector<std::string> LFNSSetup::_readExperiments() { return interpreter.getExperimentsForLFNS(); }
 
-    particle_filter_settings.data_files = interpreter.getDataFiles();
-    particle_filter_settings.time_files = interpreter.getTimesFiles();
-    particle_filter_settings.H = interpreter.getHForLFNS();
+void LFNSSetup::_readSettingsfromFile() {
+    GeneralSetup::_readSettingsfromFile();
+    particle_filter_settings = _readParticleFilterSettings();
+    sampler_settings = _readSamplerSettings();
 
-    lfns_settings = _readLFNSSettings(interpreter, options);
-    model_settings = _readModelSettings(interpreter, interpreter.getExperimentsForLFNS());
-
-    std::string model_type = interpreter.getModelType();
-    if (simulator::MODEL_TYPE_NAME.count(model_type) == 0) {
-        std::stringstream os;
-        os << "Modeltype " << model_type << " not known. Possible options are: ";
-        std::map<std::string, simulator::MODEL_TYPE>::iterator it = simulator::MODEL_TYPE_NAME.begin();
-        for (it; it != simulator::MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
-        throw std::runtime_error(os.str());
+    lfns_settings = _readLFNSSettings();
+    for (std::string experiment : experiments) {
+        std::vector<double> times = _createDataTimes(experiment, particle_filter_settings);
+        model_settings.input_datas[experiment] = _getInputDatasForExperiment(experiment, times.back());
     }
-    simulation_settings.model_type = simulator::MODEL_TYPE_NAME[model_type];
+}
 
 
-    sampler_settings.param_names = model_settings.getUnfixedParameters();
+particle_filter::ParticleFilterSettings LFNSSetup::_readParticleFilterSettings() {
+    particle_filter::ParticleFilterSettings filter_settings;
+    filter_settings.data_files = interpreter.getDataFiles();
+    filter_settings.time_files = interpreter.getTimesFiles();
+    if (_lfns_options.vm.count("smcparticles") > 0) { filter_settings.H = _lfns_options.H; }
+    else {
+        try {
+            filter_settings.H = interpreter.getHForEvaluateLikelihood();
+        } catch (const std::exception &e) {
+            std::cout
+                    << "No number of particles for particle H for particle filter provided (either with -H through the command line or 'ComputeLikelihood.H' in the config file). Assume H = "
+                    << filter_settings.H << std::endl;
+        }
+    }
+    if (_lfns_options.vm.count("prematurecancelling") >
+        0) { filter_settings.use_premature_cancelation = _lfns_options.use_premature_cancelation; }
+
+    if (_lfns_options.vm.count("numuseddata") >
+        0) { particle_filter_settings.num_used_trajectories = _lfns_options.num_used_data; }
+    filter_settings.param_names = model_settings.getUnfixedParameters();
+    return filter_settings;
+}
+
+
+sampler::SamplerSettings LFNSSetup::_readSamplerSettings() {
+    sampler::SamplerSettings sampler_setting;
+    sampler_setting.param_names = model_settings.getUnfixedParameters();
 
     std::map<std::string, std::pair<double, double> > bounds = interpreter.getParameterBounds();
     std::map<std::string, std::string> log_scale_str = interpreter.getParameterScales();
-    for (std::string &param : sampler_settings.param_names) {
+    for (std::string &param : sampler_setting.param_names) {
         std::string scale = "log";
         if (log_scale_str.count(param) > 0) {
             scale = log_scale_str[param];
@@ -84,22 +113,21 @@ void LFNSSetup::readSettingsfromFile(options::LFNSOptions &options) {
                 throw std::runtime_error(ss.str());
             }
         }
-        sampler_settings.parameters_log_scale[param] = scale.compare("log") == 0;
+        sampler_setting.parameters_log_scale[param] = scale.compare("log") == 0;
 
-        if (bounds.count(param) > 0) { sampler_settings.parameter_bounds[param] = bounds[param]; }
-        else { sampler_settings.parameter_bounds[param] = {1e-5, 100}; }
+        if (bounds.count(param) > 0) { sampler_setting.parameter_bounds[param] = bounds[param]; }
+        else {
+            sampler_setting.parameter_bounds[param] = {1e-5, 100};
+            std::cerr << "No bounds for parameter " << param << " provided. Assume defauld bounds of ["
+                      << sampler_setting.parameter_bounds[param].first << ", "
+                      << sampler_setting.parameter_bounds[param].second << "]" << std::endl;
+        }
     }
-
-    if (options.vm.count("smcparticles") > 0) { particle_filter_settings.H = options.H; }
-    if (options.vm.count("prematurecancelling") >
-        0) { particle_filter_settings.use_premature_cancelation = options.use_premature_cancelation; }
-    if (options.vm.count("numuseddata") > 0) { particle_filter_settings.num_used_trajectories = options.num_used_data; }
-
+    return sampler_setting;
 }
 
-
 TrajectorySet
-LFNSSetup::createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings) {
+LFNSSetup::_createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings) {
     if (settings.data_files.count(experiment) == 0) {
         std::stringstream ss;
         ss << "No data file for experiment " << experiment << " provided!" << std::endl;
@@ -110,7 +138,7 @@ LFNSSetup::createData(int num_outputs, std::string experiment, particle_filter::
     return data;
 }
 
-Times LFNSSetup::createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings) {
+Times LFNSSetup::_createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings) {
     if (settings.time_files.count(experiment) == 0) {
         std::stringstream ss;
         ss << "No time file for experiment " << experiment << " provided!" << std::endl;
@@ -121,112 +149,42 @@ Times LFNSSetup::createDataTimes(std::string experiment, particle_filter::Partic
     return times;
 }
 
-
-simulator::Simulator_ptr
-LFNSSetup::createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics,
-                           simulator::SimulationSettings &settings) {
-    simulator::Simulator_ptr sim_ptr;
-    if (settings.model_type == simulator::MODEL_TYPE::STOCH) {
-        simulator::SimulatorSsa simulator_ssa(rng, dynamics->getPropensityFct(), dynamics->getReactionFct(),
-                                              dynamics->getNumReactions());
-        sim_ptr = std::make_shared<simulator::SimulatorSsa>(simulator_ssa);
-    } else {
-        simulator::OdeSettings ode_settings;
-        simulator::SimulatorOde simulator_ode(ode_settings, dynamics->getRhsFct(), dynamics->getNumSpecies());
-        simulator::SimulatorOde_ptr simulator_ode_ptr = std::make_shared<simulator::SimulatorOde>(simulator_ode);
-        sim_ptr = simulator_ode_ptr;
-    }
-    return sim_ptr;
-}
-
-
-void LFNSSetup::printSettings(std::ostream &os) {
-    io_settings.print(os);
-    lfns_settings.print(os);
-    if (simulation_settings.model_type == simulator::MODEL_TYPE::STOCH) {
-        os << "A SSA simulator will be used!\n" << std::endl;
-    } else {
-        os << "An ODE simulator will be used\n" << std::endl;
-    }
-    particle_filter_settings.print(os);
-    sampler_settings.print(os);
-    model_settings.print(os);
-    full_models.back()->printInfo(os);
-}
-
-
-models::ModelSettings
-LFNSSetup::_readModelSettings(io::ConfigFileInterpreter &interpreter, std::vector<std::string> experiments) {
-
-    models::ModelSettings model_setting;
-    model_setting.model_file = interpreter.getModelFileName();
-    model_setting.initial_value_file = interpreter.getInitialConditionsFile();
-    model_setting.measurement_file = interpreter.getMeasurementModelFile();
-
-    models::ModelReactionData model_data(model_setting.model_file);
-    models::InitialValueData init_data(model_setting.initial_value_file);
-    models::MeasurementModelData measure_data(model_setting.measurement_file);
-
-    std::vector<std::string> param_names = model_data.getParameterNames();
-    base::Utils::addOnlyNew<std::string>(param_names, init_data.getParameterNames());
-    base::Utils::addOnlyNew<std::string>(param_names, measure_data.getParameterNames());
-    model_setting.param_names = param_names;
-
-    model_setting.fixed_parameters = interpreter.getFixedParameters();
-
-
-    if (experiments.empty()) {
-        std::cerr << "No experiment names for LFNS algorithm provided, only basic model without inputs will be used!";
-    } else {
-        std::map<std::string, models::InputData> input_datas;
-        for (std::string &experiment : experiments) {
-            std::vector<double> periods = interpreter.getPulsePeriods(experiment);
-            if (!periods.empty()) {
-                std::vector<double> strength = interpreter.getPulseStrengths(experiment);
-                std::vector<double> duration = interpreter.getPulseDurations(experiment);
-                std::vector<int> num_pulses = interpreter.getNumPulse(experiment);
-                std::vector<std::string> names = interpreter.getPulseInputNames(experiment);
-                std::vector<double> starting_times = interpreter.getStartingTimes(experiment);
-
-                std::vector<double> times = createDataTimes(experiment, particle_filter_settings);
-                std::vector<models::InputData> datas;
-                for (int i = 0; i < periods.size(); i++) {
-                    double last_needed_time = times.back();
-                    if (starting_times[i] > last_needed_time) {
-                        std::cerr << "For experiment " << experiment << " perturbation provided, but starting time "
-                                  << starting_times[i] << " is after the final data point time "
-                                  << last_needed_time << ", thus perturbation for experiment " << experiment
-                                  << " on the parameter " << names[i] << " starting at " << starting_times[i]
-                                  << " will be ignored!" << std::endl;
-                    } else {
-                        int max_num_pulses = std::min(num_pulses[i], (int) ((last_needed_time - starting_times[i]) /
-                                                                            (periods[i] + 1)));
-                        datas.push_back(
-                                models::InputData(periods[i], strength[i], duration[i], max_num_pulses, names[i],
-                                                  starting_times[i]));
-                    }
-                }
-                model_setting.input_datas[experiment] = datas;
-            }
-        }
-    }
-    return model_setting;
-}
-
-lfns::LFNSSettings LFNSSetup::_readLFNSSettings(io::ConfigFileInterpreter &interpreter, options::LFNSOptions &options) {
+lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
     lfns::LFNSSettings lfns_setting;
-    lfns_setting.N = interpreter.getNForLFNS();
-    lfns_setting.r = interpreter.getRForLFNS();
-    lfns_setting.log_termination = std::log(interpreter.getEpsilonForLFNS());
-    try { lfns_setting.experiments = interpreter.getExperimentsForLFNS(); } catch (const std::exception &e) {}
     lfns_setting.output_file = io_settings.output_file;
 
-    if (options.vm.count("LFNSparticles") > 0) { lfns_setting.N = options.N; }
-    if (options.vm.count("numberprallelsamples") > 0) { lfns_setting.r = options.r; }
-    if (options.vm.count("tolerance") > 0) { lfns_setting.log_termination = std::log(options.LFNS_tolerance); }
-    if (options.vm.count("previous_pop") > 0) { lfns_setting.previous_log_file = options.previous_population_file; }
-    if (options.vm.count("printinterval") > 0) { lfns_setting.print_interval = options.print_interval; }
-    if (options.vm.count("rej_quan") >
-        0) { lfns_setting.rejection_quantile_for_density_estimation = options.rejection_quantile; }
+    if (_lfns_options.vm.count("LFNSparticles") > 0) { lfns_setting.N = _lfns_options.N; }
+    else {
+        try { lfns_setting.N = interpreter.getNForLFNS(); }
+        catch (const std::runtime_error &e) {
+            std::cout
+                    << "\tNo number of LFNS particles N provided (either with -N through the command line or 'LFNS.N' in the config file). Assume N = "
+                    << lfns_setting.N << std::endl;
+        }
+    }
+    if (_lfns_options.vm.count("numberprallelsamples") > 0) { lfns_setting.r = _lfns_options.r; }
+    else {
+        try { lfns_setting.r = interpreter.getRForLFNS(); }
+        catch (const std::runtime_error &e) {
+            std::cout
+                    << "\tNo number of paralle samples r for LFNS provided (either with -r through the command line or 'LFNS.r' in the config file). Assume r = "
+                    << lfns_setting.r << std::endl;
+        }
+    }
+    if (_lfns_options.vm.count("tolerance") > 0) {
+        lfns_setting.log_termination = std::log(_lfns_options.LFNS_tolerance);
+    } else {
+        try { lfns_setting.log_termination = std::log(interpreter.getEpsilonForLFNS()); }
+        catch (const std::runtime_error &e) {
+            std::cout
+                    << "\tNo number termination threshold epsilon for LFNS provided (either with -t through the command line or 'LFNS.epsilon' in the config file). Assume epsilon = "
+                    << std::exp(lfns_setting.log_termination) << std::endl;
+        }
+    }
+    if (_lfns_options.vm.count("previous_pop") >
+        0) { lfns_setting.previous_log_file = _lfns_options.previous_population_file; }
+    if (_lfns_options.vm.count("printinterval") > 0) { lfns_setting.print_interval = _lfns_options.print_interval; }
+    if (_lfns_options.vm.count("rej_quan") >
+        0) { lfns_setting.rejection_quantile_for_density_estimation = _lfns_options.rejection_quantile; }
     return lfns_setting;
 }

@@ -6,64 +6,56 @@
 #define LFNS_SIMULATIONSETUP_H
 
 
-#include "src/simulator/SimulationSettings.h"
 #include "src/base/RandomDistributions.h"
 #include "src/simulator/Simulator.h"
 #include "src/models/FullModel.h"
 #include "src/options/SimulationOptions.h"
-#include "LFNSSetup.h"
 #include "src/base/IoUtils.h"
 #include "src/io/IoSettings.h"
 #include "src/models/ModelSettings.h"
+#include "GeneralSetup.h"
 
-class SimulationSetup {
+typedef std::vector<double> Times;
+typedef std::vector<std::vector<double>> Trajectory;
+typedef std::vector<Trajectory> TrajectorySet;
+
+class SimulationSetup : public GeneralSetup {
 
 public:
-    std::vector<simulator::Simulator_ptr> simulators;
-    std::vector<models::FullModel_ptr> full_models;
-    simulator::SimulationSettings simulation_settings;
+    SimulationSetup(options::SimulationOptions &options);
 
-    io::IoSettings io_settings;
-    models::ModelSettings model_settings;
+    virtual ~SimulationSetup();
 
-    base::RngPtr rng;
     std::vector<std::vector<double> > parameters;
     Times times;
 
 
     int number_simulations = 1;
-    std::vector<std::string> experiments;
     std::vector<double> parameter = {};
     std::string parameter_file = "";
+    std::vector<std::string> sim_param_names;
     double initial_time = 0;
     double final_time = 100;
     double interval = 1;
 
-    void setUp(options::SimulationOptions &options);
+    void setUp();
 
-    void readSettingsfromFile(options::SimulationOptions &options);
-
-    simulator::Simulator_ptr
-    createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics,
-                    simulator::SimulationSettings &settings);
-
-    void createParameterVector();
-
-    void createOutputTimes();
-
-    void printSettings(std::ostream &os);
-
+    void printSettings(std::ostream &os) override;
 
 private:
-    models::ModelSettings
-    _readModelSettings(io::ConfigFileInterpreter &interpreter, std::vector<std::string> experiments);
 
-    void _setInputData(models::ModelSettings &model_settings, io::ConfigFileInterpreter &interpreter);
-
-    simulator::SimulationSettings
-    _setSimulationSettings(io::ConfigFileInterpreter &interpreter, options::SimulationOptions &options);
+    options::SimulationOptions _sim_options;
 
 
+    void _readSettingsfromFile() override;
+
+    std::vector<std::string> _readExperiments() override;
+
+    void _createParameterVector();
+
+    void _createOutputTimes();
+
+    void _readSimulationSettings();
 };
 
 

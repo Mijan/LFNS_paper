@@ -17,49 +17,50 @@
 #include "src/sampler/SamplerSettings.h"
 #include "src/particle_filter/MultLikelihoodEval.h"
 #include "src/io/ConfigFileInterpreter.h"
+#include "GeneralSetup.h"
 
 typedef std::vector<double> Times;
 typedef std::vector<std::vector<double>> Trajectory;
 typedef std::vector<Trajectory> TrajectorySet;
 
-class LFNSSetup {
+class LFNSSetup : public GeneralSetup {
 public:
-    std::vector<simulator::Simulator_ptr> simulators;
+    LFNSSetup(options::LFNSOptions options);
+
+    virtual ~LFNSSetup();
+
     std::vector<particle_filter::ParticleFilter_ptr> particle_filters;
-    std::vector<models::FullModel_ptr> full_models;
+    particle_filter::MultLikelihoodEval mult_like_eval;
+
+    particle_filter::ParticleFilterSettings particle_filter_settings;
+    sampler::SamplerSettings sampler_settings;
+    lfns::LFNSSettings lfns_settings;
+
     std::vector<Times> times_vec;
     std::vector<TrajectorySet> data_vec;
 
-    lfns::LFNSSettings lfns_settings;
-    simulator::SimulationSettings simulation_settings;
-    io::IoSettings io_settings;
-    models::ModelSettings model_settings;
-    particle_filter::ParticleFilterSettings particle_filter_settings;
-    sampler::SamplerSettings sampler_settings;
 
-    base::RngPtr rng;
-    particle_filter::MultLikelihoodEval mult_like_eval;
+    void setUp();
 
-
-    void setUp(options::LFNSOptions &options);
-
-    void readSettingsfromFile(options::LFNSOptions &options);
-
-    TrajectorySet
-    createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings);
-
-    Times createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings);
-
-    simulator::Simulator_ptr
-    createSimulator(base::RngPtr rng, models::ChemicalReactionNetwork_ptr dynamics,
-                    simulator::SimulationSettings &settings);
-
-    void printSettings(std::ostream &os);
+    void printSettings(std::ostream &os) override;
 
 private:
-    models::ModelSettings _readModelSettings(io::ConfigFileInterpreter &interpreter, std::vector<std::string> experiments);
+    options::LFNSOptions _lfns_options;
 
-    lfns::LFNSSettings _readLFNSSettings(io::ConfigFileInterpreter &interpreter, options::LFNSOptions &options);
+    void _readSettingsfromFile() override;
+
+    std::vector<std::string> _readExperiments() override;
+
+    TrajectorySet
+    _createData(int num_outputs, std::string experiment, particle_filter::ParticleFilterSettings &settings);
+
+    Times _createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings);
+
+    particle_filter::ParticleFilterSettings _readParticleFilterSettings();
+
+    sampler::SamplerSettings _readSamplerSettings();
+
+    lfns::LFNSSettings _readLFNSSettings();
 };
 
 
