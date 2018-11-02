@@ -48,7 +48,7 @@ int computeLikelihood(LikelihoodSetup &likelihood_setup) {
     std::vector<double> log_likelihoods;
 
     for (std::vector<double> parameter : likelihood_setup.parameters) {
-        for (std::size_t computation_nbr = 0; likelihood_setup.num_computations; computation_nbr++) {
+        for (std::size_t computation_nbr = 0; computation_nbr < likelihood_setup.num_computations; computation_nbr++) {
             for (int exp_nbr = 0;
                  exp_nbr <
                  likelihood_setup.experiments.size(); exp_nbr++) {

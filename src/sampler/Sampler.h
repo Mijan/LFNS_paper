@@ -20,6 +20,8 @@ namespace sampler {
     public:
         SamplerData(int n) : bounds(n, std::pair<double, double>(-DBL_MAX, DBL_MAX)) {}
 
+        SamplerData(const SamplerData &rhs) : bounds(rhs.bounds) {}
+
         virtual ~SamplerData() {};
 
         std::size_t size() const { return bounds.size(); }

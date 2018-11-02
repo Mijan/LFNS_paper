@@ -18,7 +18,15 @@ namespace sampler {
                                                rejection_quantile_low_accept(-1), log_rejection_const(-1),
                                                thresh_accept_rate(-1), max_rejection_mag(-1) {}
 
-        virtual ~RejectionSamplerData() = default;;
+        virtual ~RejectionSamplerData() = default;
+
+        RejectionSamplerData(const RejectionSamplerData &rhs) : SamplerData(rhs),
+                                                                rejection_quantile(rhs.rejection_quantile),
+                                                                rejection_quantile_low_accept(
+                                                                        rhs.rejection_quantile_low_accept),
+                                                                log_rejection_const(rhs.log_rejection_const),
+                                                                thresh_accept_rate(rhs.thresh_accept_rate),
+                                                                max_rejection_mag(rhs.max_rejection_mag) {}
 
         RejectionSamplerData(const SamplerData &rhs) : SamplerData(rhs), rejection_quantile(-1),
                                                        rejection_quantile_low_accept(-1), log_rejection_const(-1),

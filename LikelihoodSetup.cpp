@@ -67,6 +67,7 @@ LikelihoodSetup::_readExperiments() { return interpreter.getExperimentsForEvalua
 void LikelihoodSetup::printSettings(std::ostream &os) {
     GeneralSetup::printSettings(os);
 
+    os << "Number of likelihood computations: " << num_computations << std::endl;
     if (!parameter_file.empty()) {
         os << "Parameters will be read from " << parameter_file << std::endl;
     } else {
