@@ -93,7 +93,7 @@ particle_filter::ParticleFilterSettings LFNSSetup::_readParticleFilterSettings()
         0) { filter_settings.use_premature_cancelation = _lfns_options.use_premature_cancelation; }
 
     if (_lfns_options.vm.count("numuseddata") >
-        0) { particle_filter_settings.num_used_trajectories = _lfns_options.num_used_data; }
+        0) { filter_settings.num_used_trajectories = _lfns_options.num_used_data; }
     filter_settings.param_names = model_settings.getUnfixedParameters();
     return filter_settings;
 }
