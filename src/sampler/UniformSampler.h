@@ -17,8 +17,16 @@ namespace sampler {
 
         UniformSamplerData(const SamplerData &rhs) : SamplerData(rhs), widths(rhs.size(), 1.0) {}
 
+        UniformSamplerData(const UniformSamplerData &rhs) : SamplerData(rhs), widths(rhs.widths) {}
+
         UniformSamplerData &operator=(const SamplerData &rhs) {
             SamplerData::operator=(rhs);
+            return *this;
+        }
+
+        UniformSamplerData &operator=(const UniformSamplerData &rhs) {
+            SamplerData::operator=(rhs);
+            widths = rhs.widths;
             return *this;
         }
 

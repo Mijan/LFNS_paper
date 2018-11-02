@@ -19,8 +19,9 @@ namespace sampler {
         NormalSamplerData(int n) : SamplerData(n), mean(base::EiVector::Zero(n)),
                                    cov(base::EiMatrix::Identity(n, n) * 0.1) {}
 
-        NormalSamplerData(const SamplerData &rhs) : SamplerData(rhs),
-                                                    mean(base::EiVector::Zero(rhs.size())),
+        NormalSamplerData(const NormalSamplerData &rhs) : SamplerData(rhs), mean(rhs.mean), cov(rhs.cov) {}
+
+        NormalSamplerData(const SamplerData &rhs) : SamplerData(rhs), mean(base::EiVector::Zero(rhs.size())),
                                                     cov(base::EiMatrix::Identity(rhs.size(), rhs.size())) {}
 
         virtual ~NormalSamplerData() {};
