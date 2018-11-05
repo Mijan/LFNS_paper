@@ -115,55 +115,65 @@ namespace io {
     };
 
 
-    std::map<std::string, std::string> ConfigFileInterpreter::getDataFiles() {
+    std::map<std::string, std::string> ConfigFileInterpreter::getDataFiles(std::vector<std::string> experiments) {
         std::map<std::string, std::string> data_files;
         std::vector<XmlMap> data_entries = _reader.getEntryMaps("data", "dataset");
 
-        for (XmlMap data_entry: data_entries) {
-            try {
-                XmlPropertyMap data_entry_map(data_entry);
-                std::string experiment_names_str = data_entry["experiments"].entry;
-                std::vector<std::string> experiemnt_names = base::Utils::StringToStringVector(experiment_names_str);
+        for (std::string requested_experiment : experiments) {
+            for (XmlMap data_entry: data_entries) {
+                try {
+                    XmlPropertyMap data_entry_map(data_entry);
+                    std::string experiment_names_str = data_entry["experiments"].entry;
+                    std::vector<std::string> experiemnt_names = base::Utils::StringToStringVector(experiment_names_str);
 
-                for (std::string experiment_name : experiemnt_names) {
-                    std::string data_file = data_entry_map.getValueForKey("experiments", experiment_name, "datafile");
-                    if (base::IoUtils::isPathAbsolute(data_file)) {
-                        data_files[experiment_name] = data_file;
-                    } else {
-                        data_files[experiment_name] = _reader.getXmlFilePath() + data_file;
+                    for (std::string experiment_name : experiemnt_names) {
+                        if (experiment_name.compare(requested_experiment) == 0) {
+                            std::string data_file = data_entry_map.getValueForKey("experiments", experiment_name,
+                                                                                  "datafile");
+                            if (base::IoUtils::isPathAbsolute(data_file)) {
+                                data_files[experiment_name] = data_file;
+                            } else {
+                                data_files[experiment_name] = _reader.getXmlFilePath() + data_file;
+                            }
+                        }
                     }
-                }
 
-            } catch (const std::exception &e) {
-                std::stringstream ss;
-                ss << "Failed to obtain data file:\n\t" << e.what() << std::endl;
-                throw std::runtime_error(ss.str());
+                } catch (const std::exception &e) {
+                    std::stringstream ss;
+                    ss << "Failed to obtain data file:\n\t" << e.what() << std::endl;
+                    throw std::runtime_error(ss.str());
+                }
             }
         }
         return data_files;
     };
 
-    std::map<std::string, std::string> ConfigFileInterpreter::getTimesFiles() {
+    std::map<std::string, std::string> ConfigFileInterpreter::getTimesFiles(std::vector<std::string> experiments) {
         std::map<std::string, std::string> time_files;
         std::vector<XmlMap> data_entries = _reader.getEntryMaps("data", "dataset");
 
-        for (XmlMap data_entry: data_entries) {
-            try {
-                XmlPropertyMap data_entry_map(data_entry);
-                std::string experiment_names_str = data_entry["experiments"].entry;
-                std::vector<std::string> experiemnt_names = base::Utils::StringToStringVector(experiment_names_str);
-                for (std::string experiment_name : experiemnt_names) {
-                    std::string time_file = data_entry_map.getValueForKey("experiments", experiment_name, "timefile");
-                    if (base::IoUtils::isPathAbsolute(time_file)) {
-                        time_files[experiment_name] = time_file;
-                    } else {
-                        time_files[experiment_name] = _reader.getXmlFilePath() + time_file;
+        for (std::string requested_experiment : experiments) {
+            for (XmlMap data_entry: data_entries) {
+                try {
+                    XmlPropertyMap data_entry_map(data_entry);
+                    std::string experiment_names_str = data_entry["experiments"].entry;
+                    std::vector<std::string> experiemnt_names = base::Utils::StringToStringVector(experiment_names_str);
+                    for (std::string experiment_name : experiemnt_names) {
+                        if (experiment_name.compare(requested_experiment) == 0) {
+                            std::string time_file = data_entry_map.getValueForKey("experiments", experiment_name,
+                                                                                  "timefile");
+                            if (base::IoUtils::isPathAbsolute(time_file)) {
+                                time_files[experiment_name] = time_file;
+                            } else {
+                                time_files[experiment_name] = _reader.getXmlFilePath() + time_file;
+                            }
+                        }
                     }
+                } catch (const std::exception &e) {
+                    std::stringstream ss;
+                    ss << "Failed to obtain times file:\n\t" << e.what() << std::endl;
+                    throw std::runtime_error(ss.str());
                 }
-            } catch (const std::exception &e) {
-                std::stringstream ss;
-                ss << "Failed to obtain times file:\n\t" << e.what() << std::endl;
-                throw std::runtime_error(ss.str());
             }
         }
         return time_files;

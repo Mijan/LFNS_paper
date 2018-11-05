@@ -34,9 +34,9 @@ namespace io {
 
         std::map<std::string, double> getFixedParameters();
 
-        std::map<std::string, std::string> getDataFiles();
+        std::map<std::string, std::string> getDataFiles(std::vector<std::string> experiments);
 
-        std::map<std::string, std::string> getTimesFiles();
+        std::map<std::string, std::string> getTimesFiles(std::vector<std::string> experiments);
 
         std::vector<std::string> getExperimentsForLFNS();
 

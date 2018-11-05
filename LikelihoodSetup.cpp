@@ -138,8 +138,8 @@ void LikelihoodSetup::_createParameterVector() {
 
 particle_filter::ParticleFilterSettings LikelihoodSetup::_readParticleFilterSettings() {
     particle_filter::ParticleFilterSettings filter_settings;
-    filter_settings.data_files = interpreter.getDataFiles();
-    filter_settings.time_files = interpreter.getTimesFiles();
+    filter_settings.data_files = interpreter.getDataFiles(experiments);
+    filter_settings.time_files = interpreter.getTimesFiles(experiments);
     filter_settings.param_names = model_settings.getUnfixedParameters();
 
 

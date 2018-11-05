@@ -77,8 +77,8 @@ void LFNSSetup::_readSettingsfromFile() {
 
 particle_filter::ParticleFilterSettings LFNSSetup::_readParticleFilterSettings() {
     particle_filter::ParticleFilterSettings filter_settings;
-    filter_settings.data_files = interpreter.getDataFiles();
-    filter_settings.time_files = interpreter.getTimesFiles();
+    filter_settings.data_files = interpreter.getDataFiles(experiments);
+    filter_settings.time_files = interpreter.getTimesFiles(experiments);
     if (_lfns_options.vm.count("smcparticles") > 0) { filter_settings.H = _lfns_options.H; }
     else {
         try {
