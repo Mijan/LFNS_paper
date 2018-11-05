@@ -43,9 +43,8 @@ namespace sampler {
             stream << std::setw(max_scale_length) << "Scale";
             stream << std::endl;
 
-            for (it = parameter_bounds.begin(); it != parameter_bounds.end(); it++) {
-                std::string param_name = it->first;
-                std::pair<double, double> bounds = it->second;
+            for (std::string &param_name : param_names) {
+                std::pair<double, double> bounds = parameter_bounds[param_name];
                 stream << std::setw(max_name_length) << param_name;
 
                 std::stringstream bound_str;
@@ -59,11 +58,14 @@ namespace sampler {
                 }
                 stream << std::endl;
             }
+
             stream << std::endl;
         }
 
 
-        std::vector<std::pair<double, double> > getBounds(const std::vector<std::string> &param_names) {
+        std::vector<std::pair<double, double> >
+
+        getBounds(const std::vector<std::string> &param_names) {
             std::vector<std::pair<double, double> > bounds;
             for (const std::string &param: param_names) {
                 bool param_found = parameter_bounds.count(param) > 0;
