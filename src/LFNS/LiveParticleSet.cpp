@@ -17,6 +17,9 @@ namespace lfns {
     }
 
     const LFNSParticle LiveParticleSet::removeLowestPartcile() {
+        if (_live_points.empty()) {
+            throw std::runtime_error("Tried to remove lowest particle from LiveParticleSet, but this set is empty!");
+        }
         LFNSParticle particle = *_live_points.begin();
         _live_points.erase(_live_points.begin());
         return particle;
@@ -109,20 +112,22 @@ namespace lfns {
 
         std::ifstream data_file(input_file_with_suffix.c_str());
         if (!data_file.is_open()) {
-            std::cerr << "error opening file "
-                      << input_file_with_suffix.c_str()
-                      <<
-                      " for reading live particles. Particles could not be read! Algorithm will start without previous particles!"
-                      << std::endl << std::endl;
-            return;
+            std::stringstream ss;
+            ss << "error opening file "
+               << input_file_with_suffix.c_str()
+               <<
+               " for reading live particles. Particles could not be read!"
+               << std::endl << std::endl;
+            throw std::runtime_error(ss.str());
         }
 
         std::ifstream likelihood_file(likelihood_file_name.c_str());
         if (!likelihood_file.is_open()) {
+            std::stringstream ss;
             std::cerr << "error opening file " << likelihood_file_name.c_str()
                       << " for reading likelihoods of live particles. Particles could not be read!!"
                       << std::endl << std::endl;
-            return;
+            throw std::runtime_error(ss.str());
         }
 
         while (!data_file.eof()) {

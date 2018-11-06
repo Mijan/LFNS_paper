@@ -82,7 +82,11 @@ namespace base {
             return false;
         }
         return true;
+    }
 
+    bool IoUtils::doesFileExists(std::string file_name) {
+        std::ifstream file_stream(file_name);
+        return file_stream.good();
     }
 
 

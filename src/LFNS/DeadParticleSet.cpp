@@ -69,20 +69,20 @@ namespace lfns {
 
         std::ifstream data_file(input_file_with_suffix.c_str());
         if (!data_file.is_open()) {
-            std::cerr << "error opening file "
-                      << input_file_with_suffix.c_str()
-                      <<
-                      " for reading dead particles. Particles could not be read! Algorithm will start without previous particles!"
-                      << std::endl << std::endl;
-            return;
+            std::stringstream ss;
+            ss << "error opening file " << input_file_with_suffix.c_str()
+               << " for reading dead particles. Particles could not be read!"
+               << std::endl << std::endl;
+            throw std::runtime_error(ss.str());
         }
 
         std::ifstream likelihood_file(likelihood_file_name.c_str());
         if (!likelihood_file.is_open()) {
-            std::cerr << "error opening file " << likelihood_file_name.c_str()
-                      << " for reading likelihoods of dead particles. Particles could not be read!!"
-                      << std::endl << std::endl;
-            return;
+            std::stringstream ss;
+            ss << "error opening file " << likelihood_file_name.c_str()
+               << " for reading likelihoods of dead particles. Particles could not be read!!"
+               << std::endl << std::endl;
+            throw std::runtime_error(ss.str());
         }
 
         while (!data_file.eof()) {

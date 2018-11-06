@@ -27,12 +27,48 @@ namespace lfns {
         file_start.assign(previous_log_file.begin(), previous_log_file.begin() + pos);
 
         std::string dead_points_file = file_start + "_dead_points.txt";
-        _dead_points.readFromFile(dead_points_file);
 
         std::stringstream ss;
         ss << file_start << "_live_points_" << it_nbr << ".txt";
         std::string live_points_file = ss.str();
-        _live_points.readFromFile(live_points_file);
+
+        if (base::IoUtils::doesFileExists(dead_points_file) && base::IoUtils::doesFileExists(live_points_file)) {
+            _dead_points.readFromFile(dead_points_file);
+            _live_points.readFromFile(live_points_file);
+        } else {
+            std::string posterior_file_name = file_start + "_posterior.txt";
+            std::string posterior_log_like_file_name = file_start + "_posterior_log_likelihoods.txt";
+
+            if (base::IoUtils::doesFileExists(posterior_file_name) &&
+                base::IoUtils::doesFileExists(posterior_log_like_file_name)) {
+                _live_points.readFromFile(posterior_file_name);
+                if (_live_points.numberParticles() == it_nbr * _settings.r + _settings.N) {
+                    for (int i = 0; i < it_nbr * _settings.r; i++) {
+                        const LFNSParticle &particle = _live_points.removeLowestPartcile();
+                        _dead_points.push_back(particle);
+                    }
+                } else {
+                    std::cerr << "Previous posterior files found, but number of particles does not match!";
+                    std::cerr << " log file indicates that the last iteration was iteration " << it_nbr << " and N="
+                              << _settings.N << ", and r = " << _settings.r;
+                    std::cerr << ". Thus posterior is expected to have " << it_nbr * _settings.r << " + " << _settings.N
+                              << "=" << it_nbr * _settings.r + _settings.N << " particles, but posterior has "
+                              << _live_points.numberParticles() << " particles." << std::endl;
+                    _live_points = LiveParticleSet();
+                }
+            } else {
+                std::cerr << "Neither dead points and live points files " << dead_points_file << " and "
+                          << live_points_file << " or posterior file " << posterior_file_name << " provided."
+                          << std::endl;
+            }
+        }
+        if (_dead_points.size() == 0 && _live_points.numberParticles() == 0) {
+            std::cerr << "Faile to read previous population, LFNS algorithm will start from scratch!";
+            _resume_run = false;
+            _logger = LFNSLogger(_settings);
+            return;
+        }
+
         _resume_run = true;
 
     }

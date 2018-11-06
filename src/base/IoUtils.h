@@ -27,6 +27,8 @@ namespace base {
 
         static bool isPathAbsolute(std::string path);
 
+        static bool doesFileExists(std::string file_name);
+
         template<typename T>
         static void writeVector(std::string output_file_name,
                                 const std::vector<T> &out_vector, std::string delimmiter = ", ",
