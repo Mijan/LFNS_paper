@@ -87,5 +87,8 @@ void runWorker(LFNSSetup &lfns_setup) {
             lfns_setup.particle_filters[i]->setThresholdPtr(worker.getEpsilonPtr());
         }
     }
+    if (lfns_setup.particle_filter_settings.use_premature_cancelation) {
+        lfns_setup.mult_like_eval.setThresholdPtr(worker.getEpsilonPtr());
+    }
     worker.run();
 }

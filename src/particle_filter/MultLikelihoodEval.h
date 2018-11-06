@@ -12,7 +12,7 @@
 namespace particle_filter {
     using namespace std::placeholders;
 
-    typedef std::function<double(const std::vector<double> &)> LogLikelihodEvalFct;
+    typedef std::function<double(const std::vector<double> &theta)> LogLikelihodEvalFct;
     typedef std::shared_ptr<LogLikelihodEvalFct> LogLikelihodEvalFct_ptr;
 
     class MultLikelihoodEval {
@@ -23,8 +23,11 @@ namespace particle_filter {
 
         double compute_log_like(const std::vector<double> &theta) {
             double log_like = 0;
+            int num_traj = 1;
             for (LogLikelihodEvalFct_ptr fun : _log_like_fun) {
                 log_like += (*fun)(theta);
+                if (_threshold_ptr && log_like < *_threshold_ptr) { return -DBL_MAX; }
+                num_traj++;
             }
             return log_like;
         }
@@ -35,8 +38,12 @@ namespace particle_filter {
             return std::make_shared<LogLikelihodEvalFct>(std::bind(&MultLikelihoodEval::compute_log_like, this, _1));
         }
 
+        void setThresholdPtr(double *threshold_ptr) { _threshold_ptr = threshold_ptr; }
+
     private:
         std::vector<LogLikelihodEvalFct_ptr> _log_like_fun;
+
+        double *_threshold_ptr;
     };
 }
 

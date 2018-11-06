@@ -45,7 +45,7 @@ namespace lfns {
             std::queue<bool> process_finished;
 
 
-            std::vector<double *> ptr_seconds_for_particles;
+            std::vector<double *> ptr_clocks_for_particles;
             std::vector<double *> ptr_log_likelihoods;
             std::vector<bool *> ptr_process_finished;
 

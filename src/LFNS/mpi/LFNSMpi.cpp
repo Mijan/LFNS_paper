@@ -48,7 +48,6 @@ namespace lfns {
                 std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
                     std::vector<double> theta = _sampler.samplePrior();
-//                    std::cout << "Master sends request to " << finished_task << std::endl;
                     queue.addRequest(finished_tasks.front(), theta);
                     finished_tasks.pop();
                 }
@@ -70,9 +69,9 @@ namespace lfns {
         void LFNSMpi::_initializeQueue(RequestQueue &queue) {
             for (std::size_t rank = 1; rank < _num_tasks; rank++) {
                 std::vector<double> theta = _sampler.samplePrior();
-//                std::cout << "Master sends initializer to rank " << rank << std::endl;
                 queue.addRequest(rank, theta);
             }
+            queue.stopPendingRequests();
         }
 
         void LFNSMpi::_sampleConstPrior(RequestQueue &queue) {
@@ -92,7 +91,6 @@ namespace lfns {
                 std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
                     std::vector<double> theta = _sampler.sampleConstrPrior();
-//                    std::cout << "Master sends request to " << finished_task << std::endl;
                     queue.addRequest(finished_tasks.front(), theta);
                     finished_tasks.pop();
                 }

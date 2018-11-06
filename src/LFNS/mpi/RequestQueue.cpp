@@ -10,7 +10,7 @@ namespace lfns {
     namespace mpi {
         RequestQueue::RequestQueue()
                 : computed_particles(), used_process(), clocks_for_particles(), log_likelihoods(), process_finished(),
-                  ptr_seconds_for_particles(), ptr_log_likelihoods(), ptr_process_finished(), likelihood_requests() {}
+                  ptr_clocks_for_particles(), ptr_log_likelihoods(), ptr_process_finished(), likelihood_requests() {}
 
         RequestQueue::~RequestQueue() {}
 
@@ -25,14 +25,13 @@ namespace lfns {
                 likelihood_requests.push_back(std::make_shared<MpiLikelihoodRequest>(rank, theta));
                 ptr_process_finished.push_back(&process_finished.back());
                 ptr_log_likelihoods.push_back(&log_likelihoods.back());
-                ptr_seconds_for_particles.push_back(&clocks_for_particles.back());
+                ptr_clocks_for_particles.push_back(&clocks_for_particles.back());
             } else {
                 likelihood_requests[rank - 1]->requestNewLikelihood(theta);
                 ptr_process_finished[rank - 1] = &process_finished.back();
                 ptr_log_likelihoods[rank - 1] = &log_likelihoods.back();
-                ptr_seconds_for_particles[rank - 1] = &clocks_for_particles.back();
+                ptr_clocks_for_particles[rank - 1] = &clocks_for_particles.back();
             }
-
         }
 
         double RequestQueue::getFirstLikelihood() { return log_likelihoods.front(); }
@@ -50,7 +49,7 @@ namespace lfns {
             for (int i = 0; i < likelihood_requests.size(); i++) {
                 MpiLikelihoodRequest_ptr request = likelihood_requests[i];
                 if (request->test()) {
-                    *ptr_seconds_for_particles[i] = request->getClocksSinceRequest();
+                    *ptr_clocks_for_particles[i] = request->getClocksSinceRequest();
                     *ptr_log_likelihoods[i] = request->getLogLikelihood();
                     *ptr_process_finished[i] = true;
                     finished_process.push(request->getRank());
