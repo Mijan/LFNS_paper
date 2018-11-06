@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <float.h>
 
 namespace particle_filter {
     using namespace std::placeholders;
