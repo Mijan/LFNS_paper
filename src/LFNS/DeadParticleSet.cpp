@@ -3,6 +3,7 @@
 //
 
 #include <iomanip>
+#include <cfloat>
 #include "DeadParticleSet.h"
 #include "../base/IoUtils.h"
 
@@ -99,7 +100,13 @@ namespace lfns {
 
                 std::string log_like_str;
                 std::getline(likelihood_file, log_like_str);
-                log_likelihood = std::stod(log_like_str.c_str());
+                try {
+                    log_likelihood = std::stod(log_like_str.c_str());
+                } catch (const std::exception &e) {
+                    log_likelihood = -DBL_MAX;
+                    std::cerr << "Failed to parse log-likelihood entry " << log_like_str << " in file "
+                              << likelihood_file_name << " as a double, assume value " << log_like_str << std::endl;
+                }
 
                 LFNSParticle particle(theta, log_likelihood);
                 _dead_points.push_back(particle);

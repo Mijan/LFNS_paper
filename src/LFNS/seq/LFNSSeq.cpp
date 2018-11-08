@@ -7,10 +7,11 @@
 namespace lfns {
     namespace seq {
 
-        LFNSSeq::LFNSSeq(LFNSSettings &settings, sampler::SamplerSettings &sampler_settings,  base::RngPtr rng, LogLikelihodEvalFct_ptr log_likelihood_evaluation)
+        LFNSSeq::LFNSSeq(LFNSSettings &settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
+                         LogLikelihodEvalFct_ptr log_likelihood_evaluation)
                 : LFNS(settings, sampler_settings, rng),
                   _log_likelihood_evaluation(
-                          std::move(                                  log_likelihood_evaluation)) {}
+                          std::move(log_likelihood_evaluation)) {}
 
         void LFNSSeq::runLFNS() {
 
@@ -35,7 +36,7 @@ namespace lfns {
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l);
                 }
-                std::cout <<"time for sampling : " << seconds_sampling << std::endl;
+                std::cout << "time for sampling : " << seconds_sampling << std::endl;
                 seconds_sampling = 0;
                 _live_points.writeToFile(_settings.output_file, "live_points_0");
             } else {
@@ -64,6 +65,7 @@ namespace lfns {
                     std::vector<double> theta = _sampler.sampleConstrPrior();
                     time_t toc = clock();
                     seconds_sampling += (toc - tic) / (double) CLOCKS_PER_SEC;
+                    std::cout << "total sampling time: " << seconds_sampling << std::endl;
                     _logger.thetaSampled(theta);
                     double l = (*_log_likelihood_evaluation)(theta);
                     _logger.likelihoodComputed(l);
@@ -74,7 +76,7 @@ namespace lfns {
                 }
 
                 lfns_terminate = _postIteration();
-                std::cout <<"time for sampling : " << seconds_sampling << std::endl;
+                std::cout << "time for sampling : " << seconds_sampling << std::endl;
                 seconds_sampling = 0;
             }
 
