@@ -18,7 +18,7 @@ namespace particle_filter {
 
     class MultLikelihoodEval {
     public:
-        MultLikelihoodEval() : _log_like_fun() {}
+        MultLikelihoodEval() : _log_like_fun(), _threshold_ptr(nullptr) {}
 
         ~MultLikelihoodEval() {}
 

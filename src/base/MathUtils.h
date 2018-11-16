@@ -34,8 +34,16 @@ namespace base {
 
         static double sumOfLog(double log_1, double log_2);
         static double diffOfLog(double log_1, double log_2);
-        static double sumOfLog(const std::vector<double> &log_s, double max_log);
+
+
+        static void sumOfLog(const std::vector<double> &logs, const std::vector<int> &signs, double * log_result, int* sign_result);
+
         static double sumOfLog(const std::vector<double> &log_s);
+        static double sumOfLog(const std::vector<double> &logs, const std::vector<int> &signs);
+
+        static double sumOfLog(const std::vector<double> &logs, double max_log);
+        static double sumOfLog(const std::vector<double> &log_s, const std::vector<int> &signs,  double max_log);
+        static void sumOfLog(const std::vector<double> &log_s, const std::vector<int> &signs,  double max_log, double *log_result, int* sign_result);
 
     };
 }

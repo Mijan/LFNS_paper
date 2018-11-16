@@ -46,8 +46,11 @@ namespace lfns {
         std::vector<double> _E_t;
         std::vector<double> _E_t2;
 
-        std::vector<std::vector<double> > _f_normalized;
-        std::vector<double> _f_log_scale;
+        std::vector<std::vector<double> > _e_normalized;
+        std::vector<double> _e_log_scale;
+
+        std::vector<std::vector<double> > _epsilons_normalized;
+        std::vector<double> _epsilons_log_scale;
 
         double E_t(int j);
 
@@ -59,12 +62,29 @@ namespace lfns {
 
         double _computeLogBi(int i);
 
-        void _computeF(DeadParticleSet &dead_points);
+        void _computeE(DeadParticleSet &dead_points);
 
         double _computeLogZlVar(LiveParticleSet &live_points, int m);
 
         double _computeLogZtotVar(double log_zd, double log_zd_var, double log_zl, double log_zl_var,
                                   LiveParticleSet &live_points, int m);
+
+        double _computeLogZdVar_2(DeadParticleSet &dead_points, double zd);
+
+        void _computeLogZdVarPartFirst_2(DeadParticleSet &dead_points, int l, double *log_result, int *sing_result);
+
+        void _computeLogZdVarPartSecond_2(DeadParticleSet &dead_points, int l, double *log_result, int *sing_result);
+
+        double _computeLogZdVar_3(DeadParticleSet &dead_points, double zd);
+
+        double _cov_t(int i, int j);
+
+        double _cov_diff_t(int i, int j);
+
+
+        double _varX(int i, int j);
+
+        double _computeCovTerm(DeadParticleSet &dead_points,  LiveParticleSet &live_points, double *log_cov, int *sign_cov);
     };
 };
 

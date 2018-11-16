@@ -113,6 +113,20 @@ namespace base {
         return sumOfLog(logs, max_log);
     }
 
+    double MathUtils::sumOfLog(const std::vector<double> &logs, const std::vector<int> &signs) {
+        double max_log = *std::max_element(logs.begin(), logs.end());
+        return sumOfLog(logs, signs, max_log);
+    }
+
+
+    void
+    MathUtils::sumOfLog(const std::vector<double> &logs, const std::vector<int> &signs, double *log_result,
+                        int *sign_result) {
+        double max_log = *std::max_element(logs.begin(), logs.end());
+        sumOfLog(logs, signs, max_log, log_result, sign_result);
+
+    }
+
 
     double MathUtils::sumOfLog(const std::vector<double> &logs, double max_log) {
         double sum = 0;
@@ -121,6 +135,34 @@ namespace base {
             sum += std::exp(*it - max_log);
         }
         return std::log(sum) + max_log;
+    }
+
+
+    double MathUtils::sumOfLog(const std::vector<double> &logs, const std::vector<int> &signs, double max_log) {
+        double sum = 0;
+        for (int i = 0; i < logs.size(); i++) {
+            double log_val = logs[i];
+            int sgn = signs[i];
+            sum += sgn * std::exp(log_val - max_log);
+        }
+
+        if (sum < 0) { throw std::runtime_error("Tried to compute the log of a negative sum!"); }
+        return std::log(std::abs(sum)) + max_log;
+    }
+
+
+    void MathUtils::sumOfLog(const std::vector<double> &logs, const std::vector<int> &signs, double max_log,
+                             double *log_result, int *sign_result) {
+        double sum = 0;
+        for (int i = 0; i < logs.size(); i++) {
+            double log_val = logs[i];
+            int sgn = signs[i];
+            sum += sgn * std::exp(log_val - max_log);
+        }
+        *sign_result = sum < 0 ? -1 : 1;
+
+        *log_result = std::log(std::abs(sum)) + max_log;
+
     }
 }
 
