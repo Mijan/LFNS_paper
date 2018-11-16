@@ -76,7 +76,6 @@ namespace lfns {
                 }
 
                 lfns_terminate = _postIteration();
-                std::cout << "time for sampling : " << seconds_sampling << std::endl;
                 seconds_sampling = 0;
             }
 
