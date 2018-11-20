@@ -73,12 +73,13 @@ namespace lfns {
         std::vector<int> _iteration_nbrs;
         std::vector<double> _seconds_for_iteration;
 
-        std::vector<double> _log_BE_dead;
-        std::vector<double> _log_BE_dead_var;
-        std::vector<double> _log_BE_live;
-        std::vector<double> _log_BE_live_var;
-        std::vector<double> _log_BE_tot;
-        std::vector<double> _log_BE_tot_var;
+        std::vector<double> _log_zd;
+        std::vector<double> _log_var_zd;
+        std::vector<double> _log_zl;
+        std::vector<double> _log_var_zl;
+        std::vector<double> _log_ztot;
+        std::vector<double> _log_var_ztot;
+        std::vector<double> _log_v_min;
 
         std::vector<double> _var_L_contribution;
         std::vector<double> _max_L_contribution;

@@ -160,9 +160,7 @@ namespace base {
             sum += sgn * std::exp(log_val - max_log);
         }
         *sign_result = sum < 0 ? -1 : 1;
-
         *log_result = std::log(std::abs(sum)) + max_log;
-
     }
 }
 

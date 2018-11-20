@@ -14,13 +14,12 @@ namespace lfns {
 
     LFNSLogger::LFNSLogger(LFNSSettings settings) : _remaining_required_particles_iteration(settings.N),
                                                     _num_samples_iteration(0), _num_samples_particle(0),
-                                                    _num_accepted_iteration(0),
-                                                    _print_interval(1), _acceptance_info_print_interval(100),
-                                                    _particle_tic(0), _iteration_tic(0),
-                                                    _output_file_name(settings.output_file), _acceptance_rates(),
-                                                    _epsilons(), _iteration_nbrs(), _seconds_for_iteration(),
-                                                    _log_BE_dead(), _log_BE_dead_var(), _log_BE_live(),
-                                                    _log_BE_live_var(), _log_BE_tot(), _log_BE_tot_var(),
+                                                    _num_accepted_iteration(0), _print_interval(1),
+                                                    _acceptance_info_print_interval(100), _particle_tic(0),
+                                                    _iteration_tic(0), _output_file_name(settings.output_file),
+                                                    _acceptance_rates(), _epsilons(), _iteration_nbrs(),
+                                                    _seconds_for_iteration(), _log_zd(), _log_var_zd(), _log_zl(),
+                                                    _log_var_zl(), _log_ztot(), _log_var_ztot(), _log_v_min(),
                                                     _var_L_contribution(), _max_L_contribution() {}
 
     LFNSLogger::~LFNSLogger() {}
@@ -91,6 +90,7 @@ namespace lfns {
     }
 
     void LFNSLogger::logIterationResults(PosteriorQuantitites &post_quant) {
+        std::cout << "loging iteration results" << std::endl;
         double acceptance_rate = _num_accepted_iteration / (double) _num_samples_iteration;
         _acceptance_rates.push_back(acceptance_rate);
 
@@ -99,42 +99,48 @@ namespace lfns {
         double sec = ((double) (toc2 - _iteration_tic) / CLOCKS_PER_SEC);
         _seconds_for_iteration.push_back(sec);
 
-        double log_BE_dead = post_quant.log_zd;
-        _log_BE_dead.push_back(log_BE_dead);
-        double log_BE_dead_var = post_quant.log_zd_var;
-        _log_BE_dead_var.push_back(log_BE_dead_var);
+        double log_zd = post_quant.log_zd;
+        _log_zd.push_back(log_zd);
+        double log_var_zd = post_quant.log_zd_var;
+        _log_var_zd.push_back(log_var_zd);
 
-        double log_BE_live = post_quant.log_zl;
-        _log_BE_live.push_back(log_BE_live);
-        double log_BE_live_var = post_quant.log_zl_var;
-        _log_BE_live_var.push_back(log_BE_live_var);
+        double log_zl = post_quant.log_zl;
+        _log_zl.push_back(log_zl);
+        double log_var_zl = post_quant.log_zl_var;
+        _log_var_zl.push_back(log_var_zl);
 
-        double log_BE_tot = post_quant.log_ztot;
-        _log_BE_tot.push_back(log_BE_tot);
+        double log_ztot = post_quant.log_ztot;
+        _log_ztot.push_back(log_ztot);
 
-        double log_BE_tot_var = post_quant.log_ztot_var;
-        _log_BE_tot_var.push_back(log_BE_tot_var);
+        double log_var_z_tot = post_quant.log_ztot_var;
+        _log_var_ztot.push_back(log_var_z_tot);
+
+        std::cout << "getting log min var  " << std::endl;
+        double log_min_var = post_quant.log_min_var;
+        std::cout << "got log min var  " << std::endl;
+        _log_v_min.push_back(log_min_var);
+        std::cout << "saved log min var  " << std::endl;
 
         double var_L_contribution = post_quant.log_max_std_improvement;
         _var_L_contribution.push_back(var_L_contribution);
 
-        double max_L_contribution = post_quant.log_final_vol + post_quant.log_max_live - log_BE_dead;
+        double max_L_contribution = post_quant.log_final_vol + post_quant.log_max_live - log_zd;
         _max_L_contribution.push_back(max_L_contribution);
 
         double current_contribution;
-        if (_log_BE_tot.size() == 1) {
-            current_contribution = log_BE_tot;
+        if (_log_ztot.size() == 1) {
+            current_contribution = log_ztot;
         } else {
-            double first = std::max(log_BE_tot, *(_log_BE_tot.end() - 2));
-            double second = std::min(log_BE_tot, *(_log_BE_tot.end() - 2));
+            double first = std::max(log_ztot, *(_log_ztot.end() - 2));
+            double second = std::min(log_ztot, *(_log_ztot.end() - 2));
             current_contribution = base::MathUtils::diffOfLog(first, second);
         }
         std::cout << std::endl << "\nIteration " << _iteration_nbrs.back()
                   << " needed " << base::Utils::getTimeFromClocks(toc2 - _iteration_tic) << std::endl;
         std::cout << "The total log Bayesian Evidence after this iteration is "
-                  << log_BE_tot
+                  << log_ztot
                   << ". This iteration contributed "
-                  << exp(current_contribution - log_BE_tot) * 100
+                  << exp(current_contribution - log_ztot) * 100
                   << "% to the total Bayesian Evidence" << std::endl;
     }
 
@@ -185,6 +191,7 @@ namespace lfns {
                       << std::setprecision(8) << "log(Var(Z_D))" << "\t" << std::setw(20)
                       << std::setprecision(8) << "log(Z_L)" << "\t" << std::setw(20)
                       << std::setprecision(8) << "log(Var(Z_L))" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "log(Var_min)" << "\t" << std::setw(20)
                       << std::setprecision(8) << "Delta_max" << "\t" << std::setw(20)
                       << std::setprecision(8) << "Delta_LFNS" << std::endl;
 
@@ -194,13 +201,14 @@ namespace lfns {
             double acceptance_rate = _acceptance_rates[i];
             double seconds = _seconds_for_iteration[i];
 
-            double log_z_D = _log_BE_dead[i];
-            double log_z_L = _log_BE_live[i];
-            double log_z_tot = _log_BE_tot[i];
+            double log_z_D = _log_zd[i];
+            double log_z_L = _log_zl[i];
+            double log_z_tot = _log_ztot[i];
 
-            double log_var_z_D = _log_BE_dead_var[i];
-            double log_var_z_L = _log_BE_live_var[i];
-            double lov_var_z_tot = _log_BE_tot_var[i];
+            double log_var_z_D = _log_var_zd[i];
+            double log_var_z_L = _log_var_zl[i];
+            double lov_var_z_tot = _log_var_ztot[i];
+            double log_var_min = _log_v_min[i];
 
             double delta_LFNS = _var_L_contribution[i];
             double delta_max = _max_L_contribution[i];
@@ -213,6 +221,7 @@ namespace lfns {
                           << std::setprecision(6) << log_var_z_D << "\t" << std::setw(20)
                           << std::setprecision(6) << log_z_L << "\t" << std::setw(20)
                           << std::setprecision(6) << log_var_z_L << "\t" << std::setw(20)
+                          << std::setprecision(6) << log_var_min << "\t" << std::setw(20)
                           << std::setprecision(6) << delta_max << "\t" << std::setw(20)
                           << std::setprecision(6) << delta_LFNS << std::endl;
         }
@@ -301,12 +310,12 @@ namespace lfns {
                 } else { all_BE_provided = false; }
 
                 if (all_BE_provided) {
-                    _log_BE_dead.push_back(log_z_D);
-                    _log_BE_live.push_back(log_z_L);
-                    _log_BE_tot.push_back(log_z_tot);
-                    _log_BE_dead_var.push_back(log_var_z_D);
-                    _log_BE_live_var.push_back(log_var_z_L);
-                    _log_BE_tot_var.push_back(log_var_z_tot);
+                    _log_zd.push_back(log_z_D);
+                    _log_zl.push_back(log_z_L);
+                    _log_ztot.push_back(log_z_tot);
+                    _log_var_zd.push_back(log_var_z_D);
+                    _log_var_zl.push_back(log_var_z_L);
+                    _log_var_ztot.push_back(log_var_z_tot);
 
                     _max_L_contribution.push_back(delta_max);
                     _var_L_contribution.push_back(delta_LFNS);

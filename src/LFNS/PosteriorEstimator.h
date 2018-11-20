@@ -25,6 +25,7 @@ namespace lfns {
         double log_live_variance;
         double log_max_live;
         double log_max_std_improvement;
+        double log_min_var;
 
         std::vector<double> log_delta;
     };
@@ -84,7 +85,7 @@ namespace lfns {
 
         double _varX(int i, int j);
 
-        double _computeCovTerm(DeadParticleSet &dead_points,  LiveParticleSet &live_points, double *log_cov, int *sign_cov);
+        void _computeCovTerm(DeadParticleSet &dead_points,  LiveParticleSet &live_points, double *log_cov, int *sign_cov);
     };
 };
 

@@ -58,7 +58,6 @@ namespace lfns {
         double log_zl_var = _computeLogZlVar(live_points, m);
         post_quant.log_zl_var = log_zl_var;
 
-
         double log_cov_term;
         int sign_cov;
         _computeCovTerm(dead_points, live_points, &log_cov_term, &sign_cov);
@@ -72,12 +71,21 @@ namespace lfns {
         post_quant.log_Ex2 = m * std::log(_E_t2[_r]);
 
         double log_1 = 0.5 * post_quant.log_ztot_var;
-        double log_2 = live_points.getLogVariance() - std::log(live_points.numberParticles()) + m * std::log(_E_t2[_r]);
+        double log_2 =
+                live_points.getLogVariance() - std::log(live_points.numberParticles()) + 2 * m * std::log(_E_t[_r]);
         double log_3 = 0.5 * base::MathUtils::diffOfLog(post_quant.log_ztot_var, log_2);
         post_quant.log_max_std_improvement = base::MathUtils::diffOfLog(log_1, log_3) - post_quant.log_ztot;
 
 
         post_quant.log_max_live = live_points.getHighestLogLikelihood();
+
+
+        double log_average_l = live_points.getLogAverageL();
+        double log_var_xm = std::log(_varX(m, _r));
+
+        double v_min = base::MathUtils::sumOfLog({log_var_xm + 2 * log_average_l, log_zd_var, log_cov_term},
+                                                 {1, 1, sign_cov});
+        post_quant.log_min_var = v_min;
         return post_quant;
 
     }
@@ -242,7 +250,7 @@ namespace lfns {
 //        double sum_1 = log_var_xm + log_var_l;
         double sum_2 = log_var_xm + 2 * log_average_l;
         double sum_3 = 2 * log_xm + log_var_l;
-        std::vector<double> sum_elements = {sum_2, sum_3};
+//        std::vector<double> sum_elements = {sum_2, sum_3};
         return base::MathUtils::sumOfLog(sum_2, sum_3);
 
     }
@@ -609,7 +617,7 @@ namespace lfns {
     }
 
 
-    double
+    void
     PosteriorEstimator::_computeCovTerm(DeadParticleSet &dead_points, LiveParticleSet &live_points, double *log_cov,
                                         int *sign_cov) {
         int m = dead_points.size() / _r;
