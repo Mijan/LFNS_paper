@@ -19,7 +19,14 @@ namespace lfns {
     LFNS::~LFNS() {}
 
     void LFNS::resumeRum(std::string previous_log_file) {
-        _logger.readFromFile(previous_log_file);
+        try {
+            _logger.readFromFile(previous_log_file);
+        }catch(const std::runtime_error &e){
+            std::cerr << "Failed to read previous population from file " << previous_log_file << ":\n\t";
+            std::cerr << e.what() << std::endl;
+            std::cerr << "Previous population will be ignored!" << std::endl;
+            return;
+        }
         int it_nbr = _logger.iterationNumber();
 
         size_t pos = previous_log_file.find("_log_file.txt");

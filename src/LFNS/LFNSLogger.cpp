@@ -233,9 +233,10 @@ namespace lfns {
         std::string log_file_name = previous_log_file_name;
         std::ifstream log_file(log_file_name.c_str());
         if (!log_file.is_open()) {
-            std::cerr << "error opening file " << log_file_name.c_str() << " for reading logs of previous run!"
-                      << std::endl << std::endl;
-            return;
+            std::stringstream ss;
+            ss << "error opening file " << log_file_name.c_str() << " for reading logs of previous run!"
+                      << std::endl;
+            throw std::runtime_error(ss.str());
         }
 
         std::string line;
@@ -254,6 +255,7 @@ namespace lfns {
         double log_var_z_D;
         double log_var_z_L;
         double log_var_z_tot;
+        double log_var_min;
 
         double delta_LFNS;
         double delta_max;
@@ -303,6 +305,9 @@ namespace lfns {
                     iss >> log_var_z_L;
                 } else { all_BE_provided = false; }
                 if (!iss.eof()) {
+                    iss >> log_var_min;
+                } else { all_BE_provided = false; }
+                if (!iss.eof()) {
                     iss >> delta_max;
                 } else { all_BE_provided = false; }
                 if (!iss.eof()) {
@@ -316,6 +321,7 @@ namespace lfns {
                     _log_var_zd.push_back(log_var_z_D);
                     _log_var_zl.push_back(log_var_z_L);
                     _log_var_ztot.push_back(log_var_z_tot);
+                    _log_v_min.push_back(log_var_min);
 
                     _max_L_contribution.push_back(delta_max);
                     _var_L_contribution.push_back(delta_LFNS);
