@@ -64,6 +64,12 @@ namespace sampler {
         _n = _bounds.size();
     }
 
+
+    void GaussianSampler::updateKernel(const base::EiMatrix &transformed_samples) {
+        _cov = (transformed_samples.adjoint() * transformed_samples) / double(transformed_samples.rows() - 1);
+    }
+
+
     std::vector<double> &GaussianSampler::sample(const std::vector<double> &kernel_center) {
 
         base::EiConstVectorRef new_mean = Eigen::Map<const Eigen::VectorXd>(kernel_center.data(), _n);
@@ -106,5 +112,4 @@ namespace sampler {
         stream << _inverse_cov_matrix;
         stream << std::endl;
     }
-
 }

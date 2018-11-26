@@ -71,7 +71,7 @@ namespace sampler {
     }
 
 
-    double UniformSampler::getLogLikelihood(const base::EiVector &sample, const std::vector<double> &kernel_center){
+    double UniformSampler::getLogLikelihood(const base::EiVector &sample, const std::vector<double> &kernel_center) {
 
         double log_likelihood = 0.0;
         for (std::size_t i = 0; i < sample.size(); i++) {
@@ -88,6 +88,15 @@ namespace sampler {
         return log_likelihood;
     }
 
+
+    void UniformSampler::updateKernel(const base::EiMatrix &transformed_samples) {
+
+        base::EiMatrix cov =
+                (transformed_samples.adjoint() * transformed_samples) / double(transformed_samples.rows() - 1);
+        for (int i = 0; i < _widths.size(); i++) {
+            _widths[i] = std::sqrt(cov(i, i)) * std::pow(4 / (3 * transformed_samples.rows()), 1.0 / 5.0);
+        }
+    }
 
     void UniformSampler::setWidths(std::vector<double> widths) {
         _widths = widths;

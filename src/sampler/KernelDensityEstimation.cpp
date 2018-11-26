@@ -28,6 +28,7 @@ namespace sampler {
 
             _means[i] = sample;
         }
+        _kernel->updateKernel(transformed_samples);
     }
 
     void KernelDensityEstimation::sampleTransformed(base::EiVector &trans_sample) {

@@ -55,6 +55,9 @@ namespace sampler {
 
         virtual double getLogLikelihood(const base::EiVector &sample, const std::vector<double> &kernel_center);
 
+
+        void updateKernel(const base::EiMatrix &transformed_samples) override;
+
         void setWidths(std::vector<double> width);
 
         virtual void writeToStream(std::ostream &output_file);

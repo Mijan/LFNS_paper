@@ -29,7 +29,7 @@ namespace sampler {
 
     void EllipsoidSampler::sampleTransformed(base::EiVector &trans_sample) {
         double angle;
-        double r = _uniform_dist(*_rng) * _scale;
+        double r = std::sqrt(_uniform_dist(*_rng)) * _scale;
         double sin_prod = 1;
         for (std::size_t i = 0; i < _sample.size() - 1; i++) {
             angle = _uniform_dist(*_rng) * 2 * M_PI;

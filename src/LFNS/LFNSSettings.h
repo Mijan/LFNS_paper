@@ -36,8 +36,28 @@ namespace lfns {
             stream << "N:\t" << N << std::endl;
             stream << "r:\t" << r << std::endl;
             stream << "Termination threshold:\t" << std::exp(log_termination) << std::endl;
-            stream << "For Density estimation the " << rejection_quantile_for_density_estimation * 100
-                   << "% quantile will be used. " << std::endl;
+            stream << "To sample from the super-level sets of the likelihood a";
+            switch (estimator) {
+                case REJECT_DPGMM: {
+                    stream
+                            << " DP-GMM density estimation with rejection sampling will be used. The rejection constant is the "
+                            << rejection_quantile_for_density_estimation * 100
+                            << "% quantile" << std::endl;
+                    break;
+                }
+                case KDE_GAUSS: {
+                    stream << " Kernel Density estimation with Gaussian kernels will be used.";
+                    break;
+                }
+                case KDE_UNIFORM: {
+                    stream << " Kernel Density estimation with uniform kernels will be used.";
+                    break;
+                }
+                case ELLIPS: {
+                    stream << "n ellipsoid sampler will be used.";
+                    break;
+                }
+            }
             if (previous_log_file.size() > 0) {
                 stream << "\nA previous log file was provided:\t" << previous_log_file
                        << ", and LFNS will continue from the last iteration." << std::endl;

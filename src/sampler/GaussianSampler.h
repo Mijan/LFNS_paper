@@ -78,6 +78,8 @@ namespace sampler {
 
         virtual void setBounds(std::vector<std::pair<double, double> > bounds);
 
+        void updateKernel(const base::EiMatrix &transformed_samples) override;
+
         virtual void writeToStream(std::ostream &stream);
 
     private:

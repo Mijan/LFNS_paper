@@ -184,6 +184,22 @@ lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
                     << std::exp(lfns_setting.log_termination) << std::endl;
         }
     }
+    if (_lfns_options.vm.count("sampler") > 0) {
+        switch (_lfns_options._sampler_index) {
+            case 0: {
+                lfns_setting.estimator = lfns::DENSITY_ESTIMATOR::REJECT_DPGMM;
+                break;
+            }
+            case 1: {
+                lfns_setting.estimator = lfns::DENSITY_ESTIMATOR::KDE_GAUSS;
+                break;
+            }
+            case 2: {
+                lfns_setting.estimator = lfns::DENSITY_ESTIMATOR::ELLIPS;
+                break;
+            }
+        }
+    }
     if (_lfns_options.vm.count("previous_pop") >
         0) { lfns_setting.previous_log_file = _lfns_options.previous_population_file; }
     if (_lfns_options.vm.count("printinterval") > 0) { lfns_setting.print_interval = _lfns_options.print_interval; }

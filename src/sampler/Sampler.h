@@ -97,12 +97,7 @@ namespace sampler {
 
         virtual double getLogLikelihood(const base::EiVector &sample, const std::vector<double> &kernel_center) = 0;
 
-        friend class ::boost::serialization::access;
-
-    protected:
-
-        template<class Archive>
-        void serialize(Archive &ar, const unsigned int version) {}
+        virtual void updateKernel(const base::EiMatrix &transformed_samples) = 0;
     };
 
     typedef std::shared_ptr<KernelSampler> KernelSampler_ptr;
