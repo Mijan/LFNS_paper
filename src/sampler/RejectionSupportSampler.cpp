@@ -75,8 +75,13 @@ namespace sampler {
         double min = DBL_MAX;
         double max = -DBL_MAX;
         for (int i = 0; i < num_runs; i++) {
-            _current_sampler->sampleTransformed(sample);
-            double like = std::exp(_current_sampler->getTransformedLogLikelihood(sample));
+            double like = 0;
+            do {
+                _current_sampler->sampleTransformed(sample);
+                like = std::exp(_current_sampler->getTransformedLogLikelihood(sample));
+                sample = (_evs * sample.cast<std::complex<double> >()).real();
+                sample += _mean;
+            } while (!isSampleFeasible(sample));
             likes.push_back(like);
             max = max > like ? max : like;
             min = min < like ? min : like;

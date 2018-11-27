@@ -19,7 +19,6 @@ namespace sampler {
     void EllipsoidSampler::setScale(double scale_var) { _scale = scale_var; }
 
     void EllipsoidSampler::updateTransformedDensitySamples(base::EiMatrix transformed_samples) {
-
         _scale = -1;
         for (std::size_t row = 0; row < transformed_samples.rows(); row++) {
             double max_coeff = transformed_samples.row(row).real().norm();
@@ -28,8 +27,9 @@ namespace sampler {
     }
 
     void EllipsoidSampler::sampleTransformed(base::EiVector &trans_sample) {
-        double angle;
-        double r = std::sqrt(_uniform_dist(*_rng)) * _scale;
+        double angle = 0.0;
+        double rand_scale = std::pow(_uniform_dist(*_rng), 1.0 / getSamplerDimension());
+        double r = rand_scale * _scale;
         double sin_prod = 1;
         for (std::size_t i = 0; i < _sample.size() - 1; i++) {
             angle = _uniform_dist(*_rng) * 2 * M_PI;
