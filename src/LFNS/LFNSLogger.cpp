@@ -90,7 +90,6 @@ namespace lfns {
     }
 
     void LFNSLogger::logIterationResults(PosteriorQuantitites &post_quant) {
-        std::cout << "loging iteration results" << std::endl;
         double acceptance_rate = _num_accepted_iteration / (double) _num_samples_iteration;
         _acceptance_rates.push_back(acceptance_rate);
 
@@ -115,11 +114,8 @@ namespace lfns {
         double log_var_z_tot = post_quant.log_ztot_var;
         _log_var_ztot.push_back(log_var_z_tot);
 
-        std::cout << "getting log min var  " << std::endl;
         double log_min_var = post_quant.log_min_var;
-        std::cout << "got log min var  " << std::endl;
         _log_v_min.push_back(log_min_var);
-        std::cout << "saved log min var  " << std::endl;
 
         double var_L_contribution = post_quant.log_max_std_improvement;
         _var_L_contribution.push_back(var_L_contribution);

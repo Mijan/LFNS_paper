@@ -35,7 +35,13 @@ void SimulationSetup::_readSettingsfromFile() {
 
     _readSimulationSettings();
     for (std::string experiment : experiments) {
-        model_settings.input_datas[experiment] = _getInputDatasForExperiment(experiment, final_time);
+        std::vector<models::InputData> datas = _getInputDatasForExperiment(experiment, final_time);
+        if (!datas.empty()) { model_settings.input_datas[experiment] = datas; }
+    }
+    if (model_settings.input_datas.size() < experiments.size() - 1) {
+        std::cerr << "Warning: " << experiments.size() << " different experiments provided, but only "
+                  << model_settings.input_datas.size()
+                  << " different inputs provided. Experiments may be indistinguishible from one another!" << std::endl;
     }
 
 }
@@ -45,6 +51,7 @@ std::vector<std::string> SimulationSetup::_readExperiments() { return interprete
 void SimulationSetup::printSettings(std::ostream &os) {
     GeneralSetup::printSettings(os);
 
+    os << "\n---------- Simulation Settings ----------" << std::endl;
     if (!parameter_file.empty()) {
         os << "Parameters will be read from " << parameter_file << std::endl;
     } else {
@@ -64,18 +71,25 @@ void SimulationSetup::printSettings(std::ostream &os) {
 
     int index = 0;
     for (std::string &param_name :  sim_param_names) {
+        os << std::setw(max_name_length) << param_name;
+        std::stringstream value_str;
         if (parameter_file.empty()) {
-            os << std::setw(max_name_length) << param_name;
-            std::stringstream value_str;
-            if (parameter_file.empty()) {
-                value_str << parameter[index++];
-                os << std::setw(max_value_length) << value_str.str();
-            }
+            value_str << parameter[index++];
+            os << std::setw(max_value_length) << value_str.str();
         }
         os << std::endl;
     }
     os << std::endl;
 
+
+    os << "Experiments for simulation: ";
+    for (std::string &experiment: experiments) { os << experiment << ", "; }
+    os << std::endl;
+
+
+    os << "\n---------- Model Settings ----------" << std::endl;
+    model_settings.print(os);
+    os << std::endl;
     if (full_models.empty()) { std::cerr << "No models created!!" << std::endl; }
     else { full_models.back()->printInfo(os); }
 }

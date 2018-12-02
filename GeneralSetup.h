@@ -13,12 +13,6 @@
 #include "src/simulator/Simulator.h"
 #include "src/io/ConfigFileInterpreter.h"
 
-enum class MODEL_TYPE {
-    ODE, STOCH
-};
-static std::map<std::string, MODEL_TYPE> MODEL_TYPE_NAME = {{"DET",   MODEL_TYPE::ODE},
-                                                            {"STOCH", MODEL_TYPE::STOCH}};
-
 class GeneralSetup {
 
 public:
@@ -39,7 +33,6 @@ public:
 
 protected:
     io::ConfigFileInterpreter interpreter;
-    MODEL_TYPE model_type;
 
     virtual void _readSettingsfromFile();
 

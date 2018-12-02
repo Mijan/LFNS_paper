@@ -51,11 +51,20 @@ void LFNSSetup::setUp() {
 }
 
 void LFNSSetup::printSettings(std::ostream &os) {
-    io_settings.print(os);
+    GeneralSetup::printSettings(os);
     lfns_settings.print(os);
     os << std::endl;
+
+    os << "Experiments for LF-NS:";
+    for (std::string &experiment: experiments) { os << experiment << ", "; }
+    os << std::endl;
+
     particle_filter_settings.print(os);
     sampler_settings.print(os);
+
+    os << "\n---------- Model Settings ----------" << std::endl;
+    model_settings.print(os);
+    os << std::endl;
     full_models.back()->printInfo(os);
 }
 

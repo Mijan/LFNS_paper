@@ -12,15 +12,24 @@
 #include "InputPulse.h"
 
 namespace models {
+
+    enum class MODEL_TYPE {
+        ODE, STOCH
+    };
+
+    static std::map<std::string, MODEL_TYPE> MODEL_TYPE_NAME = {{"DET",   MODEL_TYPE::ODE},
+                                                                {"STOCH", MODEL_TYPE::STOCH}};
+
     class ModelSettings {
     public:
-        std::map<std::string, std::vector<models::InputData>> input_datas;
+        std::map<std::string, std::vector<models::InputData>> input_datas = {};
 
-        std::map<std::string, double> fixed_parameters;
+        MODEL_TYPE model_type ;
+        std::map<std::string, double> fixed_parameters = {};
         std::string model_file = "";
         std::string initial_value_file = "";
         std::string measurement_file = "";
-        std::vector<std::string> param_names;
+        std::vector<std::string> param_names = {};
 
         std::vector<std::string> getUnfixedParameters() const {
             std::vector<std::string> unfixed_parameters;
@@ -34,6 +43,10 @@ namespace models {
             stream << "Model file:\t" << model_file << std::endl;
             stream << "Initial value file:\t" << initial_value_file << std::endl;
             stream << "Measurement file:\t" << measurement_file << std::endl << std::endl;
+
+
+            if (model_type == MODEL_TYPE::STOCH) { stream << "A SSA simulator will be used" << std::endl; }
+            else { stream << "An ODE simulator will be used" << std::endl; }
 
             std::size_t max_name_length = 0;
             for (std::string &param_name : param_names) {

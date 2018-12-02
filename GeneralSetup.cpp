@@ -12,14 +12,14 @@ GeneralSetup::GeneralSetup(options::CommandLineOptions &options) : interpreter(o
     rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
 
     std::string model_type_str = interpreter.getModelType();
-    if (MODEL_TYPE_NAME.count(model_type_str) == 0) {
+    if (models::MODEL_TYPE_NAME.count(model_type_str) == 0) {
         std::stringstream os;
         os << "Modeltype " << model_type_str << " not known. Possible options are: ";
-        std::map<std::string, MODEL_TYPE>::iterator it = MODEL_TYPE_NAME.begin();
-        for (it; it != MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
+        std::map<std::string, models::MODEL_TYPE>::iterator it = models::MODEL_TYPE_NAME.begin();
+        for (it; it != models::MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
         throw std::runtime_error(os.str());
     }
-    model_type = MODEL_TYPE_NAME[model_type_str];
+    model_settings.model_type = models::MODEL_TYPE_NAME[model_type_str];
 }
 
 GeneralSetup::~GeneralSetup() {}
@@ -30,14 +30,7 @@ void GeneralSetup::_readSettingsfromFile() {
 }
 
 
-void GeneralSetup::printSettings(std::ostream &os) {
-    io_settings.print(os);
-    if (model_type == MODEL_TYPE::STOCH) { os << "A SSA simulator will be used" << std::endl; }
-    else { os << "An ODE simulator will be used" << std::endl; }
-
-    os << "\n---------- Model Settings ----------" << std::endl;
-    model_settings.print(os);
-}
+void GeneralSetup::printSettings(std::ostream &os) { io_settings.print(os); }
 
 models::ModelSettings GeneralSetup::_readModelSettings(std::vector<std::string> experiments) {
     models::ModelSettings model_settings;
@@ -88,7 +81,7 @@ std::vector<models::InputData> GeneralSetup::_getInputDatasForExperiment(std::st
 
 simulator::Simulator_ptr GeneralSetup::_createSimulator(models::ChemicalReactionNetwork_ptr dynamics) {
     simulator::Simulator_ptr sim_ptr;
-    if (model_type == MODEL_TYPE::STOCH) {
+    if (model_settings.model_type == models::MODEL_TYPE::STOCH) {
         simulator::SimulatorSsa simulator_ssa(rng, dynamics->getPropensityFct(), dynamics->getReactionFct(),
                                               dynamics->getNumReactions());
         sim_ptr = std::make_shared<simulator::SimulatorSsa>(simulator_ssa);

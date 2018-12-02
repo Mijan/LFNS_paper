@@ -36,8 +36,8 @@ namespace lfns {
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l);
                 }
-                std::cout << "time for sampling : " << seconds_sampling << std::endl;
-                seconds_sampling = 0;
+//                std::cout << "time for sampling : " << seconds_sampling << std::endl;
+//                seconds_sampling = 0;
                 _live_points.writeToFile(_settings.output_file, "live_points_0");
             } else {
                 m = _logger.iterationNumber();

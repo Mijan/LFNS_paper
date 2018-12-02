@@ -67,6 +67,8 @@ LikelihoodSetup::_readExperiments() { return interpreter.getExperimentsForEvalua
 void LikelihoodSetup::printSettings(std::ostream &os) {
     GeneralSetup::printSettings(os);
 
+
+    os << "\n---------- Likelihood Computation Settings ----------" << std::endl;
     os << "Number of likelihood computations: " << num_computations << std::endl;
     if (!parameter_file.empty()) {
         os << "Parameters will be read from " << parameter_file << std::endl;
@@ -97,8 +99,17 @@ void LikelihoodSetup::printSettings(std::ostream &os) {
     }
     os << std::endl;
 
+    os << "Experiments for likelihood computation: ";
+    for (std::string &experiment: experiments) { os << experiment << ", "; }
+    os << std::endl;
+
 
     particle_filter_settings.print(os);
+
+
+    os << "\n---------- Model Settings ----------" << std::endl;
+    model_settings.print(os);
+    os << std::endl;
     full_models.back()->printInfo(os);
 }
 
