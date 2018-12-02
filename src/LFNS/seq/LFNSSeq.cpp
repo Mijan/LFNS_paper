@@ -19,7 +19,6 @@ namespace lfns {
 
             int m = 0;
 
-            double seconds_sampling = 0;
             if (!_resume_run) {
                 _logger.lfnsStarted(m, _epsilon);
 
@@ -28,16 +27,13 @@ namespace lfns {
                     time_t tic = clock();
                     std::vector<double> theta = _sampler.samplePrior();
                     time_t toc = clock();
-                    seconds_sampling += (toc - tic) / (double) CLOCKS_PER_SEC;
 
-                    _logger.thetaSampled(theta);
+                    _logger.thetaSampled(theta, toc - tic);
                     double l = (*_log_likelihood_evaluation)(theta);
                     _logger.likelihoodComputed(l);
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l);
                 }
-//                std::cout << "time for sampling : " << seconds_sampling << std::endl;
-//                seconds_sampling = 0;
                 _live_points.writeToFile(_settings.output_file, "live_points_0");
             } else {
                 m = _logger.iterationNumber();
@@ -57,16 +53,16 @@ namespace lfns {
                 _epsilon = _live_points.getLowestLikelihood();
                 _logger.epsilonUpdated(_epsilon);
 
+                time_t tic = clock();
                 _sampler.updateLiveSamples(_live_points);
-                _logger.samplerUpdated(_sampler);
+                time_t toc = clock();
+                _logger.samplerUpdated(_sampler, toc - tic);
 
                 while (_live_points.numberParticles() < _settings.N) {
-                    time_t tic = clock();
+                    tic = clock();
                     std::vector<double> theta = _sampler.sampleConstrPrior();
-                    time_t toc = clock();
-                    seconds_sampling += (toc - tic) / (double) CLOCKS_PER_SEC;
-//                    std::cout << "total sampling time: " << seconds_sampling << std::endl;
-                    _logger.thetaSampled(theta);
+                    toc = clock();
+                    _logger.thetaSampled(theta, toc - tic);
                     double l = (*_log_likelihood_evaluation)(theta);
                     _logger.likelihoodComputed(l);
                     if (l >= _epsilon) {
@@ -76,7 +72,6 @@ namespace lfns {
                 }
 
                 lfns_terminate = _postIteration();
-                seconds_sampling = 0;
             }
 
             _logger.lfnsTerminated();

@@ -31,9 +31,9 @@ namespace lfns {
 
         void epsilonUpdated(double d);
 
-        void samplerUpdated(LFNSSampler &sampler);
+        void samplerUpdated(LFNSSampler &sampler, time_t clocks_for_sampler_update);
 
-        void thetaSampled(const std::vector<double> &vector);
+        void thetaSampled(const std::vector<double> &vector, time_t clocks_sampling);
 
         void likelihoodComputed(double likelihood);
 
@@ -66,12 +66,14 @@ namespace lfns {
 
         time_t _particle_tic;
         time_t _iteration_tic;
+        double _sampling_seconds;
 
         std::string _output_file_name;
         std::vector<double> _acceptance_rates;
         std::vector<double> _epsilons;
         std::vector<int> _iteration_nbrs;
         std::vector<double> _seconds_for_iteration;
+        std::vector<double> _sampling_seconds_for_iteration;
 
         std::vector<double> _log_zd;
         std::vector<double> _log_var_zd;

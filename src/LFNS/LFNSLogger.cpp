@@ -16,9 +16,11 @@ namespace lfns {
                                                     _num_samples_iteration(0), _num_samples_particle(0),
                                                     _num_accepted_iteration(0), _print_interval(1),
                                                     _acceptance_info_print_interval(100), _particle_tic(0),
-                                                    _iteration_tic(0), _output_file_name(settings.output_file),
+                                                    _iteration_tic(0), _sampling_seconds(0.0),
+                                                    _output_file_name(settings.output_file),
                                                     _acceptance_rates(), _epsilons(), _iteration_nbrs(),
-                                                    _seconds_for_iteration(), _log_zd(), _log_var_zd(), _log_zl(),
+                                                    _seconds_for_iteration(), _sampling_seconds_for_iteration(),
+                                                    _log_zd(), _log_var_zd(), _log_zl(),
                                                     _log_var_zl(), _log_ztot(), _log_var_ztot(), _log_v_min(),
                                                     _var_L_contribution(), _max_L_contribution() {}
 
@@ -40,6 +42,7 @@ namespace lfns {
         _num_accepted_iteration = 0;
         _num_samples_iteration = 0;
         _iteration_tic = clock();
+        _sampling_seconds = 0;
     }
 
     void LFNSLogger::deadPointAdded(const LFNSParticle &particle) {
@@ -51,16 +54,18 @@ namespace lfns {
         _epsilons.push_back(epsilon);
     }
 
-    void LFNSLogger::samplerUpdated(LFNSSampler &sampler) {
+    void LFNSLogger::samplerUpdated(LFNSSampler &sampler, time_t clocks_for_sampler_update) {
+        _sampling_seconds += clocks_for_sampler_update / (double) CLOCKS_PER_SEC;
         std::cout << "Sampler updated: ";
         sampler.writeToStream(std::cout);
         std::cout << std::endl;
     }
 
-    void LFNSLogger::thetaSampled(const std::vector<double> &theta) {
+    void LFNSLogger::thetaSampled(const std::vector<double> &theta, time_t clocks_sampling) {
         _num_samples_particle++;
         _num_samples_iteration++;
         _particle_tic = clock();
+        _sampling_seconds += clocks_sampling / (double) CLOCKS_PER_SEC;
     }
 
     void LFNSLogger::likelihoodComputed(double likelihood) {}
@@ -97,6 +102,8 @@ namespace lfns {
 
         double sec = ((double) (toc2 - _iteration_tic) / CLOCKS_PER_SEC);
         _seconds_for_iteration.push_back(sec);
+
+        _sampling_seconds_for_iteration.push_back(_sampling_seconds);
 
         double log_zd = post_quant.log_zd;
         _log_zd.push_back(log_zd);
@@ -189,7 +196,8 @@ namespace lfns {
                       << std::setprecision(8) << "log(Var(Z_L))" << "\t" << std::setw(20)
                       << std::setprecision(8) << "log(Var_min)" << "\t" << std::setw(20)
                       << std::setprecision(8) << "Delta_max" << "\t" << std::setw(20)
-                      << std::setprecision(8) << "Delta_LFNS" << std::endl;
+                      << std::setprecision(8) << "Delta_LFNS" << "\t" << std::setw(20)
+                      << std::setprecision(8) << "sampling seconds" << std::endl;
 
         for (size_t i = 0; i < _iteration_nbrs.size(); i++) {
             int num_simulation = _iteration_nbrs[i];
@@ -208,6 +216,8 @@ namespace lfns {
 
             double delta_LFNS = _var_L_contribution[i];
             double delta_max = _max_L_contribution[i];
+
+            double seconds_for_sampling = _sampling_seconds_for_iteration[i];
             log_file_file << std::setw(3) << num_simulation << "\t" << std::setw(15) << std::setprecision(6) << epsilon
                           << "\t" << std::setw(20) << std::setprecision(6) << acceptance_rate << "\t"
                           << std::setw(12) << std::setprecision(8) << seconds << "\t" << std::setw(17)
@@ -219,7 +229,8 @@ namespace lfns {
                           << std::setprecision(6) << log_var_z_L << "\t" << std::setw(20)
                           << std::setprecision(6) << log_var_min << "\t" << std::setw(20)
                           << std::setprecision(6) << delta_max << "\t" << std::setw(20)
-                          << std::setprecision(6) << delta_LFNS << std::endl;
+                          << std::setprecision(6) << delta_LFNS << "\t" << std::setw(20)
+                          << std::setprecision(6) << seconds_for_sampling << std::endl;
         }
         log_file_file.close();
         std::cout << "Log wrote into " << log_file_name.c_str() << std::endl;
@@ -231,7 +242,7 @@ namespace lfns {
         if (!log_file.is_open()) {
             std::stringstream ss;
             ss << "error opening file " << log_file_name.c_str() << " for reading logs of previous run!"
-                      << std::endl;
+               << std::endl;
             throw std::runtime_error(ss.str());
         }
 
@@ -255,6 +266,8 @@ namespace lfns {
 
         double delta_LFNS;
         double delta_max;
+
+        double seconds_for_sampling = 0;
 
         while (!log_file.eof()) {
 
@@ -309,6 +322,9 @@ namespace lfns {
                 if (!iss.eof()) {
                     iss >> delta_LFNS;
                 } else { all_BE_provided = false; }
+                if (!iss.eof()) {
+                    iss >> seconds_for_sampling;
+                } else { seconds_for_sampling = 0; }
 
                 if (all_BE_provided) {
                     _log_zd.push_back(log_z_D);
@@ -322,6 +338,7 @@ namespace lfns {
                     _max_L_contribution.push_back(delta_max);
                     _var_L_contribution.push_back(delta_LFNS);
                 }
+                _sampling_seconds_for_iteration.push_back(seconds_for_sampling);
             }
         }
 

@@ -47,7 +47,10 @@ namespace lfns {
             while (_live_points.numberParticles() < _settings.N) {
                 std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
+                    time_t tic = clock();
                     std::vector<double> theta = _sampler.samplePrior();
+                    time_t toc = clock();
+                    _logger.thetaSampled(theta, toc - tic);
                     queue.addRequest(finished_tasks.front(), theta);
                     finished_tasks.pop();
                 }
@@ -56,7 +59,6 @@ namespace lfns {
                 if (queue.firstParticleFinished()) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();
-                    _logger.thetaSampled(theta);
                     _logger.likelihoodComputed(l);
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l, queue.getFirstParticleClocks(), queue.getFirstUsedProcess());
@@ -84,13 +86,19 @@ namespace lfns {
             _epsilon = _live_points.getLowestLikelihood();
             _updateEpsilon(_epsilon);
             _logger.epsilonUpdated(_epsilon);
+
+            time_t tic = clock();
             _sampler.updateLiveSamples(_live_points);
-            _logger.samplerUpdated(_sampler);
+            time_t toc = clock();
+            _logger.samplerUpdated(_sampler, toc - tic);
 
             while (_live_points.numberParticles() < _settings.N) {
                 std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
+                    tic = clock();
                     std::vector<double> theta = _sampler.sampleConstrPrior();
+                    toc = clock();
+                    _logger.thetaSampled(theta, toc - tic);
                     queue.addRequest(finished_tasks.front(), theta);
                     finished_tasks.pop();
                 }
@@ -98,7 +106,6 @@ namespace lfns {
                 while (queue.firstParticleFinished() && _live_points.numberParticles() < _settings.N) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();
-                    _logger.thetaSampled(theta);
                     _logger.likelihoodComputed(l);
                     if (l >= _epsilon) {
                         _live_points.push_back(theta, l);
