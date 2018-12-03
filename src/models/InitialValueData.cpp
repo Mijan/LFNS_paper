@@ -31,8 +31,9 @@ namespace models {
             _initial_time_value = "0";
         } else {
             int index = time_it - _initial_states.begin();
-            _initial_values.erase(_initial_values.begin() + index);
             _initial_states.erase(time_it);
+            _initial_time_value = *(_initial_values.begin() + index);
+            _initial_values.erase(_initial_values.begin() + index);
         }
 
         for (std::size_t i = 0; i < _initial_states.size(); i++) {

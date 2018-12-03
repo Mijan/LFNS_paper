@@ -10,16 +10,6 @@ GeneralSetup::GeneralSetup(options::CommandLineOptions &options) : interpreter(o
     io_settings.config_file = options.config_file_name;
     io_settings.output_file = options.output_file_name;
     rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
-
-    std::string model_type_str = interpreter.getModelType();
-    if (models::MODEL_TYPE_NAME.count(model_type_str) == 0) {
-        std::stringstream os;
-        os << "Modeltype " << model_type_str << " not known. Possible options are: ";
-        std::map<std::string, models::MODEL_TYPE>::iterator it = models::MODEL_TYPE_NAME.begin();
-        for (it; it != models::MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
-        throw std::runtime_error(os.str());
-    }
-    model_settings.model_type = models::MODEL_TYPE_NAME[model_type_str];
 }
 
 GeneralSetup::~GeneralSetup() {}
@@ -48,6 +38,16 @@ models::ModelSettings GeneralSetup::_readModelSettings(std::vector<std::string> 
     model_settings.param_names = param_names;
 
     model_settings.fixed_parameters = interpreter.getFixedParameters();
+
+    std::string model_type_str = interpreter.getModelType();
+    if (models::MODEL_TYPE_NAME.count(model_type_str) == 0) {
+        std::stringstream os;
+        os << "Modeltype " << model_type_str << " not known. Possible options are: ";
+        std::map<std::string, models::MODEL_TYPE>::iterator it = models::MODEL_TYPE_NAME.begin();
+        for (it; it != models::MODEL_TYPE_NAME.end(); it++) { os << it->first << ", "; }
+        throw std::runtime_error(os.str());
+    }
+    model_settings.model_type = models::MODEL_TYPE_NAME[model_type_str];
     return model_settings;
 }
 
@@ -81,6 +81,7 @@ std::vector<models::InputData> GeneralSetup::_getInputDatasForExperiment(std::st
 
 simulator::Simulator_ptr GeneralSetup::_createSimulator(models::ChemicalReactionNetwork_ptr dynamics) {
     simulator::Simulator_ptr sim_ptr;
+
     if (model_settings.model_type == models::MODEL_TYPE::STOCH) {
         simulator::SimulatorSsa simulator_ssa(rng, dynamics->getPropensityFct(), dynamics->getReactionFct(),
                                               dynamics->getNumReactions());
