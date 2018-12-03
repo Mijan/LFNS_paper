@@ -88,9 +88,7 @@ namespace sampler {
             for (int i = 0; i < param_names.size(); i++) {
                 const std::string &param = param_names[i];
                 bool param_found = parameters_log_scale.count(param) > 0;
-                if (param_found || parameters_log_scale[param]) {
-                    log_params.push_back(i);
-                }
+                if (param_found && parameters_log_scale[param]) { log_params.push_back(i); }
                 if (!param_found) {
                     std::stringstream ss;
                     ss << "Tried to obtain sclae for parameter " << param
