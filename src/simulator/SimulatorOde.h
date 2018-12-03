@@ -65,9 +65,9 @@ namespace simulator {
         SUNLinearSolver _LS;
 
 
-        void _runSolver(std::vector<double> &state, double &t, double final_time);
+        void _runSolver(double &t, double final_time);
 
-        void _runSingleStep(std::vector<double> &state, double &t, double final_time);
+        void _runSingleStep(double &t, double final_time);
 
         static int cvOdeRhs_static(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 

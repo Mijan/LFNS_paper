@@ -16,25 +16,16 @@ namespace models {
                                                                                                   data.getNumInitialValues()),
                                                                                           _initial_time(),
                                                                                           _initial_data(data),
-                                                                                          _output_state_ordering(
-                                                                                                  data.getNumInitialValues()),
                                                                                           _output_state_mapping() {
-        for (int i = 0; i < _initial_data.getNumInitialValues(); i++) {
-            _output_state_ordering[i] = i;
-            _output_state_mapping[i] = i;
-        }
+        for (int i = 0; i < _initial_data.getNumInitialValues() - 1; i++) { _output_state_mapping[i] = i; }
     }
 
     InitialValueProvider::InitialValueProvider(InitialValueData data) : ParserBaseObject(data), _initialized(false),
                                                                         _initial_state_equations(
                                                                                 data.getNumInitialValues()),
                                                                         _initial_time(), _initial_data(data),
-                                                                        _output_state_ordering(),
                                                                         _output_state_mapping() {
-        for (int i = 0; i < _initial_data.getNumInitialValues(); i++) {
-            _output_state_ordering[i] = i;
-            _output_state_mapping[i] = i;
-        }
+        for (int i = 0; i < _initial_data.getNumInitialValues() - 1; i++) { _output_state_mapping[i] = i; }
     }
 
     InitialValueProvider::~InitialValueProvider() {}
@@ -52,7 +43,7 @@ namespace models {
             if (_perturbation_fct) { (*_perturbation_fct)(nullptr, *t_0); }
             _createRandomNumbers();
             for (std::size_t state_index = 0; state_index < state_0->size(); state_index++) {
-                (*state_0)[_output_state_ordering[state_index]] = _initial_state_equations[state_index].Eval();
+                (*state_0)[_output_state_mapping[state_index]] = _initial_state_equations[state_index].Eval();
             }
 
         } catch (mu::Parser::exception_type &e) {
@@ -86,9 +77,11 @@ namespace models {
 
             for (std::size_t i = 0; i < _initial_data.getNumInitialValues(); i++) {
                 std::string state_str = "State " + _initial_data.getInitialStates()[i] + ":";
-                os << std::setw(max_length + 7) << state_str << "\t" << _initial_state_equations[i].GetExpr();
-                os << std::endl;
+                os << std::setw(max_length + 7) << state_str << "\t" << _initial_state_equations[i].GetExpr()
+                   << std::endl;
             }
+            std::string time_str = "Time:";
+            os << std::setw(max_length + 7) << time_str << "\t" << _initial_time.GetExpr() << std::endl;
             os << std::endl;
         } catch (mu::Parser::exception_type &e) {
             std::ostringstream os;
@@ -103,7 +96,7 @@ namespace models {
     }
 
     void InitialValueProvider::setOutputStateMapping(std::vector<std::string> state_order) {
-        if (state_order.size() != _initial_state_equations.size()) {
+        if (state_order.size() != _initial_data.getNumInitialValues()) {
             std::ostringstream os;
             os << "Failed to set the initial state order! For ordering, " << state_order.size()
                << " states provided, but "
@@ -113,8 +106,8 @@ namespace models {
         }
         for (int i = 0; i < state_order.size(); i++) {
             const std::string &state = state_order[i];
-            int index = _initial_data.getSpeciesIndex(state);
             try {
+                std::size_t index = _initial_data.getInitialStateIndex(state);
                 _output_state_mapping[index] = i;
             } catch (const std::exception &e) {
                 std::stringstream ss;
@@ -140,7 +133,7 @@ namespace models {
                 throw std::runtime_error(os.str());
             }
 
-            for (std::size_t i = 0; i < _initial_data.getNumInitialValues(); i++) {
+            for (int i = 0; i < _initial_data.getNumInitialValues(); i++) {
                 std::string species_name = _initial_data.getInitialStates()[i];
                 mu::Parser p;
                 _initializeParser(p);
@@ -149,7 +142,7 @@ namespace models {
             }
             mu::Parser p;
             _initializeParser(p);
-            p.SetExpr(_initial_data.getInitialValueForSpecies(TIME_NAME));
+            p.SetExpr(_initial_data.getInitialTimeValue());
             _initial_time = p;
 
             _initialized = true;

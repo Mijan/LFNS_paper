@@ -83,6 +83,21 @@ namespace models {
             os << _base_data.getSpeciesNames()[species_index] << ":\t" << _state_ptrs[species_index] << std::endl;
         }
 
+        os << _base_data.getTimeName() << ":\t" << *_time_ptr << std::endl;
+        std::cout << std::endl;
+    }
+
+    void BaseObject::printPointerValue(std::ostream &os) const {
+        for (std::size_t parameter_index = 0; parameter_index < _base_data.getNumParamters(); parameter_index++) {
+            os << _base_data.getParameterNames()[parameter_index] << ":\t" << *_parameter_ptrs[parameter_index]
+               << std::endl;
+        }
+
+        os << std::endl;
+        for (std::size_t species_index = 0; species_index < _base_data.getNumSpecies(); species_index++) {
+            os << _base_data.getSpeciesNames()[species_index] << ":\t" << *_state_ptrs[species_index] << std::endl;
+        }
+
         os << _base_data.getTimeName() << ":\t" << _time_ptr << std::endl;
         std::cout << std::endl;
     }

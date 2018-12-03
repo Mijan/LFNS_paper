@@ -43,7 +43,6 @@ namespace models {
 
         InitialValueData _initial_data;
 
-        std::vector<int> _output_state_ordering;
         std::map<int, int> _output_state_mapping;
 
         virtual void _initialize();

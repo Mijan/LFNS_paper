@@ -18,7 +18,7 @@ void SimulationSetup::setUp() {
     rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
     for (std::string experiment : experiments) {
 
-        models::FullModel_ptr full_model = std::make_shared<models::FullModel>(model_settings, rng);
+        models::FullModel_ptr full_model = std::make_shared<models::FullModel>(model_settings, rng, experiment);
         full_models.push_back(full_model);
 
         simulator::Simulator_ptr simulator = _createSimulator(full_model->dynamics);

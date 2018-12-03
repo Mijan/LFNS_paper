@@ -69,7 +69,7 @@ std::vector<models::InputData> GeneralSetup::_getInputDatasForExperiment(std::st
                           << names[i] << " starting at " << starting_times[i] << " will be ignored!" << std::endl;
             } else {
                 int max_num_pulses = std::min(num_pulses[i],
-                                              (int) ((final_time - starting_times[i]) / (periods[i] + 1)));
+                                              (int) std::ceil((final_time - starting_times[i]) / (periods[i] + 1)));
                 datas.push_back(
                         models::InputData(periods[i], strength[i], duration[i], max_num_pulses, names[i],
                                           starting_times[i]));

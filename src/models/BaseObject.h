@@ -21,6 +21,8 @@ namespace models {
 
         virtual void printPointer(std::ostream &os) const;
 
+        virtual void printPointerValue(std::ostream &os) const;
+
         double *parameterPtr(std::size_t i);
 
         double *statePtr(std::size_t i);

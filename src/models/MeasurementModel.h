@@ -31,6 +31,8 @@ namespace models {
 
         virtual void printPointer(std::ostream &os) const;
 
+        virtual void printPointerValue(std::ostream &os) const;
+
         const std::vector<std::string> &getMeasurementNames() const;
 
         std::size_t getNumMeasurements() const;

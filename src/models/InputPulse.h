@@ -19,6 +19,23 @@ namespace models {
                                                                          pulse_inpt_name(pulse_inpt_name_),
                                                                          starting_time(starting_time_) {}
 
+        InputData(const InputData &rhs) : pulse_period(
+                rhs.pulse_period), pulse_strenght(rhs.pulse_strenght), pulse_duration(rhs.pulse_duration),
+                                          num_pulses(rhs.num_pulses),
+                                          pulse_inpt_name(rhs.pulse_inpt_name),
+                                          starting_time(rhs.starting_time) {}
+
+        InputData &operator=(const InputData &rhs) {
+            if (this == &rhs) { return *this; }
+            pulse_period = rhs.pulse_period;
+            pulse_strenght = rhs.pulse_strenght;
+            pulse_duration = rhs.pulse_duration;
+            num_pulses = rhs.num_pulses;
+            pulse_inpt_name = rhs.pulse_inpt_name;
+            starting_time = rhs.starting_time;
+            return *this;
+        }
+
         double pulse_period;
         double pulse_strenght;
         double pulse_duration;

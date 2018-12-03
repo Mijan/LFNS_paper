@@ -82,6 +82,13 @@ namespace models {
             for (std::size_t i = 0; i < _log_likelihood_parsers.size(); i++) {
                 mu::Parser &_log_likelihood = _log_likelihood_parsers[i];
                 log_likelihood += _log_likelihood.Eval();
+                if (std::isnan(log_likelihood)) {
+                    std::stringstream ss;
+                    ss << "Computed likelihood is NaN!\n\tExpression: " << _log_likelihood.GetExpr() << std::endl;
+                    ss << "\tPointer values:" << std::endl;
+                    printPointerValue(ss);
+                    throw std::runtime_error(ss.str());
+                }
             }
             return log_likelihood;
         } catch (mu::ParserError &e) {
@@ -182,6 +189,15 @@ namespace models {
              measurement_index < _measurement_model_data.getNumMeasurements(); measurement_index++) {
             os << _measurement_model_data.getMeasurementNames()[measurement_index] << ":\t"
                << _measurement_ptr[measurement_index] << std::endl;
+        }
+    }
+
+    void MeasurementModel::printPointerValue(std::ostream &os) const {
+        BaseObject::printPointerValue(os);
+        for (std::size_t measurement_index = 0;
+             measurement_index < _measurement_model_data.getNumMeasurements(); measurement_index++) {
+            os << _measurement_model_data.getMeasurementNames()[measurement_index] << ":\t"
+               << *_measurement_ptr[measurement_index] << std::endl;
         }
     }
 

@@ -41,9 +41,12 @@ namespace models {
                 settings.model_file);
         models::InitialValueData init_data(settings.initial_value_file);
         initial_value_provider = std::make_shared<models::InitialValueProvider>(rng, init_data);
+        initial_value_provider->setOutputStateMapping(dynamics->getSpeciesNames());
+
         models::MeasurementModelData measure_data(settings.measurement_file);
         measurement_model = std::make_shared<models::MeasurementModel>(rng, measure_data);
         measurement_model->setStateOrder(dynamics->getSpeciesNames());
+
         for (int i = 0; i < _param_names.size(); i++) {
             dynamics->setPointer(&_parameter[i], _param_names[i]);
             initial_value_provider->setPointer(&_parameter[i], _param_names[i]);

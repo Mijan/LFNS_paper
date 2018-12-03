@@ -12,9 +12,6 @@ namespace models {
               _input_strength(input_data.pulse_strenght),
               parameter_index(-1) {
         int effective_num_pulses = input_data.num_pulses;
-//        std::min(input_data.num_pulses,
-//                                            (int) ((final_time - input_data.starting_time) / (input_data.pulse_period) +
-//                                                   1));
         pulse_beginnings = std::vector<double>(effective_num_pulses, 0.0);
         pulse_ends = std::vector<double>(effective_num_pulses, 0.0);
         pulse_beginnings[0] = input_data.starting_time;

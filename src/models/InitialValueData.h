@@ -24,7 +24,11 @@ namespace models {
 
         const std::vector<std::string> &getInitialStates() const;
 
+        std::size_t getInitialStateIndex(std::string species_name) const;
+
         const std::vector<std::string> &getInitialValues() const;
+
+        const std::string &getInitialTimeValue() const;
 
         std::size_t getNumInitialValues() const;
 
@@ -33,6 +37,7 @@ namespace models {
         std::map<std::string, std::string> _initial_values_by_species;
         std::vector<std::string> _initial_states;
         std::vector<std::string> _initial_values;
+        std::string _initial_time_value;
 
     };
 

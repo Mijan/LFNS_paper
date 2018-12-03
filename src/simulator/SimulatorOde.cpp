@@ -130,25 +130,35 @@ namespace simulator {
         return std::make_shared<SimulationFct>(std::bind(&SimulatorOde::simulate, this, _1));
     }
 
-    void SimulatorOde::simulate(double final_time) { _runSolver(*_states_ptr, *_t_ptr, final_time); }
+    void SimulatorOde::simulate(double final_time) { _runSolver(*_t_ptr, final_time); }
 
-    void SimulatorOde::_runSolver(std::vector<double> &state, double &t, double final_time) {
+    void SimulatorOde::_runSolver(double &t, double final_time) {
 
         bool run_next_step = final_time > t + _settings.min_step_size;
         double T;
         while (run_next_step) {
-            if (_discont_it != _discont_times.end() && *_discont_it <= final_time) { T = *_discont_it++; }
-            else { T = final_time; }
+            bool discon_found = false;
+            if (_discont_it != _discont_times.end() && *_discont_it <= final_time) {
+                T = *_discont_it++;
+                T -= _settings.min_step_size;
+                discon_found = true;
+            } else { T = final_time; }
 
-            _runSingleStep(state, t, T);
-            t += _settings.min_step_size;
+            _runSingleStep(t, T);
+            if (discon_found) {
+                t += 2* _settings.min_step_size;
+                if (CVodeReInit(_cvode_mem, t, _current_state_n_vector) != CV_SUCCESS) {
+                    throw std::runtime_error("Reinitializing ODE solver went wrong!");
+                }
+            }
+
             if (_stopping_criterions.processStopped()) { return; }
             run_next_step = final_time > t + _settings.min_step_size;
         }
     }
 
 
-    void SimulatorOde::_runSingleStep(std::vector<double> &state, double &t, double final_time) {
+    void SimulatorOde::_runSingleStep(double &t, double final_time) {
         int flag = CVode(_cvode_mem, final_time, _current_state_n_vector, &t, CV_NORMAL);
         if (flag != CV_SUCCESS && flag != CV_ROOT_RETURN) {
             std::stringstream os;

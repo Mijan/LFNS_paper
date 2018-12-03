@@ -20,7 +20,7 @@ void LFNSSetup::setUp() {
     int max_num_traj = 0;
     for (std::string experiment : experiments) {
 
-        models::FullModel_ptr full_model = std::make_shared<models::FullModel>(model_settings, rng);
+        models::FullModel_ptr full_model = std::make_shared<models::FullModel>(model_settings, rng, experiment);
         full_models.push_back(full_model);
 
 
