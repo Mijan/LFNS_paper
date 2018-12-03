@@ -127,8 +127,14 @@ sampler::SamplerSettings LFNSSetup::_readSamplerSettings() {
         }
         sampler_setting.parameters_log_scale[param] = scale.compare("log") == 0;
 
-        if (bounds.count(param) > 0) { sampler_setting.parameter_bounds[param] = bounds[param]; }
-        else {
+        if (bounds.count(param) > 0) {
+            if (bounds[param].first <= 0 && sampler_setting.parameters_log_scale[param]) {
+                std::cerr << "Lower bound for parameter " << param << " is " << bounds[param].first
+                          << ", but log scale is assumed. Instead, linear scale will be assumed!" << std::endl;
+                sampler_setting.parameters_log_scale[param] = false;
+            }
+            sampler_setting.parameter_bounds[param] = bounds[param];
+        } else {
             sampler_setting.parameter_bounds[param] = {1e-5, 100};
             std::cerr << "No bounds for parameter " << param << " provided. Assume defauld bounds of ["
                       << sampler_setting.parameter_bounds[param].first << ", "
