@@ -21,11 +21,11 @@ namespace lfns {
     void LFNS::resumeRum(std::string previous_log_file) {
         try {
             _logger.readFromFile(previous_log_file);
-        }catch(const std::runtime_error &e){
-            std::cerr << "Failed to read previous population from file " << previous_log_file << ":\n\t";
-            std::cerr << e.what() << std::endl;
-            std::cerr << "Previous population will be ignored!" << std::endl;
-            return;
+        } catch (const std::runtime_error &e) {
+            std::stringstream ss;
+            ss << "Failed to read previous population from file " << previous_log_file << ":\n\t";
+            ss << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
         }
         int it_nbr = _logger.iterationNumber();
 

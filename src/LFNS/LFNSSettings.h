@@ -54,7 +54,7 @@ namespace lfns {
                     break;
                 }
                 case ELLIPS: {
-                    stream << "n ellipsoid sampler will be used.";
+                    stream << "An ellipsoid sampler will be used.";
                     break;
                 }
             }

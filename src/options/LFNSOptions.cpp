@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "LFNSOptions.h"
+#include "../base/IoUtils.h"
 
 namespace options {
     LFNSOptions::LFNSOptions()
@@ -61,11 +62,73 @@ namespace options {
                 thresh_accept_rate = -1;
             }
         }
-        return 1;
 
+        if (vm.count("previous_pop") > 0) {
+            if (!base::IoUtils::isPathAbsolute(previous_population_file)) {
+                fs::path full_path(fs::current_path());
+                previous_population_file = full_path.string() + "/" + previous_population_file;
+            }
+            if (previous_population_file.find_last_of(".") == std::string::npos) {
+                std::stringstream os;
+                os << "The provided previous population file name " << previous_population_file
+                   << " is not a file. Please provide a filename in the format '/path/to/previouspopfile.txt'!"
+                   << std::endl;
+                throw std::runtime_error(os.str());
+            }
+
+            bool prev_pop_file_valid = false;
+            if (previous_population_file.find("log_file") == std::string::npos) {
+                if (base::IoUtils::doesFileExists(previous_population_file)) {
+                    std::ifstream fs(previous_population_file);
+                    std::string first_string;
+                    fs >> first_string;
+                    fs.close();
+                    if (first_string.compare("i") == 0) {
+                        prev_pop_file_valid = true;
+                    }
+                }
+
+                if (!prev_pop_file_valid) {
+                    std::string new_prev_pop_file_name = base::IoUtils::appendToFileName(previous_population_file,
+                                                                                         "log_file");
+                    std::ifstream fs(new_prev_pop_file_name);
+                    std::string first_string;
+                    fs >> first_string;
+                    fs.close();
+                    if (first_string.compare("i") == 0) {
+                        std::cerr << "File " << previous_population_file
+                                  << " does not seem to be a previous log file. File name is being corrected to "
+                                  << new_prev_pop_file_name << "." << std::endl;
+                        previous_population_file = new_prev_pop_file_name;
+                        prev_pop_file_valid = true;
+                    }
+                }
+            } else {
+                std::ifstream fs(previous_population_file);
+                std::string first_string;
+                fs >> first_string;
+                fs.close();
+                if (first_string.compare("i") == 0) {
+                    prev_pop_file_valid = true;
+                    std::stringstream ss;
+                    ss << "File " << previous_population_file
+                       << " does not seem to be a previous log file. LF-NS aborted!" << std::endl;
+                    throw std::runtime_error(ss.str());
+                }
+            }
+            if (!prev_pop_file_valid) {
+                prev_pop_file_valid = true;
+                std::stringstream ss;
+                ss << "File " << previous_population_file
+                   << " does not seem to be a previous log file. LF-NS aborted!" << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+        }
+        return 1;
     }
 
     bool LFNSOptions::useProperResamplingSet() { return vm.count("resampling") > 0; }
 
     bool LFNSOptions::samplerSet() { return vm.count("sampler") > 0; }
+
 }
