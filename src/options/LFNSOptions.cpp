@@ -83,9 +83,7 @@ namespace options {
                     std::string first_string;
                     fs >> first_string;
                     fs.close();
-                    if (first_string.compare("i") == 0) {
-                        prev_pop_file_valid = true;
-                    }
+                    if (first_string.compare("i") == 0) { prev_pop_file_valid = true; }
                 }
 
                 if (!prev_pop_file_valid) {
