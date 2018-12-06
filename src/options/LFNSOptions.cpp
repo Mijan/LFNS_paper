@@ -108,16 +108,9 @@ namespace options {
                 std::string first_string;
                 fs >> first_string;
                 fs.close();
-                if (first_string.compare("i") == 0) {
-                    prev_pop_file_valid = true;
-                    std::stringstream ss;
-                    ss << "File " << previous_population_file
-                       << " does not seem to be a previous log file. LF-NS aborted!" << std::endl;
-                    throw std::runtime_error(ss.str());
-                }
+                if (first_string.compare("i") == 0) { prev_pop_file_valid = true; }
             }
             if (!prev_pop_file_valid) {
-                prev_pop_file_valid = true;
                 std::stringstream ss;
                 ss << "File " << previous_population_file
                    << " does not seem to be a previous log file. LF-NS aborted!" << std::endl;
