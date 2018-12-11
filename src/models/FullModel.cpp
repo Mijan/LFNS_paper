@@ -189,4 +189,10 @@ namespace models {
     }
 
     RootFct_ptr FullModel::getRootFct() { return std::make_shared<RootFct>(std::bind(&FullModel::root, this, _1, _2)); }
+
+
+    MeasurementFct_ptr FullModel::getMeasurementFct() {
+        return std::make_shared<MeasurementFct>(
+                std::bind(&MeasurementModel::computeMeasurement, this->measurement_model.get(), _1, _2, _3));
+    }
 }

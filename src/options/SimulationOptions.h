@@ -18,6 +18,8 @@ public:
 
     bool initialTimeProvided();
 
+    bool timepointsProvided();
+
     std::vector<double> params;
     std::string param_file;
     int num_simulations;
@@ -25,6 +27,7 @@ public:
     double final_time;
     double interval;
     int max_generation;
+    std::vector<double> time_points;
 };
 
 }

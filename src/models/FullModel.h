@@ -47,6 +47,8 @@ namespace models {
 
         RootFct_ptr getRootFct();
 
+        MeasurementFct_ptr getMeasurementFct();
+
         std::vector<double> getDiscontTimes();
 
         void setParameter(const std::vector<double> &theta);

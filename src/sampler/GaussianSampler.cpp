@@ -67,6 +67,10 @@ namespace sampler {
 
     void GaussianSampler::updateKernel(const base::EiMatrix &transformed_samples) {
         _cov = (transformed_samples.adjoint() * transformed_samples) / double(transformed_samples.rows() - 1);
+        _inverse_cov_matrix = _cov.lu().inverse();
+
+        base::MultivariateNormal::decomposeVar(_cov, &_decomposed_var);
+        _det_var = _cov.determinant();
     }
 
 

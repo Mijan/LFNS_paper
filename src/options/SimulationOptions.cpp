@@ -14,6 +14,8 @@ namespace options {
                            "The parameters used for the simulation")("parameter-file,P",
                                                                      po::value<std::string>(&param_file),
                                                                      "The file from which all parameters will be read");
+        desc.add_options()("timepoints,t", po::value<std::vector<double> >(&time_points)->multitoken(),
+                           "Timepoints for the output");
         desc.add_options()("numsimulations,n", po::value<int>(&num_simulations),
                            "The number of simulations to be performed");
         desc.add_options()("initialtime,I", po::value<double>(&initial_time),
@@ -70,10 +72,19 @@ namespace options {
             throw std::runtime_error(os.str());
         }
 
+        if (vm.count("timepoints") > 0 &&
+            (vm.count("interval") > 0 || vm.count("initialtime") > 0 || vm.count("finaltime") > 0)) {
+            std::ostringstream os;
+            os
+                    << "If timepoints (-t) are provided,   no initialtime (-I) or final time (-F) or interval (-i) can be provided!"
+                    << std::endl;
+            throw std::runtime_error(os.str());
+        }
+
         return 1;
     }
 
-    bool SimulationOptions::initialTimeProvided() {
-        return vm.count("initialtime") > 0;
-    }
+    bool SimulationOptions::initialTimeProvided() { return vm.count("initialtime") > 0; }
+
+    bool SimulationOptions::timepointsProvided() { return vm.count("timepoints") > 0; }
 }

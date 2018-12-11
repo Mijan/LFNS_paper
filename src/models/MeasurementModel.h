@@ -14,6 +14,9 @@ namespace models {
                                  double t)> LikelihoodFct;
     typedef std::shared_ptr<LikelihoodFct> LikelihoodFct_ptr;
 
+    typedef std::function<void(std::vector<double> *measurement, const std::vector<double> &state, double t)> MeasurementFct;
+    typedef std::shared_ptr<MeasurementFct> MeasurementFct_ptr;
+
     class MeasurementModel : public ParserBaseObject {
     public:
         MeasurementModel(base::RngPtr rng, MeasurementModelData measurement_model_data);

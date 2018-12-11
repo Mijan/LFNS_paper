@@ -150,6 +150,8 @@ void SimulationSetup::_readSimulationSettings() {
         initial_time = _sim_options.initial_time;
         final_time = _sim_options.final_time;
         interval = _sim_options.interval;
+    } else if (_sim_options.timepointsProvided()) {
+        times = _sim_options.time_points;
     } else {
         try { initial_time = interpreter.getInitialTimeForSimulation(); } catch (
                 const std::exception &e) {
@@ -173,10 +175,12 @@ void SimulationSetup::_readSimulationSettings() {
 
 
 void SimulationSetup::_createOutputTimes() {
-    double t = initial_time;
-    while (t <= final_time) {
-        times.push_back(t);
-        t += interval;
+    if (times.empty()) {
+        double t = initial_time;
+        while (t <= final_time) {
+            times.push_back(t);
+            t += interval;
+        }
     }
 }
 
