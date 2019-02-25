@@ -76,9 +76,9 @@ find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
 
-set(BASE_SOURCE_FILES src/base/EigenMatrices.h src/base/IoUtils.cpp src/base/IoUtils.h src/base/MathUtils.cpp src/base/MathUtils.h src/base/MultivariateNormal.cpp src/base/MultivariateNormal.h src/base/RandomDistributions.h src/base/Utils.cpp src/base/Utils.h)
+set(BASE_SOURCE_FILES src/base/EigenMatrices.h src/base/IoUtils.cpp src/base/IoUtils.h src/base/MathUtils.cpp src/base/MathUtils.h src/base/MultivariateNormal.cpp src/base/MultivariateNormal.h src/base/RandomDistributions.h src/base/Utils.cpp src/base/Utils.h src/MCMC/MCMCSampler.cpp src/MCMC/MCMCSampler.h)
 set(IO_SOURCE_FILES src/io/TxtFileReader.cpp src/io/TxtFileReader.h src/io/ModelReactionReader.cpp src/io/ModelReactionReader.h src/io/ParserReader.cpp src/io/ParserReader.h src/io/InitialValueReader.h src/io/InitialValueReader.cpp src/io/MeasurementModelReader.h src/io/MeasurementModelReader.cpp src/io/XmlPropertyMap.cpp src/io/XmlPropertyMap.h src/io/XmlFileReader.cpp src/io/XmlFileReader.h src/io/ConfigFileInterpreter.cpp src/io/ConfigFileInterpreter.h src/io/IoSettings.h)
-set(OPTIONS_SOURCE_FILES src/options/CommandLineOptions.cpp src/options/CommandLineOptions.h src/options/DataOptions.h src/options/LFNSOptions.cpp src/options/LFNSOptions.h src/options/SimulationOptions.cpp src/options/SimulationOptions.h src/options/ComputeLikelihoodOptions.cpp src/options/ComputeLikelihoodOptions.h)
+set(OPTIONS_SOURCE_FILES src/options/CommandLineOptions.cpp src/options/CommandLineOptions.h src/options/DataOptions.h src/options/LFNSOptions.cpp src/options/LFNSOptions.h src/options/SimulationOptions.cpp src/options/SimulationOptions.h src/options/ComputeLikelihoodOptions.cpp src/options/ComputeLikelihoodOptions.h src/options/MCMCOptions.cpp src/options/MCMCOptions.h)
 set(LFNS_SOURCE_FILES src/LFNS/LFNSSettings.h src/LFNS/LFNS.cpp src/LFNS/LFNS.h src/LFNS/DeadParticleSet.cpp src/LFNS/DeadParticleSet.h src/LFNS/LiveParticleSet.cpp src/LFNS/LiveParticleSet.h src/LFNS/LFNSParticle.cpp src/LFNS/LFNSParticle.h src/LFNS/LFNSLogger.cpp src/LFNS/LFNSLogger.h src/LFNS/PosteriorEstimator.cpp src/LFNS/PosteriorEstimator.h src/LFNS/LFNSSampler.cpp src/LFNS/LFNSSampler.h)
 set(LFNS_SEQ_SOURCE_FILES src/LFNS/seq/LFNSSeq.cpp src/LFNS/seq/LFNSSeq.h)
 set(LFNS_MPI_SOURCE_FILES src/LFNS/mpi/LFNSMpi.h src/LFNS/mpi/LFNSMpi.cpp src/LFNS/mpi/LFNSWorker.cpp src/LFNS/mpi/LFNSWorker.h src/LFNS/mpi/MpiRequest.cpp src/LFNS/mpi/MpiRequest.h src/LFNS/mpi/RequestQueue.cpp src/LFNS/mpi/RequestQueue.h src/LFNS/mpi/MpiTags.h)
@@ -86,6 +86,7 @@ set(SAMPLE_SOURCE_FILES src/sampler/Sampler.h src/sampler/UniformSampler.h src/s
 set(SIMULATOR_SOURCE_FILES src/simulator/Simulator.h src/simulator/SimulatorSsa.cpp src/simulator/SimulatorSsa.h src/base/StoppingCriterion.h src/simulator/SimulatorOde.h src/simulator/SimulatorOde.cpp)
 set(PARTICLE_FILTER_SOURCE_FILES src/particle_filter/ParticleFilter.h src/particle_filter/ParticleFilter.cpp src/particle_filter/SmcParticle.h src/particle_filter/SmcParticleSet.h src/particle_filter/SmcParticleSet.cpp src/particle_filter/ParticleFilterSettings.h src/particle_filter/MultLikelihoodEval.h)
 set(MODELS_SOURCE_FILES src/models/BaseData.h src/models/BaseData.cpp src/models/BaseObject.h src/models/BaseObject.cpp src/models/ChemicalReactionNetwork.h src/models/ChemicalReactionNetwork.cpp src/models/ModelReactionData.h src/models/ModelReactionData.cpp src/models/ParserBaseObject.h src/models/ParserBaseObject.cpp src/models/ParserData.h src/models/ParserData.cpp src/models/InitialValueProvider.h src/models/InitialValueProvider.cpp src/models/InitialValueData.cpp src/models/InitialValueData.h src/models/MeasurementModel.h src/models/MeasurementModel.cpp src/models/MeasurementModelData.h src/models/MeasurementModelData.cpp src/models/InputPulse.cpp src/models/InputPulse.h src/models/FullModel.cpp src/models/FullModel.h src/models/ModelSettings.h)
+set(MCMC_SOURCE_FILES src/MCMC/MCMCSampler.cpp src/MCMC/MCMCSampler.h src/MCMC/MCMC.cpp src/MCMC/MCMC.h src/MCMC/MCMCParticles.cpp src/MCMC/MCMCParticles.h src/MCMC/MCMCLogger.cpp src/MCMC/MCMCLogger.h src/MCMC/MCMCSettings.h)
 
 add_library(base SHARED ${BASE_SOURCE_FILES})
 add_library(io SHARED ${IO_SOURCE_FILES})
@@ -97,6 +98,7 @@ add_library(sampler SHARED ${SAMPLE_SOURCE_FILES})
 add_library(simulator SHARED ${SIMULATOR_SOURCE_FILES})
 add_library(particle_filter SHARED ${PARTICLE_FILTER_SOURCE_FILES})
 add_library(models SHARED ${MODELS_SOURCE_FILES})
+#add_library(mcmc SHARED ${MCMC_SOURCE_FILES})
 
 target_link_libraries(base ${Boost_LIBRARIES} ${Eigen3_LIBRARIES})
 target_link_libraries(io ${Boost_LIBRARIES} ${Eigen3_LIBRARIES})
@@ -108,6 +110,7 @@ target_link_libraries(sampler ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${DPGMM_LIB
 target_link_libraries(simulator ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${SUNDIALS_LIBRARIES} base)
 target_link_libraries(particle_filter ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} base simulator)
 target_link_libraries(models ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${MUPARSER_LIBRARIES} base io)
+#target_link_libraries(mcmc ${Boost_LIBRARIES} base sampler)
 
 
 if (MPI_COMPILE_FLAGS)
@@ -128,7 +131,8 @@ add_executable(test_models test_models.cpp)
 add_executable(lfns_seq lfns_seq.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(lfns_mpi lfns_mpi.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(simulate simulate.cpp SimulationSetup.cpp SimulationSetup.h GeneralSetup.cpp GeneralSetup.h)
-add_executable(evaluate_likelihood evaluate_likelihood.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h)
+add_executable(evaluate_likelihood evaluate_likelihood.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h mcmc.cpp)
+add_executable(mcmc mcmc.cpp ${MCMC_SOURCE_FILES} GeneralSetup.cpp GeneralSetup.h mcmc.cpp MCMCSetup.cpp MCMCSetup.h)
 
 target_link_libraries(test_BEestimation lfns)
 target_link_libraries(test_lfns lfnsSeq)
@@ -140,8 +144,9 @@ target_link_libraries(lfns_seq base models particle_filter lfns lfnsSeq options 
 target_link_libraries(lfns_mpi base models particle_filter lfns lfnsMpi options io)
 target_link_libraries(simulate base models simulator options io)
 target_link_libraries(evaluate_likelihood base models simulator options particle_filter io)
+target_link_libraries(mcmc ${Boost_LIBRARIES} base models sampler particle_filter options io)
 
-install(TARGETS test_BEestimation test_lfns test_sampler test_simulator test_particle_filter test_models lfns_seq lfns_mpi simulate evaluate_likelihood DESTINATION bin)
+install(TARGETS mcmc test_BEestimation test_lfns test_sampler test_simulator test_particle_filter test_models lfns_seq lfns_mpi simulate evaluate_likelihood DESTINATION bin)
 install(TARGETS base models simulator options io particle_filter sampler lfns lfnsSeq lfnsMpi DESTINATION lib)
 
 

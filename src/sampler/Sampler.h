@@ -88,7 +88,7 @@ namespace sampler {
 
     class KernelSampler {
     public:
-        virtual const std::vector<double> &sample(const std::vector<double> &kernel_center) = 0;
+        virtual std::vector<double> &sample(const std::vector<double> &kernel_center) = 0;
 
         virtual void sample(base::EiVector &sample, const std::vector<double> &kernel_center) = 0;
 

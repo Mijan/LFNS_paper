@@ -36,7 +36,7 @@ namespace particle_filter {
         void addLogLikeFun(LogLikelihodEvalFct_ptr log_like_fun) { _log_like_fun.push_back(log_like_fun); }
 
         LogLikelihodEvalFct_ptr getLogLikeFun() {
-            return std::make_shared<LogLikelihodEvalFct>(std::bind(&MultLikelihoodEval::compute_log_like, this, _1));
+            return std::make_shared<LogLikelihodEvalFct>(std::bind(&MultLikelihoodEval::compute_log_like, this, std::placeholders::_1));
         }
 
         void setThresholdPtr(double *threshold_ptr) { _threshold_ptr = threshold_ptr; }

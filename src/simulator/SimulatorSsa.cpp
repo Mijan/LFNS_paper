@@ -59,15 +59,6 @@ namespace simulator {
         for (double &p: _propensities) { prop_sum += p; }
 
         _time_to_next_reaction = _getTimeToNextReaction(prop_sum);
-
-        if (!_discont_times.empty() && *_discont_it < t + _time_to_next_reaction) {
-            t = *_discont_it;
-            (*_propensity_fct)(_propensities, state, t);
-            double prop_sum = 0;
-            for (double &p: _propensities) { prop_sum += p; }
-
-            _time_to_next_reaction = _getTimeToNextReaction(prop_sum);
-        }
         if (t + _time_to_next_reaction > final_time) {
             t = final_time;
             return;
@@ -83,6 +74,14 @@ namespace simulator {
 
         size_t next_reaction_index = 0;
         double cumsum = _propensities[0];
+        if (cumsum < 0) {
+            std::stringstream os;
+            os << "Propensity for reaction " << next_reaction_index + 1 << " is negative: " << cumsum
+               << std::endl;
+            os << "Time: " << t << std::endl;
+            throw std::runtime_error(os.str());
+        }
+
         while (cumsum <= r * prop_sum) {
             double next_propensity = _propensities[next_reaction_index + 1];
             if (next_propensity < 0) {
