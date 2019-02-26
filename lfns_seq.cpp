@@ -19,64 +19,12 @@ int runLFNS(LFNSSetup &lfns_setup);
 
 int main(int argc, char **argv) {
     try {
+        lfns_options.handleCommandLineOptions(argc, argv);
 
 
-        base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
-
-        sampler::NormalSamplerData data_1(2);
-        data_1.bounds = {{1, 5},
-                         {2, 10}};
-        data_1.mean << 10, 20;
-
-        sampler::NormalSamplerData data_2(2);
-        data_2.bounds = {{-1, 0},
-                         {-2, -1}};
-        data_2.mean << 1, 2;
-
-        sampler::GaussianSampler de(rng, data_1);
-        sampler::KernelDensityEstimation kde(rng, std::make_shared<sampler::GaussianSampler>(de), data_1);
-
-
-        base::EiMatrix samples(5, 2);
-        samples << 1, 2, 2, 3, 3, 4, 4, 5, 5, 6;
-//        de.updateDensitySamples(samples);
-//        de.writeToStream(std::cout);
-        kde.updateDensitySamples(samples);
-        kde.writeToStream(std::cout);
-
-        std::stringstream stream_out_de;
-        {
-            boost::archive::binary_oarchive oar_de(stream_out_de);
-            oar_de << kde;
-        }
-
-
-        sampler::GaussianSampler de_2(rng, data_2);
-        base::EiMatrix samples_2(5, 2);
-        samples_2 << 0.1, 0.2, 0.2, 0.3, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6;
-//        de_2.updateDensitySamples(samples_2);
-//        de_2.writeToStream(std::cout);
-        sampler::KernelDensityEstimation kde_2(rng, std::make_shared<sampler::GaussianSampler>(de_2), data_2);
-        kde_2.updateDensitySamples(samples_2);
-        std::cout << "original second.. " << std::endl;
-        kde_2.writeToStream(std::cout);
-
-        {
-            boost::archive::binary_iarchive iar_de(stream_out_de);
-            iar_de >> kde_2;
-        }
-//        de_2.writeToStream(std::cout);
-
-        std::cout << "copied second.. " << std::endl;
-        kde_2.writeToStream(std::cout);
-        std::cout << "here we are again" << std::endl;
-
-//        lfns_options.handleCommandLineOptions(argc, argv);
-//
-//
-//        LFNSSetup likelihood_setup(lfns_options);
-//        likelihood_setup.setUp();
-//        return runLFNS(likelihood_setup);
+        LFNSSetup likelihood_setup(lfns_options);
+        likelihood_setup.setUp();
+        return runLFNS(likelihood_setup);
     } catch (const std::exception &e) {
         std::cerr << "Failed to run LFNS, exception thrown:\n\t" << e.what() << std::endl;
         return 0;

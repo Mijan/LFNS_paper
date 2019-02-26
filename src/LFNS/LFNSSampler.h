@@ -27,6 +27,10 @@ namespace lfns {
 
         void updateLiveSamples(LiveParticleSet &live_points);
 
+        void updateSerializedSampler(std::stringstream &stream);
+
+        void getSerializedSampler(std::stringstream &stream);
+
         void writeToStream(std::ostream &stream);
 
         sampler::DensityEstimation_ptr getDensityEstimation();

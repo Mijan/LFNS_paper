@@ -15,6 +15,8 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/complex.hpp>
 
+#include "../base/EigenSerialization.h"
+
 
 #include <vector>
 #include <memory>

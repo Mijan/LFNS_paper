@@ -56,6 +56,8 @@ namespace lfns {
                 time_t tic = clock();
                 _sampler.updateLiveSamples(_live_points);
                 time_t toc = clock();
+
+
                 _logger.samplerUpdated(_sampler, toc - tic);
 
                 while (_live_points.numberParticles() < _settings.N) {

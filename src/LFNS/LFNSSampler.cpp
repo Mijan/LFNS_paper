@@ -111,6 +111,16 @@ namespace lfns {
     }
 
 
+    void LFNSSampler::updateSerializedSampler(std::stringstream &stream){
+        boost::archive::binary_iarchive iar(stream);
+        iar >> *_density_estimation;
+    }
+
+    void LFNSSampler::getSerializedSampler(std::stringstream &stream){
+        boost::archive::binary_oarchive oar(stream);
+        oar << *_density_estimation;
+    }
+
     void LFNSSampler::writeToStream(std::ostream &stream) {
         std::cout << "Prior used: " << std::endl;
         _prior->writeToStream(stream);
@@ -120,16 +130,12 @@ namespace lfns {
     }
 
 
-    sampler::DensityEstimation_ptr LFNSSampler::getDensityEstimation() {
-        return _density_estimation;
-    }
+    sampler::DensityEstimation_ptr LFNSSampler::getDensityEstimation() { return _density_estimation; }
 
     std::vector<double> &LFNSSampler::_scaleSample(std::vector<double> &sample) {
         if (_log_params.empty()) { return sample; }
         else {
-            for (int &index : _log_params) {
-                sample[index] = std::pow(10, sample[index]);
-            }
+            for (int &index : _log_params) { sample[index] = std::pow(10, sample[index]); }
             return sample;
         }
     }

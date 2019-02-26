@@ -5,7 +5,7 @@
 #ifndef EIGENSERIALIZATION_H
 #define EIGENSERIALIZATION_H
 
-#include <Eigen/src/Core/Matrix.h>
+#include <Eigen/Dense>
 #include <boost/serialization/array_wrapper.hpp>
 
 namespace boost {
