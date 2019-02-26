@@ -12,7 +12,7 @@ namespace sampler {
     public:
         KernelSupportEstimation(base::RngPtr rng, KernelSampler_ptr kernel, SamplerData data);
 
-        void updateTransformedDensitySamples(base::EiMatrix transformed_samples) override;
+        void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) override;
     };
 }
 

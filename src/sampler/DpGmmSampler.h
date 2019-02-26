@@ -8,6 +8,7 @@
 
 #include <GaussMixtureComponent.h>
 #include <DPGMMEstimator.h>
+#include <set>
 #include "DensityEstimation.h"
 
 namespace sampler {
@@ -35,27 +36,37 @@ namespace sampler {
         DpGmmSampler(base::RngPtr rng, DpGmmSamplerData data);
 
         DpGmmSampler(base::RngPtr rng, DpGmmSamplerData data,
-                     DP_GMM::GaussMixtureComponentSet mixture_components);
+                     std::vector<DP_GMM::GaussMixtureComponent> mixture_components);
 
         virtual ~DpGmmSampler();
 
         void writeToStream(std::ostream &stream);
 
-        void updateTransformedDensitySamples(base::EiMatrix transformed_samples) override;
+        void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) override;
 
         void sampleTransformed(base::EiVector &trans_sample) override;
 
         double getTransformedLogLikelihood(const base::EiVector &trans_sample) override;
 
     protected:
-        DP_GMM::GaussMixtureComponentSet _mixture_components;
+        std::vector<DP_GMM::GaussMixtureComponent> _mixture_components;
         base::UniformRealDistribution _dist;
-        base::EiVector _sample_ei_vector;
 
         bool _hyper_params_set;
         DP_GMM::DPGMMEstimator _estimator;
         DP_GMM::HyperParameters _hyper_parameters;
         int _num_dp_gmm_iteration;
+
+
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            // serialize base class information
+            ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
+            ar & _mixture_components;
+            ar & _num_dp_gmm_iteration;
+        }
     };
 
     typedef std::shared_ptr<DpGmmSampler> DpGmmSampler_ptr;

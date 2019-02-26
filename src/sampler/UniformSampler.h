@@ -6,7 +6,6 @@
 #define LFNS_UNIFORMSAMPLER_H
 
 
-#include <boost/serialization/base_object.hpp>
 #include "Sampler.h"
 
 namespace sampler {
@@ -70,6 +69,16 @@ namespace sampler {
         double _getRndInBounds(double l_bound, double r_bound);
 
         double _getLogLikelihood(double l_bound, double r_bound);
+
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            // serialize base class information
+            ar & boost::serialization::base_object<sampler::Sampler>(*this);
+            ar & _widths;
+        }
 
     };
 

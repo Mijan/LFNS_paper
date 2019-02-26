@@ -64,7 +64,7 @@ namespace sampler {
 
         void updateAcceptanceRate(double acceptance_rate);
 
-        virtual void updateTransformedDensitySamples(base::EiMatrix transformed_samples);
+        virtual void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples);
 
         void sampleTransformed(base::EiVector &trans_sample) override;
 

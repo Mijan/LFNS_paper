@@ -5,15 +5,25 @@
 #ifndef LFNS_SAMPLER_H
 #define LFNS_SAMPLER_H
 
-#include <boost/serialization/access.hpp>
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/complex.hpp>
+
+
 #include <vector>
 #include <memory>
 #include <fstream>
 #include <sstream>
 #include <float.h>
-#include <boost/serialization/assume_abstract.hpp>
 #include "../base/EigenMatrices.h"
 #include "../base/RandomDistributions.h"
+
 
 namespace sampler {
     class SamplerData {
@@ -33,8 +43,7 @@ namespace sampler {
 
     class Sampler {
     public:
-        Sampler(base::RngPtr rng, SamplerData data) : _rng(rng), _sample(data.size()),
-                                                      _bounds(data.bounds) {}
+        Sampler(base::RngPtr rng, SamplerData data) : _rng(rng), _sample(data.size()), _bounds(data.bounds) {}
 
         virtual ~Sampler() {}
 
@@ -47,8 +56,6 @@ namespace sampler {
         virtual std::size_t getSamplerDimension() const { return _bounds.size(); }
 
         virtual void updateSeed(int seed) { _rng->seed(seed); }
-
-        friend class ::boost::serialization::access;
 
         bool isSampleFeasible(const std::vector<double> &sample) {
             for (std::size_t i = 0; i < sample.size(); i++) {
@@ -79,9 +86,13 @@ namespace sampler {
         std::vector<double> _sample;
         std::vector<std::pair<double, double> > _bounds;
 
+        friend class ::boost::serialization::access;
 
         template<class Archive>
-        void serialize(Archive &ar, const unsigned int version) {}
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & _sample;
+            ar & _bounds;
+        }
     };
 
     typedef std::shared_ptr<Sampler> Sampler_ptr;
@@ -98,6 +109,9 @@ namespace sampler {
         virtual double getLogLikelihood(const base::EiVector &sample, const std::vector<double> &kernel_center) = 0;
 
         virtual void updateKernel(const base::EiMatrix &transformed_samples) = 0;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {}
     };
 
     typedef std::shared_ptr<KernelSampler> KernelSampler_ptr;

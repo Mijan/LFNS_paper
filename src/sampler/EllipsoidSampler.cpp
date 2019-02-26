@@ -8,17 +8,13 @@
 
 namespace sampler {
     EllipsoidSampler::EllipsoidSampler(base::RngPtr rng, SamplerData data) : DensityEstimation(rng, data),
-                                                                             _mean(data.size()),
-                                                                             _evs(data.size(),
-                                                                                  data.size()),
-                                                                             _evals(data.size()),
                                                                              _scale(0), _uniform_dist(0, 1) {}
 
     EllipsoidSampler::~EllipsoidSampler() {}
 
     void EllipsoidSampler::setScale(double scale_var) { _scale = scale_var; }
 
-    void EllipsoidSampler::updateTransformedDensitySamples(base::EiMatrix transformed_samples) {
+    void EllipsoidSampler::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
         _scale = -1;
         for (std::size_t row = 0; row < transformed_samples.rows(); row++) {
             double max_coeff = transformed_samples.row(row).real().norm();

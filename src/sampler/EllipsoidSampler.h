@@ -16,7 +16,7 @@ namespace sampler {
 
         virtual ~EllipsoidSampler();
 
-        void updateTransformedDensitySamples(base::EiMatrix transformed_samples) override;
+        void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) override;
 
         void sampleTransformed(base::EiVector &trans_sample) override;
 
@@ -25,11 +25,17 @@ namespace sampler {
         void setScale(double scale_var);
 
     protected:
-        base::EiVector _mean;
-        base::EiMatrixC _evs;
-        base::EiVectorC _evals;
         double _scale;
         base::UniformRealDistribution _uniform_dist;
+
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            // serialize base class information
+            ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
+            ar & _scale;
+        }
     };
 
     typedef std::shared_ptr<EllipsoidSampler> EllipsoidSampler_ptr;

@@ -90,6 +90,20 @@ namespace sampler {
         double _det_var;
 
         int _n;
+
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            // serialize base class information
+            ar & boost::serialization::base_object<sampler::Sampler>(*this);
+            ar & _mean;
+            ar & _inverse_cov_matrix;
+            ar & _decomposed_var;
+            ar & _cov;
+            ar & _det_var;
+            ar & _n;
+        }
     };
 
     typedef std::shared_ptr<GaussianSampler> GaussianSampler_ptr;

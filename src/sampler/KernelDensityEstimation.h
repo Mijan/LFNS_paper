@@ -35,11 +35,21 @@ namespace sampler {
         base::EiVector _log_likes_tmp;
 
         base::UniformRealDistribution _uniform_dist;
+
+
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
+            ar & _means;
+            ar & _weights;
+            ar & *_kernel;
+            ar & _log_likes_tmp;
+        }
     };
 
     typedef std::shared_ptr<KernelDensityEstimation> KernelDensityEstimation_ptr;
 }
-
-
 
 #endif //LFNS_KERNELDENSITYESTIMATION_H

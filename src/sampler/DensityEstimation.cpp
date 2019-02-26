@@ -27,7 +27,7 @@ namespace sampler {
         }
         _mean = samples.colwise().mean();
 
-        _inv_evs = _evs.lu().inverse();
+        _inv_evs = _evs.inverse();
 
         base::EiMatrixC transformed = _inv_evs.real() * centered.transpose();
         transformed.transposeInPlace();
