@@ -48,6 +48,19 @@ namespace sampler {
         double log_rejection_const;
         double thresh_accept_rate;
         double max_rejection_mag;
+
+    private:
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & boost::serialization::base_object<sampler::SamplerData>(*this);
+            ar & rejection_quantile;
+            ar & rejection_quantile_low_accept;
+            ar & log_rejection_const;
+            ar & thresh_accept_rate;
+            ar & max_rejection_mag;
+        }
     };
 
     class RejectionSupportSampler : public DensityEstimation {
@@ -78,9 +91,56 @@ namespace sampler {
         double _log_rejection_const;
         double _rejection_quantile;
 
+
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        friend void
+        ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::RejectionSupportSampler *t,
+                                                    const unsigned int file_version);
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
+            ar & _log_rejection_const;
+            ar & _rejection_quantile;
+        }
+
     };
 
     typedef std::shared_ptr<sampler::RejectionSupportSampler> RejectionSupportSampler_ptr;
 } /* namespace sampler */
+
+
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void
+        save_construct_data(Archive &ar, const sampler::RejectionSupportSampler *t, const unsigned int file_version) {
+            // save data required to construct instance
+
+
+            ar << t->_rejection_data;
+            ar << t->_current_sampler;
+
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+                Archive &ar, sampler::RejectionSupportSampler *t, const unsigned int file_version
+        ) {
+            // retrieve data from archive required to construct new instance
+            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+            sampler::RejectionSamplerData data(1);
+            ar >> data;
+
+            sampler::DensityEstimation_ptr sampler;
+            ar >> sampler;
+
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)sampler::RejectionSupportSampler(rng, sampler, data);
+        }
+    }
+}
 
 #endif //LFNS_REJECTIONSAMPLER_H

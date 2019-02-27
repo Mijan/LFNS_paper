@@ -38,6 +38,8 @@ namespace lfns {
 
             void _updateEpsilon(double epsilon);
 
+            void _updateSampler();
+
             void _initializeQueue(RequestQueue &queue);
         };
     }

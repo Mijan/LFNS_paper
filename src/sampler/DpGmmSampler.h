@@ -61,6 +61,10 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
+        friend void ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::DpGmmSampler *t,
+                                                                const unsigned int file_version);
+
+        template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
             // serialize base class information
             ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
@@ -72,6 +76,39 @@ namespace sampler {
     typedef std::shared_ptr<DpGmmSampler> DpGmmSampler_ptr;
 } /* namespace sampler */
 
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void
+        save_construct_data(Archive &ar, const sampler::DpGmmSampler *t, const unsigned int file_version) {
+            // save data required to construct instance
+
+
+            int sample_size = t->getSamplerDimension();
+            int num_dp_it = t->_num_dp_gmm_iteration;
+            ar << sample_size;
+            ar << num_dp_it;
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+                Archive &ar, sampler::DpGmmSampler *t, const unsigned int file_version
+        ) {
+            // retrieve data from archive required to construct new instance
+            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+
+            int sample_size;
+            ar >> sample_size;
+            int num_dp_iterations;
+            ar >> num_dp_iterations;
+            sampler::DpGmmSamplerData data(sample_size);
+            data.num_dp_iterations = num_dp_iterations;
+
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)sampler::DpGmmSampler(rng, data);
+        }
+    }
+}
 
 
 #endif //LFNS_DPGMMSAMPLER_H

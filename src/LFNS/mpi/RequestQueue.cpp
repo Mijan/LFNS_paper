@@ -9,28 +9,33 @@
 namespace lfns {
     namespace mpi {
         RequestQueue::RequestQueue()
-                : computed_particles(), used_process(), clocks_for_particles(), log_likelihoods(), process_finished(),
-                  ptr_clocks_for_particles(), ptr_log_likelihoods(), ptr_process_finished(), likelihood_requests() {}
+                : computed_particles(), used_process(), clocks_for_particles(), clocks_for_sampling(), log_likelihoods(), process_finished(),
+                  ptr_clocks_for_particles(), ptr_clocks_for_sampling(), ptr_log_likelihoods(), ptr_process_finished(), particle_requests() {}
 
         RequestQueue::~RequestQueue() {}
 
-        void RequestQueue::addRequest(std::size_t rank, const std::vector<double> &theta) {
+        void RequestQueue::addRequest(std::size_t rank, int num_parameters, bool sample_prior) {
             clocks_for_particles.push(0);
+            clocks_for_sampling.push(0);
             log_likelihoods.push(-DBL_MAX);
             process_finished.push(false);
 
-            computed_particles.push(theta);
+            computed_particles.push(std::vector<double>(num_parameters));
             used_process.push(rank);
-            if (rank > likelihood_requests.size()) {
-                likelihood_requests.push_back(std::make_shared<MpiLikelihoodRequest>(rank, theta));
+            if (rank > particle_requests.size()) {
+                particle_requests.push_back(std::make_shared<MpiParticleRequest>(rank, num_parameters, sample_prior));
                 ptr_process_finished.push_back(&process_finished.back());
                 ptr_log_likelihoods.push_back(&log_likelihoods.back());
                 ptr_clocks_for_particles.push_back(&clocks_for_particles.back());
+                ptr_clocks_for_sampling.push_back(&clocks_for_sampling.back());
+                ptr_particles.push_back(&computed_particles.back());
             } else {
-                likelihood_requests[rank - 1]->requestNewLikelihood(theta);
+                particle_requests[rank - 1]->requestNewParticle(sample_prior);
                 ptr_process_finished[rank - 1] = &process_finished.back();
                 ptr_log_likelihoods[rank - 1] = &log_likelihoods.back();
                 ptr_clocks_for_particles[rank - 1] = &clocks_for_particles.back();
+                ptr_clocks_for_sampling[rank - 1] = &clocks_for_sampling.back();
+                ptr_particles[rank - 1] = &computed_particles.back();
             }
         }
 
@@ -42,16 +47,20 @@ namespace lfns {
 
         double RequestQueue::getFirstParticleClocks() { return clocks_for_particles.front(); }
 
+        time_t RequestQueue::getFirstSamplingClocks() { return clocks_for_sampling.front(); }
+
         int RequestQueue::getFirstUsedProcess() { return used_process.front(); }
 
         std::queue<std::size_t> RequestQueue::getFinishedProcessess() {
             std::queue<std::size_t> finished_process;
-            for (int i = 0; i < likelihood_requests.size(); i++) {
-                MpiLikelihoodRequest_ptr request = likelihood_requests[i];
+            for (int i = 0; i < particle_requests.size(); i++) {
+                MpiParticleRequest_ptr request = particle_requests[i];
                 if (request->test()) {
                     *ptr_clocks_for_particles[i] = request->getClocksSinceRequest();
                     *ptr_log_likelihoods[i] = request->getLogLikelihood();
                     *ptr_process_finished[i] = true;
+                    std::vector<double> param = request->getParticle();
+                    *ptr_particles[i] = request->getParticle();
                     finished_process.push(request->getRank());
                 }
             }
@@ -65,14 +74,13 @@ namespace lfns {
             process_finished.pop();
             computed_particles.pop();
             used_process.pop();
+            clocks_for_sampling.pop();
         }
 
         void RequestQueue::stopPendingRequests() {
-            for (MpiLikelihoodRequest_ptr request : likelihood_requests) { request->interruptRequest(); }
+            for (MpiParticleRequest_ptr request : particle_requests) { request->interruptRequest(); }
         }
 
-        std::size_t RequestQueue::size() const {
-            return log_likelihoods.size();
-        }
+        std::size_t RequestQueue::size() const { return log_likelihoods.size(); }
     }
 }

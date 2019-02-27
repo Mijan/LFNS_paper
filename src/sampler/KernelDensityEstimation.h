@@ -40,16 +40,56 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
+        friend void
+        ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::KernelDensityEstimation *t,
+                                                    const unsigned int file_version);
+
+
+        template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
             ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
             ar & _means;
             ar & _weights;
-            ar & *_kernel;
             ar & _log_likes_tmp;
         }
     };
 
     typedef std::shared_ptr<KernelDensityEstimation> KernelDensityEstimation_ptr;
+}
+
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void
+        save_construct_data(Archive &ar, const sampler::KernelDensityEstimation *t, const unsigned int file_version) {
+            // save data required to construct instance
+
+
+            int sample_size = t->getSamplerDimension();
+            sampler::SamplerData data(sample_size);
+            data.bounds = t->_bounds;
+            ar << data;
+            ar << t->_kernel;
+
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+                Archive &ar, sampler::KernelDensityEstimation *t, const unsigned int file_version
+        ) {
+            // retrieve data from archive required to construct new instance
+            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+
+            sampler::SamplerData data(1);
+            ar >> data;
+
+            sampler::KernelSampler_ptr kernel;
+            ar >> kernel;
+
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)sampler::KernelDensityEstimation(rng, kernel, data);
+        }
+    }
 }
 
 #endif //LFNS_KERNELDENSITYESTIMATION_H

@@ -55,6 +55,29 @@ namespace lfns {
 
         typedef std::shared_ptr<MpiLikelihoodRequest> MpiLikelihoodRequest_ptr;
 
+        class MpiParticleRequest : public MpiRequest {
+        public:
+            MpiParticleRequest(std::size_t rank, int num_parameters, bool sample_prior = false);
+
+            ~MpiParticleRequest();
+
+            void requestNewParticle(bool sample_prior = false);
+
+            double getLogLikelihood();
+
+            time_t getClocksForSampling();
+
+            std::vector<double> &getParticle();
+
+        private:
+            double _log_likelihood;
+            std::vector<double> _particle;
+            time_t _clocks_for_sampling;
+        };
+
+
+        typedef std::shared_ptr<MpiParticleRequest> MpiParticleRequest_ptr;
+
     }
 }
 

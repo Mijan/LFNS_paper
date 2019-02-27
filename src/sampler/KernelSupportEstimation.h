@@ -13,6 +13,15 @@ namespace sampler {
         KernelSupportEstimation(base::RngPtr rng, KernelSampler_ptr kernel, SamplerData data);
 
         void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) override;
+
+        friend class boost::serialization::access;
+
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & boost::serialization::base_object<sampler::KernelDensityEstimation>(*this);
+        }
+
     };
 }
 

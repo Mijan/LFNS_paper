@@ -51,7 +51,8 @@ namespace lfns {
         class LFNSWorker {
 
         public:
-            LFNSWorker(std::size_t my_rank, int num_parameters, LogLikelihodEvalFct_ptr log_likelihood_evaluation);
+            LFNSWorker(std::size_t my_rank, int num_parameters, LogLikelihodEvalFct_ptr log_likelihood_evaluation,
+                       LFNSSettings &settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng);
 
             virtual ~LFNSWorker();
 
@@ -67,6 +68,7 @@ namespace lfns {
 
             double *_particle;
             double _epsilon;
+            std::size_t _sampler_size;
             bmpi::request *_stopping_flag_request;
             MPIStoppingCriterion_ptr _mpi_stopping_criterion;
 
@@ -75,7 +77,15 @@ namespace lfns {
 
             bmpi::communicator world;
 
+            LFNSSampler _sampler;
+
             void _computeLikelihood();
+
+            void _sampleConstrPrior();
+
+            void _samplePrior();
+
+            void _updateSampler();
 
             void _prepareStoppingFlag();
 

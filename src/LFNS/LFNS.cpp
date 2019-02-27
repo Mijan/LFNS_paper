@@ -14,7 +14,8 @@ namespace lfns {
     LFNS::LFNS(LFNSSettings &lfns_settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng)
             : _settings(lfns_settings), _live_points(), _dead_points(),
               _post_estimator(lfns_settings.N, lfns_settings.r), _sampler(lfns_settings, sampler_settings, rng),
-              _logger(lfns_settings), _resume_run(false), _epsilon(-DBL_MAX) {}
+              _logger(lfns_settings), _resume_run(false),
+              _epsilon(-DBL_MAX), _num_parameters(sampler_settings.param_names.size()) {}
 
     LFNS::~LFNS() {}
 

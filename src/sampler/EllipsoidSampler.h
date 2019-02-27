@@ -31,6 +31,10 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
+        friend void ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::EllipsoidSampler *t,
+                                                                const unsigned int file_version);
+
+        template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
             // serialize base class information
             ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
@@ -40,6 +44,36 @@ namespace sampler {
 
     typedef std::shared_ptr<EllipsoidSampler> EllipsoidSampler_ptr;
 
+}
+
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void
+        save_construct_data(Archive &ar, const sampler::EllipsoidSampler *t, const unsigned int file_version) {
+            // save data required to construct instance
+
+
+            int sample_size = t->getSamplerDimension();
+            sampler::SamplerData data(sample_size);
+            data.bounds = t->_bounds;
+            ar << data;
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+                Archive &ar, sampler::EllipsoidSampler *t, const unsigned int file_version
+        ) {
+            // retrieve data from archive required to construct new instance
+            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+
+            sampler::SamplerData data(1);
+            ar >> data;
+
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)sampler::EllipsoidSampler(rng, data);
+        }
+    }
 }
 
 #endif //LFNS_ELLIPSOIDSAMPLER_H

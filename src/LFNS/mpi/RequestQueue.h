@@ -18,7 +18,7 @@ namespace lfns {
 
             virtual ~RequestQueue();
 
-            void addRequest(std::size_t rank, const std::vector<double> &theta);
+            void addRequest(std::size_t rank, int num_parameters, bool sample_prior = false);
 
             double getFirstLikelihood();
 
@@ -27,6 +27,8 @@ namespace lfns {
             bool firstParticleFinished();
 
             double getFirstParticleClocks();
+
+            time_t getFirstSamplingClocks();
 
             int getFirstUsedProcess();
 
@@ -41,15 +43,18 @@ namespace lfns {
             std::queue<std::vector<double> > computed_particles;
             std::queue<int> used_process;
             std::queue<double> clocks_for_particles;
+            std::queue<time_t> clocks_for_sampling;
             std::queue<double> log_likelihoods;
             std::queue<bool> process_finished;
 
 
             std::vector<double *> ptr_clocks_for_particles;
+            std::vector<time_t *> ptr_clocks_for_sampling;
             std::vector<double *> ptr_log_likelihoods;
             std::vector<bool *> ptr_process_finished;
+            std::vector<std::vector<double> *> ptr_particles;
 
-            std::vector<MpiLikelihoodRequest_ptr> likelihood_requests;
+            std::vector<MpiParticleRequest_ptr> particle_requests;
         };
     }
 }

@@ -6,6 +6,25 @@
 #include "LFNSMpi.h"
 #include "RequestQueue.h"
 #include "MpiRequest.h"
+#include "../../sampler/DpGmmSampler.h"
+#include "../../sampler/EllipsoidSampler.h"
+#include "../../sampler/GaussianSampler.h"
+#include "../../sampler/KernelDensityEstimation.h"
+#include "../../sampler/KernelSupportEstimation.h"
+#include "../../sampler/RejectionSupportSampler.h"
+#include "../../sampler/UniformSampler.h"
+
+
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT_GUID(sampler::Sampler, "Sampler");
+BOOST_CLASS_EXPORT_GUID(sampler::KernelSampler, "KernelSampler");
+BOOST_CLASS_EXPORT_GUID(sampler::DensityEstimation, "DensityEstimation");
+BOOST_CLASS_EXPORT_GUID(sampler::DpGmmSampler, "DpGmmSampler");
+BOOST_CLASS_EXPORT_GUID(sampler::EllipsoidSampler, "EllipsoidSampler");
+BOOST_CLASS_EXPORT_GUID(sampler::KernelDensityEstimation, "KernelDensityEstimation");
+BOOST_CLASS_EXPORT_GUID(sampler::RejectionSupportSampler, "RejectionSupportSampler");
+BOOST_CLASS_EXPORT_GUID(sampler::UniformSampler, "UniformSampler");
 
 namespace lfns {
     namespace mpi {
@@ -47,11 +66,7 @@ namespace lfns {
             while (_live_points.numberParticles() < _settings.N) {
                 std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
-                    time_t tic = clock();
-                    std::vector<double> theta = _sampler.samplePrior();
-                    time_t toc = clock();
-                    _logger.thetaSampled(theta, toc - tic);
-                    queue.addRequest(finished_tasks.front(), theta);
+                    queue.addRequest(finished_tasks.front(), _num_parameters, true);
                     finished_tasks.pop();
                 }
 
@@ -59,6 +74,7 @@ namespace lfns {
                 if (queue.firstParticleFinished()) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();
+                    _logger.thetaSampled(theta, queue.getFirstSamplingClocks());
                     _logger.likelihoodComputed(l);
                     _live_points.push_back(theta, l);
                     _logger.particleAccepted(theta, l, queue.getFirstParticleClocks(), queue.getFirstUsedProcess());
@@ -69,10 +85,7 @@ namespace lfns {
         }
 
         void LFNSMpi::_initializeQueue(RequestQueue &queue) {
-            for (std::size_t rank = 1; rank < _num_tasks; rank++) {
-                std::vector<double> theta = _sampler.samplePrior();
-                queue.addRequest(rank, theta);
-            }
+            for (std::size_t rank = 1; rank < _num_tasks; rank++) { queue.addRequest(rank, _num_parameters, true); }
             queue.stopPendingRequests();
         }
 
@@ -91,21 +104,19 @@ namespace lfns {
             _sampler.updateLiveSamples(_live_points);
             time_t toc = clock();
             _logger.samplerUpdated(_sampler, toc - tic);
+            _updateSampler();
 
             while (_live_points.numberParticles() < _settings.N) {
                 std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
-                    tic = clock();
-                    std::vector<double> theta = _sampler.sampleConstrPrior();
-                    toc = clock();
-                    _logger.thetaSampled(theta, toc - tic);
-                    queue.addRequest(finished_tasks.front(), theta);
+                    queue.addRequest(finished_tasks.front(), _num_parameters);
                     finished_tasks.pop();
                 }
 
                 while (queue.firstParticleFinished() && _live_points.numberParticles() < _settings.N) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();
+                    _logger.thetaSampled(theta, queue.getFirstSamplingClocks());
                     _logger.likelihoodComputed(l);
                     if (l >= _epsilon) {
                         _live_points.push_back(theta, l);
@@ -122,6 +133,22 @@ namespace lfns {
             for (int rank = 1; rank < _num_tasks; rank++) {
                 world.send(rank, INSTRUCTION, UPDATE_EPSILON);
                 world.send(rank, EPSILON, epsilon);
+            }
+        }
+
+
+        void LFNSMpi::_updateSampler() {
+            for (int rank = 1; rank < _num_tasks; rank++) {
+                world.send(rank, INSTRUCTION, UPDATE_SAMPLER);
+
+                std::stringstream stream;
+                _sampler.getSerializedSampler(stream);
+
+                std::size_t sampler_size = stream.str().size();
+                world.send(rank, SAMPLER_SIZE, sampler_size);
+
+                std::string sampler_string = stream.str();
+                world.send(rank, SAMPLER, sampler_string.c_str(), sampler_size);
             }
         }
     }

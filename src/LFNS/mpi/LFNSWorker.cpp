@@ -7,11 +7,13 @@
 namespace lfns {
     namespace mpi {
         LFNSWorker::LFNSWorker(std::size_t my_rank, int num_parameters,
-                               LogLikelihodEvalFct_ptr log_likelihood_evaluation) :
+                               LogLikelihodEvalFct_ptr log_likelihood_evaluation, LFNSSettings &lfns_settings,
+                               sampler::SamplerSettings &sampler_settings, base::RngPtr rng) :
                 _my_rank(my_rank), _num_parameters(num_parameters), _particle(new double[num_parameters]),
-                _epsilon(-DBL_MAX), _stopping_flag_request(new bmpi::request()),
+                _epsilon(-DBL_MAX), _sampler_size(1), _stopping_flag_request(new bmpi::request()),
                 _mpi_stopping_criterion(std::make_shared<MPIStoppingCriterion>(_stopping_flag_request)),
-                _log_likelihood_evaluation(log_likelihood_evaluation), _stop_iteration(false) {}
+                _log_likelihood_evaluation(log_likelihood_evaluation), _stop_iteration(false),
+                _sampler(lfns_settings, sampler_settings, rng) {}
 
         LFNSWorker::~LFNSWorker() {
             delete[] _particle;
@@ -42,8 +44,20 @@ namespace lfns {
                         _computeLikelihood();
                         break;
 
+                    case SAMPLE_CONSTR_PRIOR:
+                        _sampleConstrPrior();
+                        break;
+
+                    case SAMPLE_PRIOR:
+                        _samplePrior();
+                        break;
+
                     case UPDATE_EPSILON:
                         _updateEpsilon();
+                        break;
+
+                    case UPDATE_SAMPLER:
+                        _updateSampler();
                         break;
 
                     case PREPARE_STOPPING:
@@ -66,6 +80,36 @@ namespace lfns {
             std::vector<double> parameter(_particle, _particle + _num_parameters);
             double log_likelihood = (*_log_likelihood_evaluation)(parameter);
             world.send(0, LIKELIHOOD_RECOMPU, log_likelihood);
+        }
+
+
+        void LFNSWorker::_sampleConstrPrior() {
+            time_t tic = clock();
+            std::vector<double> parameter = _sampler.sampleConstrPrior();
+            time_t toc = clock();
+            double log_likelihood = (*_log_likelihood_evaluation)(parameter);
+            world.send(0, PARTICLE, parameter.data(), _num_parameters);
+            world.send(0, CLOCKS_SAMPLING, toc - tic);
+            world.send(0, LIKELIHOOD_RECOMPU, log_likelihood);
+        }
+
+        void LFNSWorker::_samplePrior() {
+            time_t tic = clock();
+            std::vector<double> parameter = _sampler.samplePrior();
+            time_t toc = clock();
+            double log_likelihood = (*_log_likelihood_evaluation)(parameter);
+            world.send(0, PARTICLE, parameter.data(), _num_parameters);
+            world.send(0, CLOCKS_SAMPLING, toc - tic);
+            world.send(0, LIKELIHOOD_RECOMPU, log_likelihood);
+        }
+
+        void LFNSWorker::_updateSampler() {
+            world.recv(0, SAMPLER_SIZE, _sampler_size);
+            char sampler_char_ptr[_sampler_size];
+            world.recv(0, SAMPLER, sampler_char_ptr, _sampler_size);
+            std::string sampler_str(sampler_char_ptr, sampler_char_ptr + _sampler_size);
+            std::stringstream stream(sampler_str);
+            _sampler.updateSerializedSampler(stream);
         }
 
         void LFNSWorker::_prepareStoppingFlag() {

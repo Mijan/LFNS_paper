@@ -73,8 +73,7 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
+        void serialize(Archive &ar, const unsigned int version) {
             // serialize base class information
             ar & boost::serialization::base_object<sampler::Sampler>(*this);
             ar & _widths;
@@ -85,5 +84,28 @@ namespace sampler {
     typedef std::shared_ptr<UniformSampler> UniformSampler_ptr;
 }
 
+
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void
+        save_construct_data(Archive &ar, const sampler::UniformSampler *t, const unsigned int file_version) {
+            // save data required to construct instance
+
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+                Archive &ar, sampler::UniformSampler *t, const unsigned int file_version
+        ) {
+            // retrieve data from archive required to construct new instance
+            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+            sampler::UniformSamplerData data(1);
+
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)sampler::UniformSampler(rng, data);
+        }
+    }
+}
 
 #endif //LFNS_UNIFORMSAMPLER_H

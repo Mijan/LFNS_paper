@@ -44,6 +44,8 @@ namespace lfns {
         bool _resume_run;
         double _epsilon;
 
+        int _num_parameters;
+
         bool _testTermination(PosteriorQuantitites &post_quant);
 
         bool _postIteration();

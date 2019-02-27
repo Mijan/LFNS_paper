@@ -8,6 +8,7 @@
 #include <boost/serialization/base_object.hpp>
 #include "Sampler.h"
 #include "../base/EigenMatrices.h"
+#include <iostream>
 
 namespace sampler {
     class DensityEstimation : public Sampler {

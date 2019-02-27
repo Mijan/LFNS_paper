@@ -10,6 +10,7 @@
 #include "../sampler/GaussianSampler.h"
 #include "../sampler/KernelSupportEstimation.h"
 #include "../particle_filter/ParticleFilterSettings.h"
+#include "boost/serialization/shared_ptr.hpp"
 
 namespace lfns {
 
@@ -111,14 +112,14 @@ namespace lfns {
     }
 
 
-    void LFNSSampler::updateSerializedSampler(std::stringstream &stream){
+    void LFNSSampler::updateSerializedSampler(std::stringstream &stream) {
         boost::archive::binary_iarchive iar(stream);
-        iar >> *_density_estimation;
+        iar >> _density_estimation;
     }
 
-    void LFNSSampler::getSerializedSampler(std::stringstream &stream){
+    void LFNSSampler::getSerializedSampler(std::stringstream &stream) {
         boost::archive::binary_oarchive oar(stream);
-        oar << *_density_estimation;
+        oar << _density_estimation;
     }
 
     void LFNSSampler::writeToStream(std::ostream &stream) {
