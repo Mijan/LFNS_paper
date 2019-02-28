@@ -10,6 +10,18 @@
 #include "DensityEstimation.h"
 
 namespace sampler {
+    class EllipsoidSampler;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::EllipsoidSampler *t,
+                                        const unsigned int file_version);
+    }
+}
+
+
+namespace sampler {
     class EllipsoidSampler : public DensityEstimation {
     public:
         EllipsoidSampler(base::RngPtr rng, SamplerData data);

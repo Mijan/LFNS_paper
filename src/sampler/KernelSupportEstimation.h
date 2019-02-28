@@ -8,6 +8,17 @@
 #include "KernelDensityEstimation.h"
 
 namespace sampler {
+    class KernelSupportEstimation;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::KernelSupportEstimation *t,
+                                        const unsigned int file_version);
+    }
+}
+
+namespace sampler {
     class KernelSupportEstimation : public KernelDensityEstimation {
     public:
         KernelSupportEstimation(base::RngPtr rng, KernelSampler_ptr kernel, SamplerData data);

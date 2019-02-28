@@ -47,7 +47,7 @@ namespace sampler {
         base::UniformRealDistribution _uniform_dist;
 
 
-//        friend class boost::serialization::access;
+        friend class boost::serialization::access;
 
         template<class Archive>
         friend void

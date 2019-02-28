@@ -11,6 +11,19 @@
 #include "Sampler.h"
 #include "DensityEstimation.h"
 
+
+namespace sampler {
+    class RejectionSupportSampler;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::RejectionSupportSampler *t,
+                                        const unsigned int file_version);
+    }
+}
+
+
 namespace sampler {
     class RejectionSamplerData : public SamplerData {
     public:

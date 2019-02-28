@@ -12,6 +12,18 @@
 #include "DensityEstimation.h"
 
 namespace sampler {
+    class DpGmmSampler;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::DpGmmSampler *t,
+                                        const unsigned int file_version);
+    }
+}
+
+
+namespace sampler {
     class DpGmmSamplerData : public SamplerData {
     public:
         DpGmmSamplerData(int n) : SamplerData(n), num_dp_iterations(0) {}
