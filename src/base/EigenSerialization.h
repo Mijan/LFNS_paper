@@ -6,7 +6,8 @@
 #define EIGENSERIALIZATION_H
 
 #include <Eigen/Dense>
-#include <boost/serialization/array_wrapper.hpp>
+//#include <boost/serialization/array_wrapper.hpp>
+#include <boost/serialization/array.hpp>
 
 namespace boost {
     namespace serialization {
