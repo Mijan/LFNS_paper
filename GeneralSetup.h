@@ -16,7 +16,7 @@
 class GeneralSetup {
 
 public:
-    GeneralSetup(options::CommandLineOptions &options);;
+    GeneralSetup(options::CommandLineOptions &options, int process_nbr = 1);
 
     virtual ~GeneralSetup();
 

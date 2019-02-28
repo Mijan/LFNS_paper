@@ -10,7 +10,7 @@
 #include "src/simulator/SimulatorSsa.h"
 
 
-LFNSSetup::LFNSSetup(options::LFNSOptions options) : GeneralSetup(options), _lfns_options(options) {}
+LFNSSetup::LFNSSetup(options::LFNSOptions options, int process_nbr) : GeneralSetup(options, process_nbr), _lfns_options(options) {}
 
 LFNSSetup::~LFNSSetup() {}
 

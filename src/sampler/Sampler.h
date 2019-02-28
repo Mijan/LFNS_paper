@@ -91,6 +91,8 @@ namespace sampler {
             stream << std::endl;
         }
 
+        virtual void setRng(base::RngPtr rng) { *_rng = *rng; }
+
     protected:
 
         base::RngPtr _rng;

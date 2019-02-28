@@ -65,6 +65,7 @@ namespace lfns {
         int _acceptance_info_print_interval;
 
         time_t _particle_tic;
+        time_t _algorithm_tic;
         time_t _iteration_tic;
         double _sampling_seconds;
 

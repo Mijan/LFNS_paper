@@ -32,6 +32,12 @@ namespace lfns {
             bmpi::communicator world;
             int _num_tasks;
 
+            time_t time_1;
+            time_t time_2;
+            time_t time_3;
+            time_t time_4;
+            time_t time_5;
+
             void _samplePrior(lfns::mpi::RequestQueue &queue);
 
             void _sampleConstPrior(RequestQueue &queue);

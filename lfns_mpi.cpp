@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     try {
         lfns_options.handleCommandLineOptions(argc, argv);
 
-        LFNSSetup lfns_setup(lfns_options);
+        LFNSSetup lfns_setup(lfns_options, my_rank);
         lfns_setup.setUp();
         if (my_rank == 0) { runMaster(lfns_setup); }
         else { runWorker(lfns_setup); }

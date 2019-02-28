@@ -32,6 +32,7 @@ namespace lfns {
         protected:
             std::size_t _rank;
             bmpi::request _request;
+            bool _request_finished;
 
             clock_t _request_time;
 
@@ -57,22 +58,28 @@ namespace lfns {
 
         class MpiParticleRequest : public MpiRequest {
         public:
-            MpiParticleRequest(std::size_t rank, int num_parameters, bool sample_prior = false);
+            MpiParticleRequest(std::size_t rank, bool sample_prior = false);
 
             ~MpiParticleRequest();
 
             void requestNewParticle(bool sample_prior = false);
 
-            double getLogLikelihood();
+            void
+            receiveParticle(double *log_likelihood, std::vector<double> *particle_ptr, time_t *sampling_clocks_ptr);
 
-            time_t getClocksForSampling();
+//            double getLogLikelihood();
+//
+//            time_t getClocksForSampling();
+//
+//            std::vector<double> &getParticle();
 
-            std::vector<double> &getParticle();
+//            virtual bool test();
 
         private:
-            double _log_likelihood;
-            std::vector<double> _particle;
-            time_t _clocks_for_sampling;
+//            double _log_likelihood;
+//            std::vector<double> _particle;
+//            time_t _clocks_for_sampling;
+            MPI_INSTRUCTION instruction;
         };
 
 

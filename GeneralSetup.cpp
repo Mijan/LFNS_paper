@@ -6,10 +6,10 @@
 #include "src/simulator/SimulatorSsa.h"
 #include "src/simulator/SimulatorOde.h"
 
-GeneralSetup::GeneralSetup(options::CommandLineOptions &options) : interpreter(options.config_file_name), rng(nullptr) {
+GeneralSetup::GeneralSetup(options::CommandLineOptions &options, int process_nbr) : interpreter(options.config_file_name), rng(nullptr) {
     io_settings.config_file = options.config_file_name;
     io_settings.output_file = options.output_file_name;
-    rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+    rng = std::make_shared<base::RandomNumberGenerator>(process_nbr * time(NULL));
 }
 
 GeneralSetup::~GeneralSetup() {}

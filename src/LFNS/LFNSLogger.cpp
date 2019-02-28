@@ -16,6 +16,7 @@ namespace lfns {
                                                     _num_samples_iteration(0), _num_samples_particle(0),
                                                     _num_accepted_iteration(0), _print_interval(1),
                                                     _acceptance_info_print_interval(100), _particle_tic(0),
+                                                    _algorithm_tic(0),
                                                     _iteration_tic(0), _sampling_seconds(0.0),
                                                     _output_file_name(settings.output_file),
                                                     _acceptance_rates(), _epsilons(), _iteration_nbrs(),
@@ -29,6 +30,7 @@ namespace lfns {
     void LFNSLogger::lfnsStarted(int m, double epsilon) {
         std::cout << "\n\nStarting LF-NS algorithm at initial iteration " << m << " and initial epsilon " << epsilon
                   << std::endl << std::endl;
+        _algorithm_tic = clock();
     }
 
     void LFNSLogger::lfnsResume(int m, double epsilon) {
@@ -89,7 +91,8 @@ namespace lfns {
             std::cout << std::endl;
         }
 
-        if (_num_accepted_iteration % _acceptance_info_print_interval == 0) { _printAcceptanceInfo(); }
+        if (_num_accepted_iteration % _acceptance_info_print_interval == 0 ||
+            _remaining_required_particles_iteration == 0) { _printAcceptanceInfo(); }
 
         _num_samples_particle = 0;
     }
@@ -140,6 +143,8 @@ namespace lfns {
         }
         std::cout << std::endl << "\nIteration " << _iteration_nbrs.back()
                   << " needed " << base::Utils::getTimeFromClocks(toc2 - _iteration_tic) << std::endl;
+        std::cout << "Total LF-NS time so far: " << base::Utils::getTimeFromClocks(toc2 - _algorithm_tic) << std::endl;
+        std::cout << "Acceptance rate: " << acceptance_rate << std::endl;
         std::cout << "The total log Bayesian Evidence after this iteration is "
                   << log_ztot
                   << ". This iteration contributed "
@@ -148,7 +153,10 @@ namespace lfns {
     }
 
     void LFNSLogger::lfnsTerminated() {
-        std::cout << "\n\nLFNS algorithm successfully terminated!" << std::endl << std::endl;
+        time_t toc = clock();
+        std::cout << "\n\nLFNS algorithm successfully terminated!" << std::endl;
+        std::cout << "Total LF-NS time: " << base::Utils::getTimeFromClocks(toc - _algorithm_tic) << std::endl
+                  << std::endl;
     }
 
     void LFNSLogger::_printAcceptanceInfo() {

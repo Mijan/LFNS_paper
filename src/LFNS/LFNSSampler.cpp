@@ -115,6 +115,7 @@ namespace lfns {
     void LFNSSampler::updateSerializedSampler(std::stringstream &stream) {
         boost::archive::binary_iarchive iar(stream);
         iar >> _density_estimation;
+        _density_estimation->setRng(_rng);
     }
 
     void LFNSSampler::getSerializedSampler(std::stringstream &stream) {

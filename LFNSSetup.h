@@ -25,7 +25,7 @@ typedef std::vector<Trajectory> TrajectorySet;
 
 class LFNSSetup : public GeneralSetup {
 public:
-    LFNSSetup(options::LFNSOptions options);
+    LFNSSetup(options::LFNSOptions options, int process_nbr = 1);
 
     virtual ~LFNSSetup();
 

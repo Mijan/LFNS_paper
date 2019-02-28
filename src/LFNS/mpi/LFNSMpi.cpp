@@ -13,6 +13,7 @@
 #include "../../sampler/KernelSupportEstimation.h"
 #include "../../sampler/RejectionSupportSampler.h"
 #include "../../sampler/UniformSampler.h"
+#include "../../base/IoUtils.h"
 
 
 #include <boost/serialization/export.hpp>
@@ -29,12 +30,12 @@ BOOST_CLASS_EXPORT_GUID(sampler::UniformSampler, "UniformSampler");
 namespace lfns {
     namespace mpi {
         LFNSMpi::LFNSMpi(LFNSSettings &lfns_settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
-                         int num_tasks) : LFNS(lfns_settings, sampler_settings, rng), _num_tasks(num_tasks) {}
+                         int num_tasks) : LFNS(lfns_settings, sampler_settings, rng), _num_tasks(num_tasks), time_1(0),
+                                          time_2(0), time_3(0), time_4(0), time_5(0) {}
 
         LFNSMpi::~LFNSMpi() {}
 
         void LFNSMpi::runLFNS() {
-
             bool lfns_terminate = false;
 
             int m = 0;
@@ -55,7 +56,6 @@ namespace lfns {
                 _logger.iterationStarted(m);
 
                 _sampleConstPrior(queue);
-
                 lfns_terminate = _postIteration();
             }
             _logger.lfnsTerminated();
@@ -64,12 +64,11 @@ namespace lfns {
 
         void LFNSMpi::_samplePrior(RequestQueue &queue) {
             while (_live_points.numberParticles() < _settings.N) {
-                std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
+                std::queue<std::size_t> &finished_tasks = queue.getFinishedProcessess();
                 while (!finished_tasks.empty()) {
                     queue.addRequest(finished_tasks.front(), _num_parameters, true);
                     finished_tasks.pop();
                 }
-
 
                 if (queue.firstParticleFinished()) {
                     double l = queue.getFirstLikelihood();
@@ -102,17 +101,17 @@ namespace lfns {
 
             time_t tic = clock();
             _sampler.updateLiveSamples(_live_points);
-            time_t toc = clock();
+            time_t toc= clock();
             _logger.samplerUpdated(_sampler, toc - tic);
             _updateSampler();
 
             while (_live_points.numberParticles() < _settings.N) {
-                std::queue<std::size_t> finished_tasks = queue.getFinishedProcessess();
+                std::queue<std::size_t> &finished_tasks = queue.getFinishedProcessess();
+
                 while (!finished_tasks.empty()) {
                     queue.addRequest(finished_tasks.front(), _num_parameters);
                     finished_tasks.pop();
                 }
-
                 while (queue.firstParticleFinished() && _live_points.numberParticles() < _settings.N) {
                     double l = queue.getFirstLikelihood();
                     const std::vector<double> &theta = queue.getFirstTheta();

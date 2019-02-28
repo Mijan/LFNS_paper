@@ -9,8 +9,10 @@
 namespace lfns {
     namespace mpi {
         RequestQueue::RequestQueue()
-                : computed_particles(), used_process(), clocks_for_particles(), clocks_for_sampling(), log_likelihoods(), process_finished(),
-                  ptr_clocks_for_particles(), ptr_clocks_for_sampling(), ptr_log_likelihoods(), ptr_process_finished(), particle_requests() {}
+                : computed_particles(), used_process(), clocks_for_particles(), clocks_for_sampling(),
+                  log_likelihoods(), process_finished(),
+                  ptr_clocks_for_particles(), ptr_clocks_for_sampling(), ptr_log_likelihoods(), ptr_process_finished(),
+                  particle_requests(),                  _finished_request_queue() {}
 
         RequestQueue::~RequestQueue() {}
 
@@ -23,7 +25,7 @@ namespace lfns {
             computed_particles.push(std::vector<double>(num_parameters));
             used_process.push(rank);
             if (rank > particle_requests.size()) {
-                particle_requests.push_back(std::make_shared<MpiParticleRequest>(rank, num_parameters, sample_prior));
+                particle_requests.push_back(std::make_shared<MpiParticleRequest>(rank, sample_prior));
                 ptr_process_finished.push_back(&process_finished.back());
                 ptr_log_likelihoods.push_back(&log_likelihoods.back());
                 ptr_clocks_for_particles.push_back(&clocks_for_particles.back());
@@ -41,30 +43,27 @@ namespace lfns {
 
         double RequestQueue::getFirstLikelihood() { return log_likelihoods.front(); }
 
-        std::vector<double> RequestQueue::getFirstTheta() { return computed_particles.front(); }
+        const std::vector<double> &RequestQueue::getFirstTheta() { return computed_particles.front(); }
 
         bool RequestQueue::firstParticleFinished() { return process_finished.front(); }
 
-        double RequestQueue::getFirstParticleClocks() { return clocks_for_particles.front(); }
+        time_t RequestQueue::getFirstParticleClocks() { return clocks_for_particles.front(); }
 
         time_t RequestQueue::getFirstSamplingClocks() { return clocks_for_sampling.front(); }
 
         int RequestQueue::getFirstUsedProcess() { return used_process.front(); }
 
-        std::queue<std::size_t> RequestQueue::getFinishedProcessess() {
-            std::queue<std::size_t> finished_process;
+        std::queue<std::size_t> &RequestQueue::getFinishedProcessess() {
             for (int i = 0; i < particle_requests.size(); i++) {
                 MpiParticleRequest_ptr request = particle_requests[i];
                 if (request->test()) {
+                    request->receiveParticle(ptr_log_likelihoods[i], ptr_particles[i], ptr_clocks_for_sampling[i]);
                     *ptr_clocks_for_particles[i] = request->getClocksSinceRequest();
-                    *ptr_log_likelihoods[i] = request->getLogLikelihood();
                     *ptr_process_finished[i] = true;
-                    std::vector<double> param = request->getParticle();
-                    *ptr_particles[i] = request->getParticle();
-                    finished_process.push(request->getRank());
+                    _finished_request_queue.push(request->getRank());
                 }
             }
-            return finished_process;
+            return _finished_request_queue;
         }
 
 

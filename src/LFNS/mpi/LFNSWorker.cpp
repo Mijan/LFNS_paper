@@ -85,12 +85,18 @@ namespace lfns {
 
         void LFNSWorker::_sampleConstrPrior() {
             time_t tic = clock();
-            std::vector<double> parameter = _sampler.sampleConstrPrior();
+            const std::vector<double> &parameter = _sampler.sampleConstrPrior();
             time_t toc = clock();
+            time_t sampling_time = toc - tic;
             double log_likelihood = (*_log_likelihood_evaluation)(parameter);
-            world.send(0, PARTICLE, parameter.data(), _num_parameters);
-            world.send(0, CLOCKS_SAMPLING, toc - tic);
-            world.send(0, LIKELIHOOD_RECOMPU, log_likelihood);
+            if (log_likelihood > _epsilon) {
+                world.send(0, INSTRUCTION, PARTICLE_ACCEPTED);
+                world.send(0, LIKELIHOOD_RECOMPU, log_likelihood);
+                world.send(0, PARTICLE, parameter.data(), _num_parameters);
+                world.send(0, CLOCKS_SAMPLING, sampling_time);
+            } else {
+                world.send(0, INSTRUCTION, PARTICLE_REJECTED);
+            }
         }
 
         void LFNSWorker::_samplePrior() {
@@ -98,9 +104,10 @@ namespace lfns {
             std::vector<double> parameter = _sampler.samplePrior();
             time_t toc = clock();
             double log_likelihood = (*_log_likelihood_evaluation)(parameter);
-            world.send(0, PARTICLE, parameter.data(), _num_parameters);
-            world.send(0, CLOCKS_SAMPLING, toc - tic);
+            world.send(0, INSTRUCTION, PARTICLE_ACCEPTED);
             world.send(0, LIKELIHOOD_RECOMPU, log_likelihood);
+            world.send(0, PARTICLE, parameter.data(), _num_parameters);;
+            world.send(0, CLOCKS_SAMPLING, toc - tic);
         }
 
         void LFNSWorker::_updateSampler() {

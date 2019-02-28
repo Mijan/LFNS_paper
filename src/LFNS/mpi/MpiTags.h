@@ -25,6 +25,8 @@ namespace lfns {
             PARTICLE,
             CLOCKS_SAMPLING,
             INSTRUCTION,
+            PARTICLE_ACCEPTED,
+            PARTICLE_REJECTED,
             STOP_SIMULATION,
             PREPARE_STOPPING,
             PARTICLE_SECONDS
