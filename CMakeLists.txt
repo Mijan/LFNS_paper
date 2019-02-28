@@ -130,7 +130,7 @@ add_executable(test_models test_models.cpp)
 add_executable(lfns_seq lfns_seq.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(lfns_mpi lfns_mpi.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(simulate simulate.cpp SimulationSetup.cpp SimulationSetup.h GeneralSetup.cpp GeneralSetup.h)
-add_executable(evaluate_likelihood evaluate_likelihood.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h mcmc.cpp)
+add_executable(evaluate_likelihood evaluate_likelihood.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(mcmc mcmc.cpp ${MCMC_SOURCE_FILES} GeneralSetup.cpp GeneralSetup.h mcmc.cpp MCMCSetup.cpp MCMCSetup.h)
 
 target_link_libraries(test_BEestimation lfns)
