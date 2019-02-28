@@ -19,15 +19,14 @@ if (NOT Boost_FOUND)
     if (NOT DEFINED ENV{BOOST_ROOT})
         set(BOOST_ROOT "${CMAKE_SOURCE_DIR}/required_packages/" CACHE FILEPATH "The location of the Boost library")
     endif ()
-    find_package(Boost 1.54.0 REQUIRED COMPONENTS program_options system filesystem mpi)
+    find_package(Boost 1.54.0 REQUIRED COMPONENTS program_options system filesystem mpi serialize)
 endif ()
 include_directories(${Boost_INCLUDE_DIR})
 
 ## Eigen
 find_package(Eigen3)
 if (NOT Eigen3_FOUND)
-    message("Eigen3 library not found (you can set Eigen3 locat:q
-    ion through the environment variable EIGEN3_ROOT). Shipped Eigen3 library in ${CMAKE_SOURCE_DIR}/required_packages/eigen3.4 will be used!")
+    message("Eigen3 library not found (you can set Eigen3 location through the environment variable EIGEN3_ROOT). Shipped Eigen3 library in ${CMAKE_SOURCE_DIR}/required_packages/eigen3.4 will be used!")
     if (NOT DEFINED ENV{EIGEN3_ROOT})
         set(ENV{EIGEN3_ROOT} "${CMAKE_SOURCE_DIR}/required_packages/eigen3.4/" CACHE FILEPATH "The location of the Eigen library")
     endif ()
