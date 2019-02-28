@@ -13,7 +13,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${LFNS_SOURCE_DIR}/cmake/Modules/")
 
 ## Boost
-find_package(Boost 1.54.0 COMPONENTS program_options system filesystem mpi)
+find_package(Boost 1.54.0 COMPONENTS program_options system filesystem mpi serialization)
 if (NOT Boost_FOUND)
     message("Boost library not found (you can set Boost location with the option -DBOOST_ROOT=<path to boost>). Shipped Boost library in ${CMAKE_SOURCE_DIR}/required_packages will be used!")
     if (NOT DEFINED ENV{BOOST_ROOT})
