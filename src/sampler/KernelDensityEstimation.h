@@ -11,6 +11,16 @@
 #include <iostream>
 #include "DensityEstimation.h"
 
+namespace sampler {
+    class KernelDensityEstimation;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::KernelDensityEstimation *t,
+                                        const unsigned int file_version);
+    }
+}
 
 namespace sampler {
     class KernelDensityEstimation : public DensityEstimation {
