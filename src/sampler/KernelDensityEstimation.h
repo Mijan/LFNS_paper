@@ -29,8 +29,6 @@ namespace sampler {
 
         virtual ~KernelDensityEstimation();
 
-        friend class ::boost::serialization::access;
-
         virtual void updateTransformedDensitySamples(const base::EiMatrix &transformed_samples);
 
         void sampleTransformed(base::EiVector &trans_sample) override;
