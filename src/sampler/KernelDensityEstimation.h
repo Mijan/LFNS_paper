@@ -41,7 +41,7 @@ namespace sampler {
 
         template<class Archive>
         friend void
-        ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::KernelDensityEstimation *t,
+        ::boost::serialization::save_construct_data(Archive &ar, const KernelDensityEstimation *t,
                                                     const unsigned int file_version);
 
 
@@ -61,7 +61,7 @@ namespace boost {
     namespace serialization {
         template<class Archive>
         inline void
-        save_construct_data(Archive &ar, const sampler::KernelDensityEstimation *t, const unsigned int file_version) {
+        save_construct_data(Archive &ar, const ::sampler::KernelDensityEstimation *t, const unsigned int file_version) {
             // save data required to construct instance
 
 
@@ -75,7 +75,7 @@ namespace boost {
 
         template<class Archive>
         inline void load_construct_data(
-                Archive &ar, sampler::KernelDensityEstimation *t, const unsigned int file_version
+                Archive &ar, ::sampler::KernelDensityEstimation *t, const unsigned int file_version
         ) {
             // retrieve data from archive required to construct new instance
             base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
