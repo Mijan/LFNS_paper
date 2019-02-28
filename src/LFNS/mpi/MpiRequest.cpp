@@ -68,8 +68,7 @@ namespace lfns {
         double MpiLikelihoodRequest::getLogLikelihood() { return _log_likelihood; }
 
 
-        MpiParticleRequest::MpiParticleRequest(std::size_t rank, bool sample_prior) : MpiRequest(
-                rank) {
+        MpiParticleRequest::MpiParticleRequest(std::size_t rank, bool sample_prior) : MpiRequest(rank) {
 
             world.send(_rank, INSTRUCTION, PREPARE_STOPPING);
             _process_stopped = false;
@@ -118,8 +117,5 @@ namespace lfns {
                 throw std::runtime_error(ss.str());
             }
         }
-
-
-//        bool MpiParticleRequest::test() { MpiRequest::test(); }
     }
 }

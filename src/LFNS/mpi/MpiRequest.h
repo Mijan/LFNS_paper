@@ -67,18 +67,7 @@ namespace lfns {
             void
             receiveParticle(double *log_likelihood, std::vector<double> *particle_ptr, time_t *sampling_clocks_ptr);
 
-//            double getLogLikelihood();
-//
-//            time_t getClocksForSampling();
-//
-//            std::vector<double> &getParticle();
-
-//            virtual bool test();
-
         private:
-//            double _log_likelihood;
-//            std::vector<double> _particle;
-//            time_t _clocks_for_sampling;
             MPI_INSTRUCTION instruction;
         };
 
