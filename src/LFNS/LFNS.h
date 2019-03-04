@@ -16,6 +16,7 @@
 #include <iostream>
 
 namespace lfns {
+    // TODO find better place for typedef
     typedef std::function<double(const std::vector<double> &)> LogLikelihodEvalFct;
     typedef std::shared_ptr<LogLikelihodEvalFct> LogLikelihodEvalFct_ptr;
     class LFNS {
