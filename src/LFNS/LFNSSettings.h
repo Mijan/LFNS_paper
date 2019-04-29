@@ -15,7 +15,7 @@
 namespace lfns {
 
     enum DENSITY_ESTIMATOR {
-        REJECT_DPGMM, KDE_GAUSS, KDE_UNIFORM, ELLIPS
+        REJECT_DPGMM, KDE_GAUSS, KDE_UNIFORM, ELLIPS, SLICE
     };
 
     class LFNSSettings {

@@ -39,4 +39,11 @@ namespace sampler {
         if (trans_sample.norm() <= _scale) { return 1.0; } else { return 0.0; }
     }
 
+
+
+    void EllipsoidSampler::writeToStream(std::ostream &stream) {
+        stream << "Ellipsoid Sampler" << std::endl;
+        Sampler::writeToStream(stream);
+    }
+
 }

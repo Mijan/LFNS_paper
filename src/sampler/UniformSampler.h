@@ -31,6 +31,12 @@ namespace sampler {
 
         virtual ~UniformSamplerData() {};
         std::vector<double> widths;
+
+    private:
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) { ar & widths; }
     };
 
     typedef std::shared_ptr<UniformSamplerData> UniformSamplerData_ptr;
@@ -73,9 +79,15 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
+        friend void
+        ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::UniformSampler *t,
+                                                    const unsigned int file_version);
+
+        template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
             // serialize base class information
             ar & boost::serialization::base_object<sampler::Sampler>(*this);
+            ar & boost::serialization::base_object<sampler::KernelSampler>(*this);
             ar & _widths;
         }
 
@@ -91,7 +103,9 @@ namespace boost {
         inline void
         save_construct_data(Archive &ar, const sampler::UniformSampler *t, const unsigned int file_version) {
             // save data required to construct instance
-
+            sampler::UniformSamplerData data(t->getSamplerDimension());
+            data.widths = t->_widths;
+            ar << data;
         }
 
         template<class Archive>
@@ -101,6 +115,7 @@ namespace boost {
             // retrieve data from archive required to construct new instance
             base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
             sampler::UniformSamplerData data(1);
+            ar >> data;
 
             // invoke inplace constructor to initialize instance of my_class
             ::new(t)sampler::UniformSampler(rng, data);

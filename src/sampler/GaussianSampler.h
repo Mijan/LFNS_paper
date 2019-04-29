@@ -8,9 +8,22 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
 #include <iostream>
 #include "Sampler.h"
 #include "../base/EigenMatrices.h"
+
+namespace sampler {
+    class GaussianSampler;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::GaussianSampler *t,
+                                        const unsigned int file_version);
+    }
+}
 
 namespace sampler {
 
@@ -48,6 +61,17 @@ namespace sampler {
 
         base::EiVector mean;
         base::EiMatrix cov;
+
+    private:
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & boost::serialization::base_object<sampler::SamplerData>(*this);
+            ar & bounds;
+            ar & mean;
+            ar & cov;
+        }
     };
 
     typedef std::shared_ptr<NormalSamplerData> NormalSamplerData_ptr;
@@ -94,13 +118,17 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
+        friend void
+        ::boost::serialization::save_construct_data(Archive &ar, const ::sampler::GaussianSampler *t,
+                                                    const unsigned int file_version);
+
+        template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
             // serialize base class information
+            ar & boost::serialization::base_object<sampler::KernelSampler>(*this);
             ar & boost::serialization::base_object<sampler::Sampler>(*this);
-            ar & _mean;
             ar & _inverse_cov_matrix;
             ar & _decomposed_var;
-            ar & _cov;
             ar & _det_var;
             ar & _n;
         }
@@ -109,5 +137,29 @@ namespace sampler {
     typedef std::shared_ptr<GaussianSampler> GaussianSampler_ptr;
 }
 
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void
+        save_construct_data(Archive &ar, const sampler::GaussianSampler *t, const unsigned int file_version) {
+            // save data required to construct instance
+            sampler::NormalSamplerData data(t->getSamplerDimension());
+            data.mean = t->_mean;
+            data.cov = t->_cov;
+            ar << data;
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+                Archive &ar, sampler::GaussianSampler *t, const unsigned int file_version
+        ) {
+            base::RngPtr rng = std::make_shared<base::RandomNumberGenerator>(time(NULL));
+            sampler::NormalSamplerData data(1);
+            ar >> data;
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)sampler::GaussianSampler(rng, data);
+        }
+    }
+}
 
 #endif //LFNS_GAUSSIANSAMPLER_H

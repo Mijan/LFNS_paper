@@ -9,6 +9,7 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <iostream>
+#include <stdlib.h>
 #include "DensityEstimation.h"
 
 namespace sampler {
@@ -34,6 +35,8 @@ namespace sampler {
         void sampleTransformed(base::EiVector &trans_sample) override;
 
         double getTransformedLogLikelihood(const base::EiVector &trans_sample) override;
+
+        virtual void writeToStream(std::ostream &stream);
 
     protected:
         std::vector<std::vector<double> > _means;
@@ -77,7 +80,10 @@ namespace boost {
             sampler::SamplerData data(sample_size);
             data.bounds = t->_bounds;
             ar << data;
-            ar << t->_kernel;
+
+            std::size_t size_of_kernel = sizeof(*t->_kernel.get());
+            ar << size_of_kernel;
+            ar << t->_kernel.get();
 
         }
 
@@ -91,11 +97,14 @@ namespace boost {
             sampler::SamplerData data(1);
             ar >> data;
 
-            sampler::KernelSampler_ptr kernel;
-            ar >> kernel;
+            std::size_t size_of_kernel;
+            ar >> size_of_kernel;
+            sampler::KernelSampler *target_ptr = (sampler::KernelSampler *) malloc(size_of_kernel);
+            ar >> target_ptr;
+            sampler::KernelSampler_ptr kernel_ptr(target_ptr);
 
             // invoke inplace constructor to initialize instance of my_class
-            ::new(t)sampler::KernelDensityEstimation(rng, kernel, data);
+            ::new(t)sampler::KernelDensityEstimation(rng, kernel_ptr, data);
         }
     }
 }

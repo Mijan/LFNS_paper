@@ -11,9 +11,17 @@
 #include "../sampler/KernelSupportEstimation.h"
 #include "../particle_filter/ParticleFilterSettings.h"
 #include "boost/serialization/shared_ptr.hpp"
+#include "../sampler/SliceSampler.h"
 
 namespace lfns {
 
+    LFNSSampler::LFNSSampler(sampler::SamplerSettings, sampler::Sampler_ptr prior,
+                             sampler::DensityEstimation_ptr density_estimation,
+                             base::RngPtr rng), _rng(rng), _prior(prior), _density_estimation(_density_estimation),
+    _max_live_prior_value(0), _dist(), _uniform_prior(true), _log_params() {
+        std::vector<std::string> unfixed_params = settings.param_names;
+        _log_params = settings.getLogParams(unfixed_params);
+    }
 
     LFNSSampler::LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng) : _rng(
             rng), _prior(), _density_estimation(),
@@ -72,6 +80,9 @@ namespace lfns {
                 _density_estimation = std::make_shared<sampler::EllipsoidSampler>(_rng, sampler_data);
                 break;
             }
+            case SLICE: {
+                _density_estimation = std::make_shared<sampler::SliceSampler>()
+            }
         }
     }
 
@@ -124,11 +135,11 @@ namespace lfns {
     }
 
     void LFNSSampler::writeToStream(std::ostream &stream) {
-        std::cout << "Prior used: " << std::endl;
+        stream << "Prior used: " << std::endl;
         _prior->writeToStream(stream);
-        std::cout << "\nDensity estimation used: " << std::endl;
+        stream << "\nDensity estimation used: " << std::endl;
         _density_estimation->writeToStream(stream);
-        std::cout << std::endl;
+        stream << std::endl;
     }
 
 

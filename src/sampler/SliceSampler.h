@@ -6,9 +6,9 @@
 #define LFNS_SLICESAMPLER_H
 
 
-#include "../sampler/DensityEstimation.h"
+#include "DensityEstimation.h"
 
-namespace LFNS {
+namespace sampler {
     typedef std::function<double(const std::vector<double>&)> LogLikelihodEvalFct;
     typedef std::shared_ptr<LogLikelihodEvalFct> LogLikelihodEvalFct_ptr;
 

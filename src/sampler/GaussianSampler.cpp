@@ -75,7 +75,6 @@ namespace sampler {
 
 
     std::vector<double> &GaussianSampler::sample(const std::vector<double> &kernel_center) {
-
         base::EiConstVectorRef new_mean = Eigen::Map<const Eigen::VectorXd>(kernel_center.data(), _n);
 
         base::MultivariateNormal::mvnormRndWithDecomposedVar(_rng, _n, new_mean, _decomposed_var, &_sample);
@@ -104,16 +103,14 @@ namespace sampler {
                 base::MultivariateNormal::mvnormPrepared(_n, sample, new_mean, _inverse_cov_matrix, _det_var));
     }
 
-
     void GaussianSampler::writeToStream(std::ostream &stream) {
         stream << "Normal Sampler" << std::endl;
-
-        Sampler::writeToStream(stream);
         stream << "mean: ";
         stream << _mean;
-        stream << std::endl;
         stream << "\ninverse covariance: ";
         stream << _inverse_cov_matrix;
         stream << std::endl;
+
+        Sampler::writeToStream(stream);
     }
 }

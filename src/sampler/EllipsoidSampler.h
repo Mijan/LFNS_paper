@@ -36,6 +36,8 @@ namespace sampler {
 
         void setScale(double scale_var);
 
+        virtual void writeToStream(std::ostream &stream);
+
     protected:
         double _scale;
         base::UniformRealDistribution _uniform_dist;

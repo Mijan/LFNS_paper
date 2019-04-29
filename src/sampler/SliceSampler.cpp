@@ -11,7 +11,7 @@ namespace sampler {
     SliceSampler::SliceSampler(base::RngPtr rng, SamplerData data, LogLikelihodEvalFct_ptr log_like_fun, int num_steps)
             : DensityEstimation(rng, data), _log_like(log_like_fun), _transformed_samples(1, data.size()),
               _num_steps(num_steps), _sample_dist(0, 1), _uniform_dist(0, 1), _decomposed_cov(data.size(), data.size()),
-              _lower_bound(data.size()), _upper_bound(data.size()), _epsilon(DBL_MAX) {}
+              _lower_bound(data.size()), _upper_bound(data.size()), _epsilon() {}
 
     SliceSampler::~SliceSampler() {}
 
@@ -37,7 +37,7 @@ namespace sampler {
             _upper_bound = trans_sample + sample_direction;
             double log_likelihood = _log_like_eigen(_lower_bound);
             int scale = 1;
-            while (log_likelihood > _epsilon) {
+            while (log_likelihood > *_epsilon) {
                 scale *= 2;
                 _lower_bound = trans_sample - (scale * sample_direction);
                 log_likelihood = _log_like_eigen(_lower_bound);
@@ -45,7 +45,7 @@ namespace sampler {
 
             log_likelihood = _log_like_eigen(_upper_bound);
             scale = 1;
-            while (log_likelihood > _epsilon) {
+            while (log_likelihood > *_epsilon) {
                 scale *= 2;
                 _upper_bound = trans_sample + (scale * sample_direction);
                 log_likelihood = _log_like_eigen(_upper_bound);
@@ -65,7 +65,7 @@ namespace sampler {
                 } else {
                     _upper_bound = trans_sample;
                 }
-            } while (log_likelihood < _epsilon);
+            } while (log_likelihood < *_epsilon);
 
         }
     }

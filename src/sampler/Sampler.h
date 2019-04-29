@@ -15,6 +15,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/complex.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include "../base/EigenSerialization.h"
 
@@ -24,6 +25,7 @@
 #include <fstream>
 #include <sstream>
 #include <float.h>
+#include <iostream>
 #include "../base/EigenMatrices.h"
 #include "../base/RandomDistributions.h"
 
@@ -45,9 +47,7 @@ namespace sampler {
         friend class boost::serialization::access;
 
         template<class Archive>
-        void serialize(Archive &ar, const unsigned int version) {
-            ar & bounds;
-        }
+        void serialize(Archive &ar, const unsigned int version) { ar & bounds; }
     };
 
     typedef std::shared_ptr<SamplerData> SamplerData_ptr;
@@ -112,6 +112,9 @@ namespace sampler {
 
     class KernelSampler {
     public:
+
+        virtual ~KernelSampler() {}
+
         virtual std::vector<double> &sample(const std::vector<double> &kernel_center) = 0;
 
         virtual void sample(base::EiVector &sample, const std::vector<double> &kernel_center) = 0;
@@ -122,6 +125,8 @@ namespace sampler {
         virtual double getLogLikelihood(const base::EiVector &sample, const std::vector<double> &kernel_center) = 0;
 
         virtual void updateKernel(const base::EiMatrix &transformed_samples) = 0;
+
+        virtual void writeToStream(std::ostream &stream) = 0;
 
         friend class boost::serialization::access;
 

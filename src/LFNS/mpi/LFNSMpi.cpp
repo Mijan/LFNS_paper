@@ -18,14 +18,19 @@
 
 #include <boost/serialization/export.hpp>
 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(sampler::Sampler);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(sampler::KernelSampler);
+
 BOOST_CLASS_EXPORT_GUID(sampler::Sampler, "Sampler");
 BOOST_CLASS_EXPORT_GUID(sampler::KernelSampler, "KernelSampler");
 BOOST_CLASS_EXPORT_GUID(sampler::DensityEstimation, "DensityEstimation");
 BOOST_CLASS_EXPORT_GUID(sampler::DpGmmSampler, "DpGmmSampler");
 BOOST_CLASS_EXPORT_GUID(sampler::EllipsoidSampler, "EllipsoidSampler");
 BOOST_CLASS_EXPORT_GUID(sampler::KernelDensityEstimation, "KernelDensityEstimation");
+BOOST_CLASS_EXPORT_GUID(sampler::KernelSupportEstimation, "KernelSupportEstimation");
 BOOST_CLASS_EXPORT_GUID(sampler::RejectionSupportSampler, "RejectionSupportSampler");
 BOOST_CLASS_EXPORT_GUID(sampler::UniformSampler, "UniformSampler");
+BOOST_CLASS_EXPORT_GUID(sampler::GaussianSampler, "GaussianSampler");
 
 namespace lfns {
     namespace mpi {
@@ -101,7 +106,7 @@ namespace lfns {
 
             time_t tic = clock();
             _sampler.updateLiveSamples(_live_points);
-            time_t toc= clock();
+            time_t toc = clock();
             _logger.samplerUpdated(_sampler, toc - tic);
             _updateSampler();
 

@@ -33,6 +33,8 @@ public:
     particle_filter::MultLikelihoodEval mult_like_eval;
 
     particle_filter::ParticleFilterSettings particle_filter_settings;
+    sampler::Sampler_ptr prior;
+    sampler::DensityEstimation_ptr desnity_estimation;
     sampler::SamplerSettings sampler_settings;
     lfns::LFNSSettings lfns_settings;
 
@@ -57,6 +59,10 @@ private:
     Times _createDataTimes(std::string experiment, particle_filter::ParticleFilterSettings &settings);
 
     particle_filter::ParticleFilterSettings _readParticleFilterSettings();
+
+    sampler::DensityEstimation_ptr _createDensityEstimation();
+
+    sampler::Sampler_ptr _createPrior();
 
     sampler::SamplerSettings _readSamplerSettings();
 

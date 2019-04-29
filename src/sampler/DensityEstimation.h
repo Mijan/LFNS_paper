@@ -11,6 +11,18 @@
 #include <iostream>
 
 namespace sampler {
+    class DensityEstimation;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::DensityEstimation *t,
+                                        const unsigned int file_version);
+    }
+}
+
+
+namespace sampler {
     class DensityEstimation : public Sampler {
     public:
 
@@ -55,6 +67,7 @@ namespace sampler {
     };
 
     typedef std::shared_ptr<DensityEstimation> DensityEstimation_ptr;
+
 }
 
 #endif //LFNS_SAMPLERPARTICLES_H

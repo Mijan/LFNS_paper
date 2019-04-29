@@ -114,6 +114,7 @@ namespace sampler {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
+            std::cout << "sampling RejectionSupportSampler" << std::endl;
             ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
             ar & _log_rejection_const;
             ar & _rejection_quantile;
@@ -134,7 +135,7 @@ namespace boost {
 
 
             ar << t->_rejection_data;
-            ar << t->_current_sampler;
+            ar << t->_current_sampler.get();
 
         }
 
@@ -147,11 +148,12 @@ namespace boost {
             sampler::RejectionSamplerData data(1);
             ar >> data;
 
-            sampler::DensityEstimation_ptr sampler;
+            sampler::DensityEstimation * sampler;
             ar >> sampler;
 
+            sampler::DensityEstimation_ptr sampler_ptr(sampler);
             // invoke inplace constructor to initialize instance of my_class
-            ::new(t)sampler::RejectionSupportSampler(rng, sampler, data);
+            ::new(t)sampler::RejectionSupportSampler(rng, sampler_ptr, data);
         }
     }
 }
