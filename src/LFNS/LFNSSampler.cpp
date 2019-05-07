@@ -15,10 +15,16 @@
 
 namespace lfns {
 
-    LFNSSampler::LFNSSampler(sampler::SamplerSettings, sampler::Sampler_ptr prior,
-                             sampler::DensityEstimation_ptr density_estimation,
-                             base::RngPtr rng), _rng(rng), _prior(prior), _density_estimation(_density_estimation),
-    _max_live_prior_value(0), _dist(), _uniform_prior(true), _log_params() {
+    LFNSSampler::LFNSSampler(sampler::SamplerSettings settings, sampler::Sampler_ptr prior,
+                             sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng) : _rng(rng),
+                                                                                                    _prior(prior),
+                                                                                                    _density_estimation(
+                                                                                                            _density_estimation),
+                                                                                                    _max_live_prior_value(
+                                                                                                            0), _dist(),
+                                                                                                    _uniform_prior(
+                                                                                                            true),
+                                                                                                    _log_params() {
         std::vector<std::string> unfixed_params = settings.param_names;
         _log_params = settings.getLogParams(unfixed_params);
     }
@@ -81,7 +87,7 @@ namespace lfns {
                 break;
             }
             case SLICE: {
-                _density_estimation = std::make_shared<sampler::SliceSampler>()
+//                _density_estimation = std::make_shared<sampler::SliceSampler>()
             }
         }
     }

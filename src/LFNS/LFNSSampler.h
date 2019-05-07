@@ -15,7 +15,7 @@
 namespace lfns {
     class LFNSSampler {
     public:
-        LFNSSampler(sampler::SamplerSettingss, sampler::Sampler_ptr prior,
+        LFNSSampler(sampler::SamplerSettings, sampler::Sampler_ptr prior,
                     sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng);
 
         LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng);
