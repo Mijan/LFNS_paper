@@ -43,7 +43,11 @@ namespace models {
         _updateState(state.data());
         for (std::size_t prop_nbr = 0; prop_nbr < propensities.size(); prop_nbr++) {
             try {
-                propensities[prop_nbr] = _propensity_parsers[prop_nbr].Eval();
+                if (_active_reactions_hybrid_model.empty() || _active_reactions_hybrid_model[prop_nbr]) {
+                    propensities[prop_nbr] = _propensity_parsers[prop_nbr].Eval();
+                } else {
+                    propensities[prop_nbr] = 0;
+                }
             } catch (mu::ParserError &e) {
                 std::ostringstream os;
                 os << "Parser error for propensity computation in reaction  "
@@ -102,7 +106,11 @@ namespace models {
         std::size_t species_index = 0;
         for (mu::Parser &p : _rhs_parsers) {
             try {
-                dx[species_index] = p.Eval();
+                if (_det_index_hybrid_model.empty() || _det_index_hybrid_model[species_index]) {
+                    dx[species_index] = p.Eval();
+                } else {
+                    dx[species_index] = 0;
+                }
                 species_index++;
             } catch (mu::ParserError &e) {
                 std::ostringstream os;
@@ -125,6 +133,85 @@ namespace models {
 
     std::size_t ChemicalReactionNetwork::getNumReactions() { return _model_data.getNumReactions(); }
 
+
+    void ChemicalReactionNetwork::setDetStatesForHybridModel(std::vector<std::string> det_state_names) {
+        _det_index_hybrid_model.resize(_state.size());
+        std::vector<std::string> species_names = getSpeciesNames();
+        for (int i = 0; i < species_names.size(); i++) {
+            std::string species_name = species_names[i];
+            std::vector<std::string>::iterator it = std::find(det_state_names.begin(), det_state_names.end(),
+                                                              species_name);
+            if (it == det_state_names.end()) {
+                _det_index_hybrid_model[i] = false;
+            } else {
+                _det_index_hybrid_model[i] = true;
+            }
+        }
+
+        _active_reactions_hybrid_model.resize(getNumReactions());
+        std::fill(_active_reactions_hybrid_model.begin(), _active_reactions_hybrid_model.end(), true);
+        std::map<size_t, std::vector<size_t> > reaction_by_species = _getReactionBySpecies();
+        for (std::string &species_name : det_state_names) {
+            if (!_model_data.isSpeciesName(species_name)) {
+                std::stringstream ss;
+                ss << "Tried to set deterministic species " << species_name
+                   << " for Hybrid model, but no such species seems to be defined!" << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+            std::vector<std::size_t> reactions = reaction_by_species[_model_data.getSpeciesIndex(species_name)];
+            for (std::size_t reaction_index : reactions) {
+                _active_reactions_hybrid_model[reaction_index] = false;
+            }
+        }
+    }
+
+
+    void ChemicalReactionNetwork::setStochStatesForHybridModel(std::vector<std::string> stoch_state_names) {
+        std::vector<std::string> det_states = getSpeciesNames();
+        for (std::string &stoch_state : stoch_state_names) {
+            if (!_model_data.isSpeciesName(stoch_state)) {
+                std::stringstream ss;
+                ss << "Tried to set stochastic species " << stoch_state
+                   << " for Hybrid model, but no such state defined!" << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+            std::vector<std::string>::iterator it = std::find(det_states.begin(), det_states.end(), stoch_state);
+
+            if (it == det_states.end()) {
+                std::cerr << "Tried to set stochastic species " << stoch_state << " twice, ignoring the second entry"
+                          << std::endl;
+            }
+            det_states.erase(it);
+        }
+        setDetStatesForHybridModel(det_states);
+    }
+
+
+    std::vector<int> ChemicalReactionNetwork::getStochIndices() {
+        std::vector<int> stoch_indices;
+        for (int i = 0; i < _det_index_hybrid_model.size(); i++) {
+            if (!_det_index_hybrid_model[i]) { stoch_indices.push_back(i); }
+        }
+        return stoch_indices;
+    }
+
+    std::vector<int> ChemicalReactionNetwork::getDetSpeciesIndices() {
+
+        std::vector<int> det_indices;
+        std::map<size_t, std::vector<size_t> > reactions = _getReactionBySpecies();
+        for (int i = 0; i < _det_index_hybrid_model.size(); i++) {
+            if (_det_index_hybrid_model[i]) {
+                std::vector<std::size_t> reaction_nbrs = reactions[i];
+                for (std::size_t reaction_nbr : reaction_nbrs) {
+                    std::vector<std::string> production_species = _model_data.production_species[reaction_nbr];
+                    for (std::string species : production_species) {
+                        base::Utils::addOnlyNew(det_indices, {_model_data.getSpeciesIndex(species)});
+                    }
+                }
+            }
+        }
+        return det_indices;
+    }
 
     void ChemicalReactionNetwork::printInfo(std::ostream &os) const {
         os << "\n\n-----------   Model   -----------" << std::endl;
@@ -260,15 +347,12 @@ namespace models {
 
     std::map<size_t, std::vector<size_t> > ChemicalReactionNetwork::_getReactionBySpecies() const {
         std::map<std::size_t, std::vector<std::size_t> > _reaction_nbr_by_species;
-        for (std::size_t species_nbr = 0;
-             species_nbr < _model_data.getNumSpecies(); species_nbr++) {
+        for (std::size_t species_nbr = 0; species_nbr < _model_data.getNumSpecies(); species_nbr++) {
             _reaction_nbr_by_species[species_nbr] = std::vector<std::size_t>();
-            for (std::size_t reaction_nbr = 0;
-                 reaction_nbr < _model_data.getNumReactions();
-                 reaction_nbr++) {
+            for (std::size_t reaction_nbr = 0; reaction_nbr < _model_data.getNumReactions(); reaction_nbr++) {
                 const std::map<std::size_t, int> &stoichiometry =
                         _model_data.stoichiometry_for_reaction[reaction_nbr];
-                if (stoichiometry.find(species_nbr) != stoichiometry.end()) {
+                if ((stoichiometry.find(species_nbr) != stoichiometry.end()) && stoichiometry.at(species_nbr) != 0) {
                     _reaction_nbr_by_species[species_nbr].push_back(reaction_nbr);
                 }
             }

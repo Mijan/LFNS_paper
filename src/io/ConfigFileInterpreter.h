@@ -84,6 +84,14 @@ namespace io {
 
         double getIntervalForSimulation();
 
+        bool detSpeciesProvided();
+
+        bool stochSpeciesProvided();
+
+        std::vector<std::string> getDetSpecies();
+
+        std::vector<std::string> getStochSpecies();
+
     protected:
         XmlFileReader _reader;
 

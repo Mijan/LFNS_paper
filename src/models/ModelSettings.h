@@ -14,22 +14,25 @@
 namespace models {
 
     enum class MODEL_TYPE {
-        ODE, STOCH
+        ODE, STOCH, HYBRID
     };
 
-    static std::map<std::string, MODEL_TYPE> MODEL_TYPE_NAME = {{"DET",   MODEL_TYPE::ODE},
-                                                                {"STOCH", MODEL_TYPE::STOCH}};
+    static std::map<std::string, MODEL_TYPE> MODEL_TYPE_NAME = {{"DET",    MODEL_TYPE::ODE},
+                                                                {"STOCH",  MODEL_TYPE::STOCH},
+                                                                {"HYBRID", MODEL_TYPE::HYBRID}};
 
     class ModelSettings {
     public:
         std::map<std::string, std::vector<models::InputData>> input_datas = {};
 
-        MODEL_TYPE model_type ;
+        MODEL_TYPE model_type;
         std::map<std::string, double> fixed_parameters = {};
         std::string model_file = "";
         std::string initial_value_file = "";
         std::string measurement_file = "";
         std::vector<std::string> param_names = {};
+        std::vector<std::string> det_species_names;
+        std::vector<std::string> stoch_species_names;
 
         std::vector<std::string> getUnfixedParameters() const {
             std::vector<std::string> unfixed_parameters;
@@ -46,7 +49,9 @@ namespace models {
 
 
             if (model_type == MODEL_TYPE::STOCH) { stream << "A SSA simulator will be used" << std::endl; }
-            else { stream << "An ODE simulator will be used" << std::endl; }
+            else if (model_type == MODEL_TYPE::HYBRID) {
+                stream << "A HYBRID simulator will be used" << std::endl;
+            } else { stream << "An ODE simulator will be used" << std::endl; }
 
             std::size_t max_name_length = 0;
             for (std::string &param_name : param_names) {

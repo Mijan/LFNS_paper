@@ -10,7 +10,8 @@
 #include <iostream>
 #include <sstream>
 #include <functional>
-#include "../base/StoppingCriterion.h"
+#include "StoppingCriterion.h"
+#include "../base/MathUtils.h"
 
 namespace simulator {
     typedef std::function<void(double final_t)> SimulationFct;
@@ -28,7 +29,7 @@ namespace simulator {
         virtual ~Simulator() {}
 
 
-        virtual void addStoppingCriterion(base::StoppingFct_ptr stopping_criterion) {
+        virtual void addStoppingCriterion(StoppingFct_ptr stopping_criterion) {
             _stopping_criterions.push_back(stopping_criterion);
         }
 
@@ -38,7 +39,13 @@ namespace simulator {
 
         virtual ResetFct_ptr getResetFct() = 0;
 
-        virtual void reset(std::vector<double> &state, double &t) = 0;
+        virtual void reset(std::vector<double> &state, double &t) {
+            _states_ptr = &state;
+            _t_ptr = &t;
+            if (!_discont_times.empty() && t < _discont_times.back()) {
+                _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end() - 1, t);
+            }
+        }
 
         virtual void clearStoppingCriterions() { _stopping_criterions.clear(); }
 
@@ -49,7 +56,7 @@ namespace simulator {
 
     protected:
 
-        base::StoppingCriterions _stopping_criterions;
+        StoppingCriterions _stopping_criterions;
 
         std::vector<double> _discont_times;
         std::vector<double>::iterator _discont_it;

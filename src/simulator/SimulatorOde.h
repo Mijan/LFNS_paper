@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
-#include "../base/StoppingCriterion.h"
+#include "StoppingCriterion.h"
 #include "Simulator.h"
 
 namespace simulator {

@@ -43,6 +43,14 @@ namespace models {
 
         void _initialize();
 
+        void setDetStatesForHybridModel(std::vector<std::string> det_state_names);
+
+        void setStochStatesForHybridModel(std::vector<std::string> stoch_state_name);
+
+        std::vector<int> getStochIndices();
+
+        std::vector<int> getDetSpeciesIndices();
+
         void printInfo(std::ostream &os) const;
 
     private:
@@ -51,6 +59,9 @@ namespace models {
         std::vector<mu::Parser> _propensity_parsers;
         std::vector<mu::Parser> _rhs_parsers;
         ModelReactionData _model_data;
+
+        std::vector<bool> _det_index_hybrid_model;
+        std::vector<bool> _active_reactions_hybrid_model;
 
         void _createPropensityParsers();
 

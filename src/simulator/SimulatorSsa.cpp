@@ -31,14 +31,6 @@ namespace simulator {
         return std::make_shared<ResetFct>(std::bind(&SimulatorSsa::reset, this, _1, _2));
     }
 
-    void SimulatorSsa::reset(std::vector<double> &state, double &t) {
-        _states_ptr = &state;
-        _t_ptr = &t;
-        if (!_discont_times.empty() && t < _discont_times.back()) {
-            _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end() - 1, t);
-        }
-    }
-
     void SimulatorSsa::simulateReaction(std::vector<double> &state, double &t, double final_time) {
         bool run_next_step = final_time > t;
         double T;

@@ -8,7 +8,7 @@
 #include <cfloat>
 #include "../base/RandomDistributions.h"
 #include "../base/EigenMatrices.h"
-#include "../base/StoppingCriterion.h"
+#include "StoppingCriterion.h"
 #include "Simulator.h"
 
 namespace simulator {
@@ -32,8 +32,6 @@ namespace simulator {
 
         ResetFct_ptr getResetFct() override;
 
-        void reset(std::vector<double> &state, double &t) override;
-
         void simulateReaction(std::vector<double> &state, double &t, double final_time);
     private:
         base::RngPtr _rng;
@@ -43,13 +41,8 @@ namespace simulator {
         PropensityFct_ptr _propensity_fct;
         std::vector<double> _propensities;
         ReactionFct_ptr _reaction_fct;
-//        int _root_sign;
 
         double _getTimeToNextReaction(double prop_sum);
-
-//        void _checkRoot(std::vector<double> &state, double &t, double next_t);
-
-//        double _findRootTime(std::vector<double> &state, double time_a, double time_b, int sgn_a);
 
         void _simulateReaction(std::vector<double> &state, double &t, double final_time);
     };

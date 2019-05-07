@@ -126,7 +126,7 @@ namespace particle_filter {
 
     void ParticleFilter::setThresholdPtr(double *threshold) { _threshold_ptr = threshold; }
 
-    void ParticleFilter::addStoppingCriterion(base::StoppingFct_ptr stopping_criterion) {
+    void ParticleFilter::addStoppingCriterion(simulator::StoppingFct_ptr stopping_criterion) {
         _stopping_criterions.push_back(stopping_criterion);
     }
 }

@@ -142,7 +142,7 @@ void SimulationSetup::_readSimulationSettings() {
         else {
             std::cerr
                     << "No number of simulations (either with -n through command line or 'Simulation.num_simulations') provided, assume default value of "
-                    << number_simulations;
+                    << number_simulations << std::endl;
         }
     }
 

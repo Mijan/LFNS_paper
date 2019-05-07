@@ -8,7 +8,7 @@
 #include <functional>
 #include "SmcParticle.h"
 #include "SmcParticleSet.h"
-#include "../base/StoppingCriterion.h"
+#include "../simulator/StoppingCriterion.h"
 
 namespace particle_filter {
     typedef std::function<void(const std::vector<double> &theta)> SetParameterFct;
@@ -53,7 +53,7 @@ namespace particle_filter {
 
         void setThresholdPtr(double *threshold);
 
-        virtual void addStoppingCriterion(base::StoppingFct_ptr stopping_criterion);
+        virtual void addStoppingCriterion(simulator::StoppingFct_ptr stopping_criterion);
 
 
     protected:
@@ -69,7 +69,7 @@ namespace particle_filter {
         std::vector<double> _log_likelihoods_tmps;
         double *_threshold_ptr;
 
-        base::StoppingCriterions _stopping_criterions;
+        simulator::StoppingCriterions _stopping_criterions;
     };
 
     typedef std::shared_ptr<ParticleFilter> ParticleFilter_ptr;

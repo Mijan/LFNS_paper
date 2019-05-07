@@ -112,17 +112,12 @@ namespace simulator {
     }
 
     void SimulatorOde::reset(std::vector<double> &state, double &t) {
+        Simulator::reset(state, t);
 
         N_VSetArrayPointer(state.data(), _current_state_n_vector);
-        _states_ptr = &state;
-        _t_ptr = &t;
 
         if (CVodeReInit(_cvode_mem, t, _current_state_n_vector) != CV_SUCCESS) {
             throw std::runtime_error("Reinitializing ODE solver went wrong!");
-        }
-
-        if (!_discont_times.empty() && t < _discont_times.back()) {
-            _discont_it = base::MathUtils::binarySearchLatter(_discont_times.begin(), _discont_times.end() - 1, t);
         }
     }
 

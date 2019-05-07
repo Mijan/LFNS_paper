@@ -67,6 +67,37 @@ namespace io {
     };
 
 
+    bool ConfigFileInterpreter::detSpeciesProvided() {
+        try {
+            std::string det_species_str = _reader.getEntry("model.detspecies");
+            return true;
+        } catch (const std::exception &e) {
+            return false;
+        }
+    }
+
+    bool ConfigFileInterpreter::stochSpeciesProvided() {
+        try {
+            std::string stoch_species_str = _reader.getEntry("model.stochspecies");
+            return true;
+        } catch (const std::exception &e) {
+            return false;
+        }
+    }
+
+    std::vector<std::string> ConfigFileInterpreter::getDetSpecies() {
+        std::string det_species_str = _reader.getEntry("model.detspecies");
+        std::vector<std::string> det_species = base::Utils::StringToStringVector(det_species_str);
+        return det_species;
+    }
+
+    std::vector<std::string> ConfigFileInterpreter::getStochSpecies() {
+        std::string stoch_species_str = _reader.getEntry("model.stochspecies");
+        std::vector<std::string> stoch_species = base::Utils::StringToStringVector(stoch_species_str);
+        return stoch_species;
+    }
+
+
     std::map<std::string, std::pair<double, double> > ConfigFileInterpreter::getParameterBounds() {
         std::map<std::string, std::pair<double, double> > bounds;
         std::vector<XmlMap> bound_entries = _reader.getEntryMaps("parameters.bounds", "bound");

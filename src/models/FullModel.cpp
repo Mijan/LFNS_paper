@@ -4,6 +4,7 @@
 
 #include "FullModel.h"
 #include "../base/Utils.h"
+#include "../base/IoUtils.h"
 
 namespace models {
     using namespace std::placeholders;
@@ -40,6 +41,19 @@ namespace models {
         dynamics = std::make_shared<models::ChemicalReactionNetwork>(
                 settings.model_file);
         models::InitialValueData init_data(settings.initial_value_file);
+        if (init_data.getNumInitialValues() != dynamics->getNumSpecies()) {
+            std::stringstream ss;
+            ss << "Initial states not properly set! Model dynamics require " << dynamics->getNumSpecies()
+               << " species, but initial states only for " << init_data.getNumSpecies() << " states defined!"
+               << std::endl;
+            std::vector<std::string> dynamics_states = dynamics->getSpeciesNames();
+            std::vector<std::string> init_states = init_data.getInitialStates();
+            ss << "Model dynamics species: " << std::endl;
+            for (std::string species: dynamics_states) { ss << species << std::endl; }
+            ss << "\nProvided initial states for: " << std::endl;
+            for (std::string species: init_states) { ss << species << std::endl; }
+            throw std::runtime_error(ss.str());
+        }
         initial_value_provider = std::make_shared<models::InitialValueProvider>(rng, init_data);
         initial_value_provider->setOutputStateMapping(dynamics->getSpeciesNames());
 
