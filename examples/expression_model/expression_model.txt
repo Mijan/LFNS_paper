@@ -1,0 +1,11 @@
+Parameters:
+k, gamma, k_P, gamma_P
+
+Species:
+mRNA, P
+
+Reactions:
+0	 	--> 	mRNA 		Variables: k					Propensity: #ma
+mRNA	  	--> 	0		Variables: gamma				Propensity: #ma
+mRNA	 	--> mRNA +	P 		Variables: k_P					Propensity: #ma
+P	  	--> 	0		Variables: gamma_P				Propensity: #ma

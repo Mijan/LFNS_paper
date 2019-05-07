@@ -1,0 +1,11 @@
+Random numbers:
+r_1 = Normal(0, 2)
+
+Species:
+P
+
+Measurement:
+P_read = P + r_1
+
+Loglikelihood:
+P_read:	 -(P_read - P)*(P_read - P) / (2 * 2 * 2) - log(2 * sqrt(2 * _pi))

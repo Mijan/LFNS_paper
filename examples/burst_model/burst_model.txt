@@ -1,0 +1,18 @@
+Parameters:
+k_on, k_off, k_r, lambda, factor_1, factor_2, factor_3
+
+Species:
+g_off, g_on, RNA_1, RNA_2, RNA_3, RNA_4, RNA_5, RNA_6, RNA_7, RNA_8
+
+Reactions:
+g_off       -->     g_on                Variables: k_on                 Propensity: (k_on + factor_1)* g_off
+g_on        -->     g_off               Variables: k_off                Propensity: (k_off + factor_2) * g_on
+g_on	 	--> 	g_on + RNA_1 		Variables: k_r					Propensity: (k_r + factor_3) * g_on
+RNA_1	  	--> 	RNA_2	            Variables: lambda				Propensity: #ma
+RNA_2	  	--> 	RNA_3	            Variables: lambda				Propensity: #ma
+RNA_3	  	--> 	RNA_4	            Variables: lambda				Propensity: #ma
+RNA_4	  	--> 	RNA_5	            Variables: lambda				Propensity: #ma
+RNA_5	  	--> 	RNA_6	            Variables: lambda				Propensity: #ma
+RNA_6	  	--> 	RNA_7	            Variables: lambda				Propensity: #ma
+RNA_7	  	--> 	RNA_8	            Variables: lambda				Propensity: #ma
+RNA_8	  	--> 	0    	            Variables: lambda				Propensity: #ma

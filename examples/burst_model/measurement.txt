@@ -1,0 +1,14 @@
+Parameters:
+mu, sigma
+
+Random numbers:
+r_1 = Normal(0, 1)
+
+Species:
+RNA_1, RNA_2, RNA_3, RNA_4, RNA_5, RNA_6, RNA_7, RNA_8
+
+Measurement:
+RNA_read = mu*(RNA_1 + RNA_2 + RNA_3 + RNA_4 + RNA_5 + RNA_6 + RNA_7 + RNA_8) + sigma*r_1
+
+Loglikelihood:
+RNA_read:	 -(RNA_read - mu*(RNA_1 + RNA_2 + RNA_3 + RNA_4 + RNA_5 + RNA_6 + RNA_7 + RNA_8))^2 / (2 * sigma^2) - log(sigma * sqrt(2 * _pi))

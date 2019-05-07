@@ -1,0 +1,67 @@
+<model>
+    <type>STOCH</type>
+	<model>./lacgfp_model.txt</model>
+	<initialvalue>./lacgfp_initial_states.txt</initialvalue>
+	<measurement>./lacgfp_measurement.txt</measurement>
+</model>
+<parameters>
+	<fixedparams>
+		<parameters>IPTG, fl_mean, fl_sigma</parameters>
+		<values>10 22 5</values>
+	</fixedparams>
+	<bounds>
+			<bound>
+				<parameters>theta_1, theta_2, theta_3, theta_4, theta_5, theta_7, theta_8, theta_11, theta_13,theta_15, theta_17, theta_18, IPTG, fl_mean, fl_sigma</parameters>
+				<lowerbounds>1e-5</lowerbounds>
+				<upperbounds>1e1</upperbounds>
+			</bound>
+			<bound>
+				<parameters>theta_9 theta_14</parameters>
+				<lowerbounds>1e-5</lowerbounds>
+				<upperbounds>1e0</upperbounds>
+			</bound>
+			<bound>
+				<parameters>theta_6</parameters>
+				<lowerbounds>1e-2</lowerbounds>
+				<upperbounds>3000</upperbounds>
+			</bound>
+			<bound>
+				<parameters>theta_16</parameters>
+				<lowerbounds>1e-2</lowerbounds>
+				<upperbounds>50</upperbounds>
+			</bound>
+			<bound>
+				<parameters>theta_10, theta_12</parameters>
+				<lowerbounds>1e-2</lowerbounds>
+				<upperbounds>500</upperbounds>
+			</bound>				
+	</bounds>
+</parameters>
+<data>
+	<dataset>
+		<experiments>0</experiments>
+		<datafile>./lacgfp_data.txt</datafile>
+		<timefile>./lacgfp_data_times.txt</timefile>
+	</dataset>
+</data>		
+<Simulation>
+	<experiments>0</experiments>
+	<initialtime>0</initialtime>
+	<finaltime>10</finaltime>
+	<interval>0.5</interval>
+	<parameter>1.5 7.5 1.5 4.5 5 1650 6 0.48 0.5 230 0.4 125 0.2 0.01 1.5 32 1 2.2</parameter>
+</Simulation>
+<ComputeLikelihood>
+	<experiments>0</experiments>
+	<H>500</H>
+	<parameter>1.5 7.5 1.5 4.5 5 1650 6 0.48 0.5 230 0.4 125 0.2 0.01 1.5 32 1 2.2</parameter>
+	<numcomputations>1</numcomputations>
+</ComputeLikelihood>
+<LFNS>
+	<experiments>0</experiments>
+	<N>1000</N>
+	<H>500</H>
+	<r>100</r>
+    <epsilon>0.001</epsilon>
+	<dpgmmiterations>50</dpgmmiterations>	
+</LFNS>

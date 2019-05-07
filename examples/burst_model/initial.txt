@@ -1,0 +1,11 @@
+Initial Values:
+g_off:  1
+g_on:   0
+RNA_1:	0
+RNA_2:	0
+RNA_3:	0
+RNA_4:	0
+RNA_5:	0
+RNA_6:	0
+RNA_7:	0
+RNA_8:	0

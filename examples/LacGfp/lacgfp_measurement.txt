@@ -1,0 +1,15 @@
+Parameters:
+fl_mean, fl_sigma
+
+Random numbers:
+r_1 = Normal(0, 1);
+bg = Normal(80, 40);
+
+Species:
+mGFP
+
+Measurement:
+fluorescence = fl_mean * mGFP + sqrt(fl_sigma * mGFP) * r_1 + bg
+
+Loglikelihood:
+fluorescence: -(((fluorescence - mGFP*fl_mean - 80)* (fluorescence - mGFP*fl_mean - 80)) / (2 * (mGFP*fl_sigma + 40))) -  log(sqrt((mGFP*fl_sigma + 40) * 2 * _pi))

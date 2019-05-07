@@ -1,0 +1,20 @@
+<model>
+	<type>HYBRID</type>
+	<model>./expression_model.txt</model>
+	<initialvalue>./expression_initial.txt</initialvalue>
+	<measurement>./expression_measurement.txt</measurement>
+    <detspecies>P</detspecies>
+</model>
+<parameters>
+    <fixedparams>
+        <parameters>gamma k gamma_P</parameters>
+        <values>1 0.5 0.1</values>
+    </fixedparams>
+</parameters>
+<Simulation>
+	<experiments>0</experiments>
+	<initialtime>0</initialtime>
+	<finaltime>100</finaltime>
+	<interval>0.05</interval>
+    <parameter>1</parameter>
+</Simulation>

@@ -1,0 +1,26 @@
+Parameters:
+theta_1, theta_2, theta_3, theta_4, theta_5, theta_6, theta_7, theta_8, theta_9, theta_10, theta_11, theta_12, theta_13, theta_14, theta_15, theta_16, theta_17, theta_18, IPTG
+
+Species:
+lacI, LACI, LACI2, PLac, O2Lac, O4Lac, gfp, GFP, mGFP
+
+Reactions:
+0		-->	lacI			Variables: theta_1			Propensity: #ma
+lacI		-->	0			Variables: theta_2			Propensity: #ma
+lacI		-->	lacI + LACI		Variables: theta_3			Propensity: #ma
+LACI		-->	0			Variables: theta_4, theta_5, IPTG	Propensity: LACI * (theta_4 + theta_5 * IPTG)
+LACI + LACI	-->	LACI2			Variables: theta_6			Propensity: #ma
+LACI2		-->	LACI + LACI		Variables: theta_7			Propensity: #ma
+LACI2 + PLac	-->	O2Lac			Variables: theta_8			Propensity: #ma
+O2Lac		-->	LACI2 + PLac		Variables: theta_9			Propensity: #ma
+O2Lac + O2Lac 	-->	O4Lac			Variables: theta_10			Propensity: #ma
+O4Lac		-->	O2Lac + O2Lac		Variables: theta_11			Propensity: #ma
+PLac		-->	PLac + gfp		Variables: theta_12			Propensity: #ma
+O2Lac		-->	O2Lac + gfp		Variables: theta_13			Propensity: #ma
+O4Lac		-->	O4Lac + gfp		Variables: theta_14			Propensity: #ma
+gfp		-->	0			Variables: theta_15			Propensity: #ma
+gfp 		-->	gfp + GFP		Variables: theta_16			Propensity: #ma
+GFP 		-->	0			Variables: theta_17			Propensity: #ma
+GFP		-->	mGFP			Variables: theta_18			Propensity: #ma
+mGFP		-->	0			Variables: theta_17			Propensity: #ma
+

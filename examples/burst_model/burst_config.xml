@@ -1,0 +1,93 @@
+<model>
+	<type>STOCH</type>
+    <model>./burst_model.txt</model>
+	<initialvalue>./initial.txt</initialvalue>
+	<measurement>./measurement_mult.txt</measurement>
+</model>
+<parameters>
+	<scales>
+        <parameters scale="linear">>mu, sigma, lambda</parameters>
+    </scales>
+    <fixedparams>
+		<parameters>mu factor_1 factor_2 factor_3 sigma</parameters>
+		<values>1 0 0 0 0.3536</values>
+	</fixedparams>
+	<bounds>
+		<bound>
+			<parameters>k_on, k_off, factor_1, factor_2</parameters>
+			<lowerbounds>1e-5</lowerbounds>
+			<upperbounds>1e2</upperbounds>
+		</bound>
+		<bound>
+			<parameters>k_r lambda</parameters>
+			<lowerbounds>1e-1 2</lowerbounds>
+            <upperbounds>500 8</upperbounds>
+		</bound>
+		<bound>
+            <parameters>mu, sigma</parameters>
+			<lowerbounds>1e-1 1e-2</lowerbounds>
+			<upperbounds>20 5</upperbounds>
+		</bound>
+		<bound>
+            <parameters>factor_3</parameters>
+			<lowerbounds>1e-1</lowerbounds>
+			<upperbounds>500</upperbounds>
+		</bound>
+	</bounds>
+</parameters>
+<data>
+	<dataset>
+		<experiments>low high</experiments>
+		<datafile>./data/2500.txt ./data/3500.txt</datafile>
+		<timefile>./data/times.txt</timepoints>		
+	</dataset>
+</data>
+<inputs>
+    <input>
+		<experiments>low high</experiments>
+		<period>1000</period>
+		<strength>0</strength>
+		<duration>1000</duration>
+		<numpulses>1</numpulses>
+		<inputparam>factor_1</inputparam>
+		<startingtime>0</startingtime>
+    </input>
+    <input>
+		<experiments>low high</experiments>
+		<period>1000</period>
+		<strength>0</strength>
+		<duration>1000</duration>
+		<numpulses>1</numpulses>
+		<inputparam>factor_2</inputparam>
+		<startingtime>0</startingtime>
+    </input>
+    <input>
+		<experiments>low high</experiments>
+		<period>1000</period>
+		<strength>0</strength>
+		<duration>1000</duration>
+		<numpulses>1</numpulses>
+		<inputparam>factor_3</inputparam>
+		<startingtime>0</startingtime>
+    </input>
+</inputs>
+<Simulation>
+	<experiments>low</experiments>
+	<initialtime>0</initialtime>
+	<finaltime>100</finaltime>
+	<interval>2</interval>
+	<parameter>0.109662 0.315584 38.9201 3.85099</parameter>
+</Simulation>
+<ComputeLikelihood>
+	<experiments>low</experiments>
+	<parameter>0.00205216 0.153801 402.117 2.00362</parameter>
+	<numcomputations>1</numcomputations>
+</ComputeLikelihood>
+<LFNS>
+	<experiments>low</experiments>
+	<N>1000</N>
+	<H>100</H>
+	<r>100</r>
+    <epsilon>0.001</epsilon>
+	<dpgmmiterations>50</dpgmmiterations>	
+</LFNS>

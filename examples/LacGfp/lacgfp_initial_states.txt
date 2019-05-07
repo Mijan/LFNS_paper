@@ -1,0 +1,18 @@
+
+Random numbers:
+r_1 = Uniform_Int(0, 5)
+r_2 = Uniform_Int(0, 10)
+r_3 = Uniform_Int(50, 70)
+
+Initial Values:
+lacI: 	r_1
+LACI: 	r_2
+LACI2: 	0
+PLac: 	0
+O2Lac: 	0
+O4Lac: 	r_3
+gfp: 	0
+GFP: 	0
+mGFP:	0
+_t:     0
+

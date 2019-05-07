@@ -1,0 +1,53 @@
+Config file: /home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/birth_death_one_param/bd_config_file.xml
+Output file: /home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/birth_death_one_param/results/N1000_H20/bd.txt
+
+N:	100
+r:	10
+Termination threshold:	0.001
+For Density estimation the 1% quantile will be used. 
+
+H:	20
+Data used:
+Experiment:	0		Data file: /home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/birth_death_one_param/./bd_data.txt	times file: /home/jan/crypt/Dropbox/Nested_Sampling_paper/numerical_data/birth_death_one_param/./bd_data_times.txt
+Nnumber of trajectories used for each experiment: 1
+
+
+
+Parameters to be sampled: 
+Name                  Bounds  Scale
+k         [0.631, 2.5119]    log
+
+
+
+-----------   Model   -----------
+Parameters: k gamma 
+
+Species: mRNA 
+
+
+Reaction  0:	Propencity:           k 		Stoichiometry: mRNA +1, 
+Reaction  1:	Propencity:  gamma*mRNA 		Stoichiometry: mRNA -1, 
+
+
+Ode equations:
+(d mRNA)/dt = (k)-(gamma * mRNA) 
+
+
+
+----------   Initial Values   ---------- 
+State mRNA:	0 
+  State _t:	0 
+
+----------   Measurement Model   ----------
+
+Species: mRNA 
+
+Normal numbers:
+r_1:	mean: 0	std: 2
+
+
+Measurements:
+       mRNA_read = mRNA+r_1 
+
+Log Likelihood:
+       mRNA_read:	-(mRNA_read-mRNA)*(mRNA_read-mRNA)/(2*2*2)-log(2*sqrt(2*_pi)) 

@@ -1,0 +1,11 @@
+Random numbers:
+r_1 = Normal(0, 2)
+
+Species:
+mRNA
+
+Measurement:
+mRNA_read = mRNA + r_1
+
+Loglikelihood:
+mRNA_read:	 -(mRNA_read - mRNA)*(mRNA_read - mRNA) / (2 * 2 * 2) - log(2 * sqrt(2 * _pi))
