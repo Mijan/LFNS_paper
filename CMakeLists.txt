@@ -120,32 +120,19 @@ if (MPI_LINK_FLAGS)
     set_target_properties(lfnsMpi PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
 endif ()
 
-
-add_executable(test_BEestimation test_BEestimation.cpp)
-add_executable(test_lfns test_lfns.cpp)
-add_executable(test_sampler test_sampler.cpp)
-add_executable(test_simulator test_simulator.cpp)
-add_executable(test_particle_filter test_particle_filter.cpp)
-add_executable(test_models test_models.cpp)
 add_executable(lfns_seq lfns_seq.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(lfns_mpi lfns_mpi.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(simulate simulate.cpp SimulationSetup.cpp SimulationSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(evaluate_likelihood evaluate_likelihood.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(mcmc mcmc.cpp ${MCMC_SOURCE_FILES} GeneralSetup.cpp GeneralSetup.h mcmc.cpp MCMCSetup.cpp MCMCSetup.h)
 
-target_link_libraries(test_BEestimation lfns)
-target_link_libraries(test_lfns lfnsSeq)
-target_link_libraries(test_sampler sampler lfns)
-target_link_libraries(test_simulator simulator base)
-target_link_libraries(test_particle_filter simulator particle_filter models)
-target_link_libraries(test_models base models)
 target_link_libraries(lfns_seq base models particle_filter lfns lfnsSeq options io)
 target_link_libraries(lfns_mpi base models particle_filter lfns lfnsMpi options io)
 target_link_libraries(simulate base models simulator options io)
 target_link_libraries(evaluate_likelihood base models simulator options particle_filter io)
 target_link_libraries(mcmc ${Boost_LIBRARIES} base models sampler particle_filter options io)
 
-install(TARGETS mcmc test_BEestimation test_lfns test_sampler test_simulator test_particle_filter test_models lfns_seq lfns_mpi simulate evaluate_likelihood DESTINATION bin)
+install(TARGETS mcmc lfns_seq lfns_mpi simulate evaluate_likelihood DESTINATION bin)
 install(TARGETS base models simulator options io particle_filter sampler lfns lfnsSeq lfnsMpi DESTINATION lib)
 
 
