@@ -9,6 +9,18 @@
 #include "Sampler.h"
 
 namespace sampler {
+    class UniformSampler;
+}
+namespace boost {
+    namespace serialization {
+        template<class Archive>
+        inline void save_construct_data(Archive &ar, const sampler::UniformSampler *t,
+                                        const unsigned int file_version);
+    }
+}
+
+
+namespace sampler {
 
     class UniformSamplerData : public SamplerData {
     public:
