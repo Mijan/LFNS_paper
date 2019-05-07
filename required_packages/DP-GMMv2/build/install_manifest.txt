@@ -1,0 +1,15 @@
+/usr/local/lib/libDPGMM.so
+/usr/local/include/DataReader.h
+/usr/local/include/IOUtils.h
+/usr/local/include/AdaptiveRejectionSampler.h
+/usr/local/include/BoostDistributions.h
+/usr/local/include/GaussMixtureComponent.h
+/usr/local/include/DPMixtureComponent.h
+/usr/local/include/DPGMMEstimator.h
+/usr/local/include/DPGMMLogger.h
+/usr/local/include/HyperParameters.h
+/usr/local/include/MatrixTypes.h
+/usr/local/include/MultivariateNormalDistribution.h
+/usr/local/include/LogConcaveFunction.h
+/usr/local/include/WishartDistribution.h
+/usr/local/bin/estimate_density
