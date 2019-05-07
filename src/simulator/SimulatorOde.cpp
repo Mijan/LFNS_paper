@@ -21,7 +21,7 @@ namespace simulator {
 
         _t_ptr = &_t;
         _states_ptr = &_states;
-        _cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+        _cvode_mem = CVodeCreate(CV_BDF);
 
         _rhs_data.rhs_fct = rhs_fct;
         _rhs_data.num_states = num_states;
@@ -64,7 +64,7 @@ namespace simulator {
               _A(SUNDenseMatrix(rhs._states.size(), rhs._states.size())),
               _LS(SUNDenseLinearSolver(_current_state_n_vector, _A)) {
 
-        _cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+        _cvode_mem = CVodeCreate(CV_BDF);
         _t_ptr = &_t;
         _states_ptr = &_states;
         _rhs_data.rhs_fct = rhs._rhs_data.rhs_fct;

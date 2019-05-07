@@ -97,7 +97,7 @@ add_library(sampler SHARED ${SAMPLE_SOURCE_FILES})
 add_library(simulator SHARED ${SIMULATOR_SOURCE_FILES})
 add_library(particle_filter SHARED ${PARTICLE_FILTER_SOURCE_FILES})
 add_library(models SHARED ${MODELS_SOURCE_FILES})
-#add_library(mcmc SHARED ${MCMC_SOURCE_FILES})
+add_library(mcmc SHARED ${MCMC_SOURCE_FILES})
 
 target_link_libraries(base ${Boost_LIBRARIES} ${Eigen3_LIBRARIES})
 target_link_libraries(io ${Boost_LIBRARIES} ${Eigen3_LIBRARIES})
@@ -109,7 +109,7 @@ target_link_libraries(sampler ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${DPGMM_LIB
 target_link_libraries(simulator ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${SUNDIALS_LIBRARIES} base)
 target_link_libraries(particle_filter ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} base simulator)
 target_link_libraries(models ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${MUPARSER_LIBRARIES} base io)
-#target_link_libraries(mcmc ${Boost_LIBRARIES} base sampler)
+target_link_libraries(mcmc ${Boost_LIBRARIES} base sampler)
 
 
 if (MPI_COMPILE_FLAGS)
