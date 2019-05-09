@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "BoostDistributions.h"
-#include "DPMixtureComponent.h"
+#include "EstimationMixtureComponent.h"
 #include "HyperParameters.h"
 #include "MatrixTypes.h"
 
@@ -20,7 +20,7 @@ namespace DP_GMM {
     class IndicatorParameters {
     public:
         IndicatorParameters(const EiMatrix &data,
-                            MixtureComponentSet *mixture_components, RngPtr r);
+                            EstimationMixtureComponentSet *mixture_components, RngPtr r);
 
         virtual ~IndicatorParameters();
 
@@ -32,9 +32,9 @@ namespace DP_GMM {
         const EiMatrix _data;
         int _num_components;
 
-        MixtureComponentSet *_mixture_components;
-        DPMixtureComponentPtr *_component_by_data_point;
-        std::unordered_map<DPMixtureComponentPtr, double> _probs_by_components;
+        EstimationMixtureComponentSet *_mixture_components;
+        EstimationMixtureComponentPtr *_component_by_data_point;
+        std::unordered_map<EstimationMixtureComponentPtr, double> _probs_by_components;
         size_t _D;
 
         double _alpha;
@@ -61,7 +61,7 @@ namespace DP_GMM {
         void _updateMixtures();
 
         void _removeDataPointFromComponent(int i,
-                                           DPMixtureComponentPtr current_mixture);
+                                           EstimationMixtureComponentPtr current_mixture);
 
         void _computeProbs(double *sum_probs, double *prob_new_comp, int i);
 

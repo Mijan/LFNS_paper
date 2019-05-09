@@ -165,7 +165,7 @@ namespace DP_GMM {
         }
     }
 
-    void HyperParameters::updateBeta(const MixtureComponentSet &components) {
+    void HyperParameters::updateBeta(const EstimationMixtureComponentSet &components) {
 
         try {
             PostLogBeta post_log_beta(components, _W, _D, log(_beta));
@@ -177,7 +177,7 @@ namespace DP_GMM {
         }
     }
 
-    void HyperParameters::updateXi(const MixtureComponentSet &components) {
+    void HyperParameters::updateXi(const EstimationMixtureComponentSet &components) {
 
         EiMatrix sum_precision(_D, _D);
         sum_precision.setZero();
@@ -185,9 +185,9 @@ namespace DP_GMM {
         EiVector sum_prec_mu(_D);
         sum_prec_mu.setZero();
 
-        for (MixtureComponentSet::const_iterator it = components.begin();
+        for (EstimationMixtureComponentSet::const_iterator it = components.begin();
              it != components.end(); it++) {
-            DPMixtureComponentPtr comp = *it;
+            EstimationMixtureComponentPtr comp = *it;
             sum_precision += comp->getPrecision();
             sum_prec_mu += comp->getPrecision() * comp->getMean();
         }
@@ -204,15 +204,15 @@ namespace DP_GMM {
 
     }
 
-    void HyperParameters::updateW(const MixtureComponentSet &components) {
+    void HyperParameters::updateW(const EstimationMixtureComponentSet &components) {
         int K = components.size();
 
         EiMatrix sum_precision(_D, _D);
         sum_precision.setZero();
 
-        for (MixtureComponentSet::const_iterator it = components.begin();
+        for (EstimationMixtureComponentSet::const_iterator it = components.begin();
              it != components.end(); it++) {
-            DPMixtureComponentPtr comp = *it;
+            EstimationMixtureComponentPtr comp = *it;
             sum_precision += comp->getPrecision();
         }
 
@@ -229,23 +229,23 @@ namespace DP_GMM {
         }
     }
 
-    void HyperParameters::updateRho(const MixtureComponentSet &components) {
+    void HyperParameters::updateRho(const EstimationMixtureComponentSet &components) {
         int K = components.size();
 
         double tmp_1 = 0.0;
 
-        for (MixtureComponentSet::const_iterator it = components.begin();
+        for (EstimationMixtureComponentSet::const_iterator it = components.begin();
              it != components.end(); it++) {
-            DPMixtureComponentPtr comp = *it;
+            EstimationMixtureComponentPtr comp = *it;
 
             tmp_1 += (comp->getMean() - _xi).transpose() * comp->getPrecision()
                      * (comp->getMean() - _xi);
         }
 
         if (tmp_1 != tmp_1) {
-            for (MixtureComponentSet::const_iterator it = components.begin();
+            for (EstimationMixtureComponentSet::const_iterator it = components.begin();
                  it != components.end(); it++) {
-                DPMixtureComponentPtr comp = *it;
+                EstimationMixtureComponentPtr comp = *it;
                 std::cout << " the means are : " << comp->getMean() << std::endl;
             }
 

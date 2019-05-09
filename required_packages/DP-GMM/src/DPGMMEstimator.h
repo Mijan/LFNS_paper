@@ -10,7 +10,7 @@
 
 #include <Eigen/Dense>
 
-#include "DPMixtureComponent.h"
+#include "EstimationMixtureComponent.h"
 #include "BoostDistributions.h"
 #include "HyperParameters.h"
 #include "DPGMMLogger.h"
@@ -24,16 +24,16 @@ namespace DP_GMM {
         virtual ~DPGMMEstimator();
 
         void estimate(const Data &data, HyperParameters &hyper_parameters,
-                      MixtureComponentSet *mixture_components, bool verbose = true,
+                      EstimationMixtureComponentSet *mixture_components, bool verbose = true,
                       DPGMMLogger *logger = NULL);
 
         HyperParameters estimate(const EiMatrix &data,
-                                 MixtureComponentSet *mixture_components, bool verbose = true,
+                                 EstimationMixtureComponentSet *mixture_components, bool verbose = true,
                                  DPGMMLogger *logger = NULL);
 
     private:
         void _estimate(const Data &data, HyperParameters &hyper_parameters,
-                       MixtureComponentSet *mixture_components, bool verbose = true,
+                       EstimationMixtureComponentSet *mixture_components, bool verbose = true,
                        DPGMMLogger *logger = NULL);
 
     private:

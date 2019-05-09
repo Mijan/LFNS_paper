@@ -10,10 +10,10 @@
 namespace DP_GMM {
 
     IndicatorParameters::IndicatorParameters(const EiMatrix &data,
-                                             MixtureComponentSet *mixture_components, RngPtr r) :
+                                             EstimationMixtureComponentSet *mixture_components, RngPtr r) :
             _data(data), _num_components(0), _mixture_components(
             mixture_components), _component_by_data_point(
-            new DPMixtureComponentPtr[data.rows()]), _D(data.cols()), _alpha(
+            new EstimationMixtureComponentPtr[data.rows()]), _D(data.cols()), _alpha(
             0.0), _beta(0.0), _W(_D, _D), _rho(0.0), _xi(_D), _zero_vector(
             EiVector::Zero(_D)), _inv_beta_W(_D, _D), _log_det_beta_W(0.0), dist_uniform(0, 1), _r(r) {
     }
@@ -27,7 +27,7 @@ namespace DP_GMM {
         _updateMixtures();
 
         for (int i = 0; i < _data.rows(); i++) {
-            DPMixtureComponentPtr current_mixture = _component_by_data_point[i];
+            EstimationMixtureComponentPtr current_mixture = _component_by_data_point[i];
             _removeDataPointFromComponent(i, current_mixture);
 
             double prob_new_comp;
@@ -53,17 +53,17 @@ namespace DP_GMM {
     }
 
     void IndicatorParameters::_updateMixtures() {
-        for (MixtureComponentSet::iterator it = _mixture_components->begin();
+        for (EstimationMixtureComponentSet::iterator it = _mixture_components->begin();
              it != _mixture_components->end(); it++) {
-            DPMixtureComponentPtr comp = (*it);
+            EstimationMixtureComponentPtr comp = (*it);
             comp->updateWStar(_xi, _rho, _W, _beta);
         }
 
     }
 
     void IndicatorParameters::_removeDataPointFromComponent(int i,
-                                                            DPMixtureComponentPtr current_mixture) {
-        _component_by_data_point[i] = DPMixtureComponentPtr(nullptr);
+                                                            EstimationMixtureComponentPtr current_mixture) {
+        _component_by_data_point[i] = EstimationMixtureComponentPtr(nullptr);
         if (current_mixture) {
             bool delete_component = current_mixture->removeDataPoint(i, _xi, _rho,
                                                                      _W, _beta);
@@ -92,9 +92,9 @@ namespace DP_GMM {
             *prob_new_comp = 1.0;
             return;
         }
-        for (MixtureComponentSet::iterator it = _mixture_components->begin();
+        for (EstimationMixtureComponentSet::iterator it = _mixture_components->begin();
              it != _mixture_components->end(); it++) {
-            DPMixtureComponentPtr comp = *it;
+            EstimationMixtureComponentPtr comp = *it;
             log_gamma_val = _multivariateGammaLog(_beta + comp->getNumDataPoints(),
                                                   1, _D);
             *prob_new_comp = (comp->getNumDataPoints()) / (_data.rows() - 1 + _alpha)
@@ -119,7 +119,7 @@ namespace DP_GMM {
 
             *sum_probs += *prob_new_comp;
             _probs_by_components.insert(
-                    std::pair<DPMixtureComponentPtr, double>(comp, (double) *prob_new_comp));
+                    std::pair<EstimationMixtureComponentPtr, double>(comp, (double) *prob_new_comp));
         }
         log_gamma_val = _multivariateGammaLog(_beta, 1, _D);
         *prob_new_comp = (_alpha / (_data.rows() - 1 + _alpha)
@@ -190,11 +190,11 @@ namespace DP_GMM {
                                                double prob_new_comp, int data_point_index) {
         double u = dist_uniform(*_r);
         double a = sum_probs * u;
-        DPMixtureComponentPtr component;
+        EstimationMixtureComponentPtr component;
 
         if (a <= prob_new_comp) {
 
-            component = std::make_shared<DPMixtureComponent>(_data, data_point_index,
+            component = std::make_shared<EstimationMixtureComponent>(_data, data_point_index,
                                                              _W, _beta, _xi, _rho, std::ref(_r));
             _mixture_components->insert(component);
             _num_components++;
@@ -205,7 +205,7 @@ namespace DP_GMM {
 #endif
         } else {
             a -= prob_new_comp;
-            for (MixtureComponentSet::iterator it = _mixture_components->begin();
+            for (EstimationMixtureComponentSet::iterator it = _mixture_components->begin();
                  it != _mixture_components->end(); it++) {
                 component = *it;
                 if (a < _probs_by_components.at(component)) {

@@ -9,34 +9,35 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 #include "IOUtils.h"
 
 namespace DP_GMM {
 
     DPGMMLogger::DPGMMLogger(std::string output_file_name, int print_frequency) :
-            _output_file_name(output_file_name), _print_frequncy(print_frequency) { }
+            _output_file_name(output_file_name), _print_frequncy(print_frequency) {}
 
-    DPGMMLogger::~DPGMMLogger() { }
+    DPGMMLogger::~DPGMMLogger() {}
 
-    void DPGMMLogger::writeData(HyperParameters *hyper_parameters,
-                                MixtureComponentSet *mixture_components, int iteration_nbr) {
+    void DPGMMLogger::writeDataToFile(HyperParameters *hyper_parameters,
+                                      EstimationMixtureComponentSet *mixture_components, int iteration_nbr) {
         if (iteration_nbr % _print_frequncy != 0 || iteration_nbr == 0) { return; }
-        writeData(hyper_parameters, mixture_components);
+        writeDataToFile(hyper_parameters, mixture_components);
     }
 
-    void DPGMMLogger::writeData(HyperParameters *hyper_parameters,
-                                MixtureComponentSet *mixture_components) {
-        writeData(mixture_components, _output_file_name);
+    void DPGMMLogger::writeDataToFile(HyperParameters *hyper_parameters,
+                                      EstimationMixtureComponentSet *mixture_components) {
+        writeDataToFile(mixture_components, _output_file_name);
         writeHyperParams(hyper_parameters, _output_file_name);
     }
 
-    void DPGMMLogger::writeData(MixtureComponentSet *mixture_components) {
-        writeData(mixture_components, _output_file_name);
+    void DPGMMLogger::writeDataToFile(EstimationMixtureComponentSet *mixture_components) {
+        writeDataToFile(mixture_components, _output_file_name);
     }
 
-    void DPGMMLogger::writeData(MixtureComponentSet *mixture_components,
-                                std::string output_file_name) {
+    void DPGMMLogger::writeDataToFile(EstimationMixtureComponentSet *mixture_components,
+                                      std::string output_file_name) {
         std::string means_file_name = IOUtils::appendToFileName(
                 output_file_name.c_str(), "means");
         std::string cov_file_name = IOUtils::appendToFileName(
@@ -49,32 +50,32 @@ namespace DP_GMM {
         std::ofstream means_file(means_file_name.c_str());
         if (!means_file.is_open()) {
             std::cerr << "error opening file " << means_file_name.c_str()
-            << "for writing means. Means could not be saved!!" << std::endl;
+                      << "for writing means. Means could not be saved!!" << std::endl;
             return;
         }
         std::ofstream covariance_file(cov_file_name.c_str());
         if (!covariance_file.is_open()) {
             std::cerr << "error opening file " << cov_file_name.c_str()
-            << "for writing covariance. Covariances could not be saved!!"
-            << std::endl;
+                      << "for writing covariance. Covariances could not be saved!!"
+                      << std::endl;
             return;
         }
         std::ofstream weights_file(weights_file_name.c_str());
         if (!weights_file.is_open()) {
             std::cerr << "error opening file " << weights_file_name.c_str()
-            << "for writing weights. weights could not be saved!!"
-            << std::endl;
+                      << "for writing weights. weights could not be saved!!"
+                      << std::endl;
             return;
         }
         std::ofstream indices_file(indices_file_name.c_str());
         if (!indices_file.is_open()) {
             std::cerr << "error opening file " << indices_file_name.c_str()
-            << "for writing indices. weights could not be saved!!"
-            << std::endl;
+                      << "for writing indices. weights could not be saved!!"
+                      << std::endl;
             return;
         }
 
-        MixtureComponentSet::iterator it;
+        EstimationMixtureComponentSet::iterator it;
 
         for (it = mixture_components->begin(); it != mixture_components->end();
              it++) {
@@ -107,9 +108,45 @@ namespace DP_GMM {
         indices_file.close();
     }
 
+
+    void DPGMMLogger::writeDataToStream(EstimationMixtureComponentSet *mixture_components, std::ostream &stream) {
+        EstimationMixtureComponentSet::iterator it;
+
+        int num_dimensions = (*mixture_components->begin())->getMean().size();
+
+        stream << std::setw(20) << "Weights" << "\t" << std::setw(6 * num_dimensions + 5) << "Covariances" << "\t"
+               << "Mean" << std::endl;
+        std::string weights_empty_space(7, ' ');
+        std::string cov_empty_space(6 * num_dimensions + 5, ' ');
+        for (it = mixture_components->begin(); it != mixture_components->end();
+             it++) {
+
+            double weights_entry = (*it)->getComponentWeight();
+            stream << weights_entry << "\t" << std::endl;
+
+            EiVector mean = (*it)->getMean();
+            EiMatrix covariance = (*it)->getCovariance();
+            for (int j = 0; j < mean.size(); j++) {
+                double covariance_entry = covariance(j, 0);
+                stream << weights_empty_space << "\t" << std::setprecision(5) << covariance_entry << " ";
+                for (int i = 1; i < mean.size(); i++) {
+                    covariance_entry = covariance(j, i);
+                    stream << std::setprecision(5) << covariance_entry << " ";
+                }
+                stream << std::endl;
+            }
+
+            for (int j = 0; j < mean.size(); j++) {
+                double mean_entry = mean(j);
+                stream << weights_empty_space << "\t" << cov_empty_space << "\t" << mean_entry << std::endl;
+            }
+        }
+
+    }
+
 // TODO find better solution than double implementation come up with mixture component interface
-    void DPGMMLogger::writeData(GaussMixtureComponentSet &mixture_components,
-                                std::string output_file_name) {
+    void DPGMMLogger::writeDataToFile(GaussMixtureComponentSet &mixture_components,
+                                      std::string output_file_name) {
         std::string means_file_name = IOUtils::appendToFileName(
                 output_file_name.c_str(), "means");
         std::string cov_file_name = IOUtils::appendToFileName(
@@ -120,21 +157,21 @@ namespace DP_GMM {
         std::ofstream means_file(means_file_name.c_str());
         if (!means_file.is_open()) {
             std::cerr << "error opening file " << means_file_name.c_str()
-            << "for writing means. Means could not be saved!!" << std::endl;
+                      << "for writing means. Means could not be saved!!" << std::endl;
             return;
         }
         std::ofstream covariance_file(cov_file_name.c_str());
         if (!covariance_file.is_open()) {
             std::cerr << "error opening file " << cov_file_name.c_str()
-            << "for writing covariance. Covariances could not be saved!!"
-            << std::endl;
+                      << "for writing covariance. Covariances could not be saved!!"
+                      << std::endl;
             return;
         }
         std::ofstream weights_file(weights_file_name.c_str());
         if (!weights_file.is_open()) {
             std::cerr << "error opening file " << weights_file_name.c_str()
-            << "for writing weights. weights could not be saved!!"
-            << std::endl;
+                      << "for writing weights. weights could not be saved!!"
+                      << std::endl;
             return;
         }
 
@@ -163,6 +200,34 @@ namespace DP_GMM {
         weights_file.close();
     }
 
+    void DPGMMLogger::writeDataToStream(GaussMixtureComponentSet &mixture_components, std::ostream &stream) {
+        GaussMixtureComponentSet::iterator it;
+
+        int num_dimensions = (*mixture_components.begin())->mean.size();
+
+        stream << std::setw(9)  << "Weights" << "\t" << std::setw(6 * num_dimensions + 5) << "Covariances" << "\t"
+               << "Mean" << std::endl;
+        std::string weights_empty_space(7, ' ');
+        std::string cov_empty_space(6 * num_dimensions + 5, ' ');
+        for (it = mixture_components.begin(); it != mixture_components.end();
+             it++) {
+
+            double weights_entry = (*it)->comp_weight;
+            stream << std::setw(9) << std::setprecision(5) <<weights_entry << "\t";
+
+            EiVector mean = (*it)->mean;
+            EiMatrix covariance = (*it)->cov;
+            for (int j = 0; j < mean.size(); j++) {
+                double covariance_entry = covariance(j, 0);
+                for (int i = 0; i < mean.size(); i++) {
+                    covariance_entry = covariance(j, i);
+                    stream << std::setprecision(5) << covariance_entry << " ";
+                }
+                stream << "\t" << mean(j) << std::endl;
+            }
+        }
+    }
+
     void DPGMMLogger::writeHyperParams(HyperParameters *hyper_parameters,
                                        std::string output_file_name) {
         std::string hyeper_parameters_file_name = IOUtils::appendToFileName(
@@ -170,9 +235,9 @@ namespace DP_GMM {
         std::ofstream hyper_params_file(hyeper_parameters_file_name.c_str());
         if (!hyper_params_file.is_open()) {
             std::cerr << "error opening file "
-            << hyeper_parameters_file_name.c_str()
-            << "for writing hyperparameters. hyperparameters could not be saved!!"
-            << std::endl;
+                      << hyeper_parameters_file_name.c_str()
+                      << "for writing hyperparameters. hyperparameters could not be saved!!"
+                      << std::endl;
             return;
         }
 
@@ -205,14 +270,14 @@ namespace DP_GMM {
         std::ofstream means_file(means_file_name.c_str());
         if (!means_file.is_open()) {
             std::cerr << "error opening file " << means_file_name.c_str()
-            << "for writing means. Means could not be saved!!" << std::endl;
+                      << "for writing means. Means could not be saved!!" << std::endl;
             return;
         }
         std::ofstream covariance_file(cov_file_name.c_str());
         if (!covariance_file.is_open()) {
             std::cerr << "error opening file " << cov_file_name.c_str()
-            << "for writing covariance. Covariances could not be saved!!"
-            << std::endl;
+                      << "for writing covariance. Covariances could not be saved!!"
+                      << std::endl;
             return;
         }
         for (std::size_t comp_nbr = 0; comp_nbr < means.size(); comp_nbr++) {

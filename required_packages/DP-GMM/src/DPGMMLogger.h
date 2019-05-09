@@ -10,7 +10,7 @@
 
 
 #include "HyperParameters.h"
-#include "DPMixtureComponent.h"
+#include "EstimationMixtureComponent.h"
 
 
 namespace DP_GMM {
@@ -20,17 +20,21 @@ namespace DP_GMM {
 
         virtual ~DPGMMLogger();
 
-        void writeData(HyperParameters *hyper_parameters,
-                       MixtureComponentSet *mixture_components, int iteration_nbr);
+        void writeDataToFile(HyperParameters *hyper_parameters,
+                             EstimationMixtureComponentSet *mixture_components, int iteration_nbr);
 
-        void writeData(HyperParameters *hyper_parameters,
-                       MixtureComponentSet *mixture_components);
+        void writeDataToFile(HyperParameters *hyper_parameters,
+                             EstimationMixtureComponentSet *mixture_components);
 
-        void writeData(MixtureComponentSet *mixture_components);
+        void writeDataToFile(EstimationMixtureComponentSet *mixture_components);
 
-        static void writeData(MixtureComponentSet *mixture_components, std::string output_file_name);
+        static void writeDataToFile(EstimationMixtureComponentSet *mixture_components, std::string output_file_name);
 
-        static void writeData(GaussMixtureComponentSet &mixture_components, std::string output_file_name);
+        static void writeDataToStream(EstimationMixtureComponentSet *mixture_components, std::ostream &stream);
+
+        static void writeDataToFile(GaussMixtureComponentSet &mixture_components, std::string output_file_name);
+
+        static void writeDataToStream(GaussMixtureComponentSet &mixture_components, std::ostream &stream);
 
         static void writeHyperParams(HyperParameters *hyper_parameters, std::string output_file_name);
 

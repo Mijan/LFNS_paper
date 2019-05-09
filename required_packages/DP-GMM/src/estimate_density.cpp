@@ -20,7 +20,7 @@
 #include "EstimationOptions.h"
 #include "MatrixTypes.h"
 #include "HyperParameters.h"
-#include "DPMixtureComponent.h"
+#include "EstimationMixtureComponent.h"
 #include "DPGMMEstimator.h"
 #include "DataReader.h"
 #include "IOUtils.h"
@@ -48,15 +48,15 @@ int main(int argc, char *argv[]) {
 
     DP_GMM::DPGMMLogger logger(options.output_file_name,
                                options.print_frequency);
-    DP_GMM::MixtureComponentSet mixtures;
+    DP_GMM::EstimationMixtureComponentSet mixtures;
     if (options.read_hyper_params) {
         DP_GMM::HyperParameters hyper_parameters(data, rng, options.hyper_params_file_name);
         estimator.estimate(data, hyper_parameters, &mixtures, true, &logger);
-        logger.writeData(&hyper_parameters, &mixtures);
+        logger.writeDataToFile(&hyper_parameters, &mixtures);
     } else {
         DP_GMM::HyperParameters hyper_parameters(data, rng);
         estimator.estimate(data, hyper_parameters, &mixtures, true, &logger);
-        logger.writeData(&hyper_parameters, &mixtures);
+        logger.writeDataToFile(&hyper_parameters, &mixtures);
     }
 
     return 1;

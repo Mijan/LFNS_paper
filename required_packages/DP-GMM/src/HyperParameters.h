@@ -11,7 +11,7 @@
 #include <MatrixTypes.h>
 
 #include "LogConcaveFunction.h"
-#include "DPMixtureComponent.h"
+#include "EstimationMixtureComponent.h"
 #include "BoostDistributions.h"
 #include "AdaptiveRejectionSampler.h"
 
@@ -40,13 +40,13 @@ namespace DP_GMM {
 
         void updateAlpha(int num_samples, int num_components);
 
-        void updateBeta(const MixtureComponentSet &components);
+        void updateBeta(const EstimationMixtureComponentSet &components);
 
-        void updateXi(const MixtureComponentSet &components);
+        void updateXi(const EstimationMixtureComponentSet &components);
 
-        void updateW(const MixtureComponentSet &components);
+        void updateW(const EstimationMixtureComponentSet &components);
 
-        void updateRho(const MixtureComponentSet &components);
+        void updateRho(const EstimationMixtureComponentSet &components);
 
         void printHyperParams();
 

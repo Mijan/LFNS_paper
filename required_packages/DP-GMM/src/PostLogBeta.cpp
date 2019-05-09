@@ -9,14 +9,14 @@
 
 namespace DP_GMM {
 
-    PostLogBeta::PostLogBeta(const MixtureComponentSet &components,
+    PostLogBeta::PostLogBeta(const EstimationMixtureComponentSet &components,
                              const EiMatrix &W, int D) :
             LogConcaveFunction(), _K(components.size()), _components(components), _W(
             W), _lu_W(W), _D(D) {
         _setRange(log(D), log(D - 1 + 0.001), log(100 * D));
     }
 
-    PostLogBeta::PostLogBeta(const MixtureComponentSet &components,
+    PostLogBeta::PostLogBeta(const EstimationMixtureComponentSet &components,
                              const EiMatrix &W, int D, double feasible_point) :
             LogConcaveFunction(), _K(components.size()), _components(components), _W(
             W), _lu_W(W), _D(D) {
@@ -39,10 +39,10 @@ namespace DP_GMM {
 
         double p = 0.0;
 
-        for (MixtureComponentSet::const_iterator it = _components.begin();
+        for (EstimationMixtureComponentSet::const_iterator it = _components.begin();
              it != _components.end(); it++) {
 
-            DPMixtureComponentPtr comp = *it;
+            EstimationMixtureComponentPtr comp = *it;
             double tr = (_W * comp->getPrecision()).trace();
 
             p += (beta / 2.0)

@@ -20,14 +20,14 @@ namespace DP_GMM {
 
     void DPGMMEstimator::estimate(const EiMatrix &data,
                                   HyperParameters &hyper_parameters,
-                                  MixtureComponentSet *mixture_components, bool verbose,
+                                  EstimationMixtureComponentSet *mixture_components, bool verbose,
                                   DPGMMLogger *logger) {
 
         _estimate(data, hyper_parameters, mixture_components, verbose, logger);
     }
 
     HyperParameters DPGMMEstimator::estimate(const Data &data,
-                                             MixtureComponentSet *mixture_components, bool verbose,
+                                             EstimationMixtureComponentSet *mixture_components, bool verbose,
                                              DPGMMLogger *logger) {
 
         HyperParameters hyper_parameters(data, _r);
@@ -37,7 +37,7 @@ namespace DP_GMM {
 
     void DPGMMEstimator::_estimate(const Data &data,
                                    HyperParameters &hyper_parameters,
-                                   MixtureComponentSet *mixture_components, bool verbose,
+                                   EstimationMixtureComponentSet *mixture_components, bool verbose,
                                    DPGMMLogger *logger) {
 
         int num_samples = (int) data.rows();
@@ -48,9 +48,9 @@ namespace DP_GMM {
         hyper_parameters.updateAlpha(num_samples,
                                      indicator_parameters.getNumberComponents());
 
-        for (MixtureComponentSet::iterator it = mixture_components->begin();
+        for (EstimationMixtureComponentSet::iterator it = mixture_components->begin();
              it != mixture_components->end(); it++) {
-            DPMixtureComponentPtr comp = *it;
+            EstimationMixtureComponentPtr comp = *it;
             comp->updateMixtureParameters(hyper_parameters.getXi(),
                                           hyper_parameters.getRho(), hyper_parameters.getW(),
                                           hyper_parameters.getBeta());
@@ -79,13 +79,13 @@ namespace DP_GMM {
                 }
             }
             if (logger != NULL) {
-                logger->writeData(&hyper_parameters, mixture_components, it);
+                logger->writeDataToFile(&hyper_parameters, mixture_components, it);
             }
             hyper_parameters.updateAlpha(num_samples,
                                          indicator_parameters.getNumberComponents());
-            for (MixtureComponentSet::iterator it = mixture_components->begin();
+            for (EstimationMixtureComponentSet::iterator it = mixture_components->begin();
                  it != mixture_components->end(); it++) {
-                DPMixtureComponentPtr comp = *it;
+                EstimationMixtureComponentPtr comp = *it;
                 comp->updateMixtureParameters(hyper_parameters.getXi(),
                                               hyper_parameters.getRho(), hyper_parameters.getW(),
                                               hyper_parameters.getBeta());

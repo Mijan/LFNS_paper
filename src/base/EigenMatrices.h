@@ -19,15 +19,15 @@ namespace base {
     typedef Eigen::Block<const Eigen::MatrixXd, 1, Eigen::Dynamic> EiConstSubVectorRow;
     typedef Eigen::Block<const Eigen::MatrixXd, Eigen::Dynamic, 1> EiConstSubVectorCol;
 
-    typedef Eigen::Block<Eigen::MatrixXd> EiSubMatrix;
-    typedef Eigen::Ref<Eigen::MatrixXd> EiMatrixRef;
+    typedef Eigen::Block <Eigen::MatrixXd> EiSubMatrix;
+    typedef Eigen::Ref <Eigen::MatrixXd> EiMatrixRef;
     typedef Eigen::Ref<const Eigen::MatrixXd> EiConstMatrixRef;
     typedef Eigen::Ref<Eigen::VectorXd, 0, Eigen::InnerStride<> > EiVectorRef;
     typedef Eigen::Ref<const Eigen::VectorXd, 0, Eigen::InnerStride<> > EiConstVectorRef;
-    typedef Eigen::PartialPivLU<Eigen::MatrixXd> EiLU;
+    typedef Eigen::PartialPivLU <Eigen::MatrixXd> EiLU;
     typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> EiDiag;
 
-    typedef Eigen::LLT<Eigen::MatrixXd> EiCholesky;
+    typedef Eigen::LLT <Eigen::MatrixXd> EiCholesky;
 }
 #endif //LFNS_EIGENMATRICES_H
 

@@ -13,16 +13,16 @@
 #include <boost/unordered_set.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "DPMixtureComponent.h"
+#include "EstimationMixtureComponent.h"
 #include "MatrixTypes.h"
 
 namespace DP_GMM {
 
     class PostLogBeta : public LogConcaveFunction {
     public:
-        PostLogBeta(const MixtureComponentSet &components, const EiMatrix &W, int D);
+        PostLogBeta(const EstimationMixtureComponentSet &components, const EiMatrix &W, int D);
 
-        PostLogBeta(const MixtureComponentSet &components, const EiMatrix &W, int D, double feasible_point);
+        PostLogBeta(const EstimationMixtureComponentSet &components, const EiMatrix &W, int D, double feasible_point);
 
         virtual ~PostLogBeta();
 
@@ -30,7 +30,7 @@ namespace DP_GMM {
 
     private:
         int _K;
-        const MixtureComponentSet &_components;
+        const EstimationMixtureComponentSet &_components;
         const EiMatrix &_W;
         EiLU _lu_W;
         int _D;
