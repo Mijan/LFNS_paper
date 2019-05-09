@@ -126,14 +126,14 @@ add_executable(lfns_mpi lfns_mpi.cpp LFNSSetup.cpp LFNSSetup.h GeneralSetup.cpp 
 add_executable(simulate simulate.cpp SimulationSetup.cpp SimulationSetup.h GeneralSetup.cpp GeneralSetup.h)
 add_executable(evaluate_likelihood evaluate_likelihood.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h)
 #add_executable(mcmc mcmc.cpp ${MCMC_SOURCE_FILES} GeneralSetup.cpp GeneralSetup.h mcmc.cpp MCMCSetup.cpp MCMCSetup.h)
-add_executable(tim tim_problem.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h SimulationSetup.cpp SimulationSetup.h LikelihoodSetup.cpp LikelihoodSetup.h)
+#add_executable(tim tim_problem.cpp LikelihoodSetup.cpp LikelihoodSetup.h GeneralSetup.cpp GeneralSetup.h SimulationSetup.cpp SimulationSetup.h LikelihoodSetup.cpp LikelihoodSetup.h)
 
 target_link_libraries(lfns_seq base models particle_filter lfns lfnsSeq options io)
 target_link_libraries(lfns_mpi base models particle_filter lfns lfnsMpi options io)
 target_link_libraries(simulate base models simulator options io)
 target_link_libraries(evaluate_likelihood base models simulator options particle_filter io)
 target_link_libraries(mcmc ${Boost_LIBRARIES} base models sampler particle_filter options io)
-target_link_libraries(tim base models particle_filter lfns lfnsSeq options io)
+#target_link_libraries(tim base models particle_filter lfns lfnsSeq options io)
 
 install(TARGETS mcmc lfns_seq lfns_mpi simulate evaluate_likelihood DESTINATION bin)
 install(TARGETS base models simulator options io particle_filter sampler lfns lfnsSeq lfnsMpi DESTINATION lib)
