@@ -96,6 +96,8 @@ namespace sampler {
 
         double getTransformedLogLikelihood(const base::EiVector &trans_sample) override;
 
+        void setRng(base::RngPtr rng) override;
+
     private:
         base::UniformRealDistribution _dist;
         DensityEstimation_ptr _current_sampler;

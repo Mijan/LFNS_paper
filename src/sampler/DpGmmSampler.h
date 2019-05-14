@@ -104,7 +104,6 @@ namespace boost {
         save_construct_data(Archive &ar, const sampler::DpGmmSampler *t, const unsigned int file_version) {
             // save data required to construct instance
 
-
             int sample_size = t->getSamplerDimension();
             int num_dp_it = t->_num_dp_gmm_iteration;
             ar << sample_size;

@@ -38,6 +38,8 @@ namespace sampler {
 
         virtual void writeToStream(std::ostream &stream);
 
+        void setRng(base::RngPtr rng) override;
+
     protected:
         std::vector<std::vector<double> > _means;
         base::EiVector _weights;

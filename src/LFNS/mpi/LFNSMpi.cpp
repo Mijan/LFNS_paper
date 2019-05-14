@@ -105,6 +105,7 @@ namespace lfns {
             _logger.epsilonUpdated(_epsilon);
 
             time_t tic = clock();
+            std::cout <<"number of live samples: " << _live_points.numberParticles() << std::endl;
             _sampler.updateLiveSamples(_live_points);
             time_t toc = clock();
             _logger.samplerUpdated(_sampler, toc - tic);

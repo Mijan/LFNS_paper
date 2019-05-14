@@ -8,7 +8,7 @@
 namespace sampler {
     DpGmmSampler::DpGmmSampler(base::RngPtr rng, DpGmmSamplerData data) : DensityEstimation(rng, data),
                                                                           _mixture_components(),
-                                                                          _dist(0, 1),                                                                           _hyper_params_set(false),
+                                                                          _dist(0, 1), _hyper_params_set(false),
                                                                           _estimator(rng, data.num_dp_iterations),
                                                                           _hyper_parameters(
                                                                                   base::EiMatrix(1, 1), rng),
@@ -17,17 +17,20 @@ namespace sampler {
 
 
     DpGmmSampler::DpGmmSampler(base::RngPtr rng, DpGmmSamplerData data,
-                               std::vector<DP_GMM::GaussMixtureComponent> mixture_components) : DensityEstimation(rng, data),
-                                                                                      _mixture_components(
-                                                                                              mixture_components),
-                                                                                      _dist(0, 1),                                                                                       _hyper_params_set(true),
-                                                                                      _estimator(rng,
-                                                                                                 data.num_dp_iterations),
-                                                                                      _hyper_parameters(
-                                                                                              base::EiMatrix(1, 1),
-                                                                                              rng),
-                                                                                      _num_dp_gmm_iteration(
-                                                                                              data.num_dp_iterations) {}
+                               std::vector<DP_GMM::GaussMixtureComponent> mixture_components) : DensityEstimation(rng,
+                                                                                                                  data),
+                                                                                                _mixture_components(
+                                                                                                        mixture_components),
+                                                                                                _dist(0, 1),
+                                                                                                _hyper_params_set(true),
+                                                                                                _estimator(rng,
+                                                                                                           data.num_dp_iterations),
+                                                                                                _hyper_parameters(
+                                                                                                        base::EiMatrix(
+                                                                                                                1, 1),
+                                                                                                        rng),
+                                                                                                _num_dp_gmm_iteration(
+                                                                                                        data.num_dp_iterations) {}
 
     DpGmmSampler::~DpGmmSampler() {}
 
@@ -37,9 +40,21 @@ namespace sampler {
 
     void DpGmmSampler::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
         DP_GMM::EstimationMixtureComponentSet mixtures(0);
+        std::cout << "number samples: " << transformed_samples.rows();
         if (_hyper_params_set) {
+            std::cout << "hyper_parmeters already set!" << std::endl;
+            std::cout << "a couple of transformed sample: " << std::endl;
+            std::cout << transformed_samples.row(0) << std::endl;
+            std::cout << transformed_samples.row(1) << std::endl;
+            std::cout << transformed_samples.row(2) << std::endl;
+            _hyper_parameters.printHyperParams();
             _estimator.estimate(transformed_samples, _hyper_parameters, &mixtures);
         } else {
+            std::cout << "hyper_parmeters not set!" << std::endl;
+            std::cout << "a couple of transformed sample: " << std::endl;
+            std::cout << transformed_samples.row(0) << std::endl;
+            std::cout << transformed_samples.row(1) << std::endl;
+            std::cout << transformed_samples.row(2) << std::endl;
             _hyper_parameters = _estimator.estimate(transformed_samples, &mixtures);
             _hyper_params_set = true;
         }
@@ -53,7 +68,7 @@ namespace sampler {
     }
 
     void DpGmmSampler::sampleTransformed(base::EiVector &trans_sample) {
-        const DP_GMM::GaussMixtureComponent* comp;
+        const DP_GMM::GaussMixtureComponent *comp;
         std::vector<DP_GMM::GaussMixtureComponent>::iterator it = _mixture_components.begin();
         double u = _dist(*_rng);
         double w = 0.0;
@@ -74,7 +89,7 @@ namespace sampler {
 
         std::vector<DP_GMM::GaussMixtureComponent>::const_iterator it;
         for (it = _mixture_components.begin(); it != _mixture_components.end(); it++) {
-            const DP_GMM::GaussMixtureComponent* comp = &*it;
+            const DP_GMM::GaussMixtureComponent *comp = &*it;
             likelihood += comp->comp_weight
                           * base::MultivariateNormal::mvnormPrepared(
                     trans_sample.size(), trans_sample, comp->mean, comp->precision,

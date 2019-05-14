@@ -62,4 +62,8 @@ namespace sampler {
         stream << "KernelDensityEstimation with kernel:" << std::endl;
         _kernel->writeToStream(stream);
     }
+
+    void KernelDensityEstimation::setRng(base::RngPtr rng){
+        DensityEstimation::setRng(rng);
+    }
 }

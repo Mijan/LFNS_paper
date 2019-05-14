@@ -125,4 +125,10 @@ namespace sampler {
         return log_likelihood;
     }
 
+
+    void RejectionSupportSampler::setRng(base::RngPtr rng) {
+        DensityEstimation::setRng(rng);
+        _current_sampler->setRng(rng);
+    }
+
 } /* namespace sampler */
