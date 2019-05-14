@@ -40,21 +40,9 @@ namespace sampler {
 
     void DpGmmSampler::updateTransformedDensitySamples(const base::EiMatrix &transformed_samples) {
         DP_GMM::EstimationMixtureComponentSet mixtures(0);
-        std::cout << "number samples: " << transformed_samples.rows();
         if (_hyper_params_set) {
-            std::cout << "hyper_parmeters already set!" << std::endl;
-            std::cout << "a couple of transformed sample: " << std::endl;
-            std::cout << transformed_samples.row(0) << std::endl;
-            std::cout << transformed_samples.row(1) << std::endl;
-            std::cout << transformed_samples.row(2) << std::endl;
-            _hyper_parameters.printHyperParams();
             _estimator.estimate(transformed_samples, _hyper_parameters, &mixtures);
         } else {
-            std::cout << "hyper_parmeters not set!" << std::endl;
-            std::cout << "a couple of transformed sample: " << std::endl;
-            std::cout << transformed_samples.row(0) << std::endl;
-            std::cout << transformed_samples.row(1) << std::endl;
-            std::cout << transformed_samples.row(2) << std::endl;
             _hyper_parameters = _estimator.estimate(transformed_samples, &mixtures);
             _hyper_params_set = true;
         }

@@ -116,7 +116,7 @@ namespace sampler {
     double RejectionSupportSampler::getTransformedLogLikelihood(const base::EiVector &trans_sample) {
         if (!_current_sampler) {
             throw std::runtime_error(
-                    "Tried to compute the loglikelihood from rejection sampler without having set the current sampler!");
+                    "Tried to compute the log-likelihood from rejection sampler without having set the current sampler!");
         }
         double log_likelihood;
         double log_like = _current_sampler->getTransformedLogLikelihood(trans_sample);

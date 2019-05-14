@@ -116,7 +116,6 @@ namespace sampler {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            std::cout << "sampling RejectionSupportSampler" << std::endl;
             ar & boost::serialization::base_object<sampler::DensityEstimation>(*this);
             ar & _log_rejection_const;
             ar & _rejection_quantile;
