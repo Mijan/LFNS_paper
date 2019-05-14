@@ -7,7 +7,7 @@ if [ ! -d ./build ]; then
 fi
 cd build
 printf "\nCalling CMake\n"
-cmake -DCMAKE_INSTALL_PREFIX=$/usr/local/ ..
+cmake -DCMAKE_INSTALL_PREFIX=$HOME/local/ ..
 printf "\nCalling Make\n"
 make
 make install
