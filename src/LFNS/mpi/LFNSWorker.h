@@ -51,9 +51,7 @@ namespace lfns {
         class LFNSWorker {
 
         public:
-            LFNSWorker(std::size_t my_rank, int num_parameters, LogLikelihodEvalFct_ptr log_likelihood_evaluation,
-                       LFNSSettings &settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
-                       sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation);
+            LFNSWorker(std::size_t my_rank, int num_parameters, LogLikelihodEvalFct_ptr log_likelihood_evaluation);
 
             virtual ~LFNSWorker();
 

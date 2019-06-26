@@ -95,13 +95,13 @@ namespace lfns {
     void
     LFNS::setSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng) {
         _sampler = std::make_shared<LFNSSampler>(prior, density_estimation, rng);
+        _num_parameters = prior->getSamplerDimension();
     }
 
     void LFNS::setLogParams(std::vector<int> log_params) { _sampler->setLogParams(log_params); }
 
-    void LFNS::setThresholdPointer(double * epsilon_ptr){
+    void LFNS::setThresholdPointer(double *epsilon_ptr) {
         _epsilon_ptr = epsilon_ptr;
-
     }
 
     bool LFNS::_postIteration() {

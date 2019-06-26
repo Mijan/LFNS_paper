@@ -12,7 +12,7 @@ namespace lfns {
                 : computed_particles(), used_process(), clocks_for_particles(), clocks_for_sampling(),
                   log_likelihoods(), process_finished(),
                   ptr_clocks_for_particles(), ptr_clocks_for_sampling(), ptr_log_likelihoods(), ptr_process_finished(),
-                  particle_requests(),                  _finished_request_queue() {}
+                  particle_requests(), _finished_request_queue() {}
 
         RequestQueue::~RequestQueue() {}
 

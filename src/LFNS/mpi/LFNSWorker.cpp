@@ -7,9 +7,7 @@
 namespace lfns {
     namespace mpi {
         LFNSWorker::LFNSWorker(std::size_t my_rank, int num_parameters,
-                               LogLikelihodEvalFct_ptr log_likelihood_evaluation, LFNSSettings &lfns_settings,
-                               sampler::SamplerSettings &sampler_settings, base::RngPtr rng, sampler::Sampler_ptr prior,
-                               sampler::DensityEstimation_ptr density_estimation) :
+                               LogLikelihodEvalFct_ptr log_likelihood_evaluation) :
                 _my_rank(my_rank), _num_parameters(num_parameters), _particle(new double[num_parameters]),
                 _epsilon(-DBL_MAX), _sampler_size(1), _stopping_flag_request(new bmpi::request()),
                 _mpi_stopping_criterion(std::make_shared<MPIStoppingCriterion>(_stopping_flag_request)),
@@ -136,7 +134,8 @@ namespace lfns {
 
 
         void
-        LFNSWorker::setSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng) {
+        LFNSWorker::setSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation,
+                               base::RngPtr rng) {
             _sampler = std::make_shared<LFNSSampler>(prior, density_estimation, rng);
         }
 
