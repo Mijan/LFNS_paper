@@ -40,8 +40,7 @@ namespace sampler {
     std::vector<double> &DensityEstimation::sample() {
         do {
             sampleTransformed(_trans_sample);
-            _trans_sample = (_evs * _trans_sample.cast<std::complex<double> >()).real();
-            _trans_sample += _mean;
+            retransformSample(_trans_sample);
 
         } while (!isSampleFeasible(_trans_sample));
         memcpy(_sample.data(), _trans_sample.real().data(), sizeof(double) * _trans_sample.size());
@@ -50,8 +49,18 @@ namespace sampler {
 
     double DensityEstimation::getLogLikelihood(const std::vector<double> &sample) {
         _trans_sample = Eigen::Map<const base::EiVector>(sample.data(), sample.size());
-        _trans_sample -= _mean;
-        _trans_sample = _inv_evs.real() * _trans_sample;
+        transformSample(_trans_sample);
         return getTransformedLogLikelihood(_trans_sample);
+    }
+
+
+    void DensityEstimation::transformSample(base::EiVector &sample) {
+        sample -= _mean;
+        sample = _inv_evs.real() * sample;
+    }
+
+    void DensityEstimation::retransformSample(base::EiVector &sample) {
+        sample = (_evs * sample.cast<std::complex<double> >()).real();
+        sample += _mean;
     }
 }

@@ -131,4 +131,10 @@ namespace sampler {
         _current_sampler->setRng(rng);
     }
 
+
+    void RejectionSupportSampler::setLogScale(int param_index){
+        Sampler::setLogScale(param_index);
+        _current_sampler->setLogScale(param_index);
+    }
+
 } /* namespace sampler */

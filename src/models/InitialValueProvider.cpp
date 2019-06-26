@@ -40,7 +40,9 @@ namespace models {
                 throw std::runtime_error(os.str());
             }
             *t_0 = _initial_time.Eval();
-            if (_perturbation_fct) { (*_perturbation_fct)(nullptr, *t_0); }
+            if (_perturbation_fct) {
+                (*_perturbation_fct)(nullptr, *t_0);
+            }
             _createRandomNumbers();
             for (std::size_t state_index = 0; state_index < state_0->size(); state_index++) {
                 (*state_0)[_output_state_mapping[state_index]] = _initial_state_equations[state_index].Eval();

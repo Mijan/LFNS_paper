@@ -1,20 +1,14 @@
 <model>
-	<type>DET</type>
-	<model>./antithetic_model.txt</model>
-	<initialvalue>./antithetic_initial.txt</initialvalue>
+	<type>HYBRID</type>
+	<model>./antithetic_model_2.txt</model>
+	<initialvalue>./antithetic_initial_2.txt</initialvalue>
 	<measurement>./antithetic_measurement.txt</measurement>
-    <detspecies>P</detspecies>
+    <detspecies>A C</detspecies>
 </model>
-<parameters>
-    <fixedparams>
-        <parameters>gamma k gamma_P k_P</parameters>
-        <values>1 0.5 0.1 1</values>
-    </fixedparams>
-</parameters>
 <Simulation>
 	<experiments>0</experiments>
 	<initialtime>0</initialtime>
-	<finaltime>100</finaltime>
-	<interval>0.05</interval>
-    <parameter>2 4 1 10</parameter>
+	<finaltime>10</finaltime>
+	<interval>0.005</interval>
+    <parameter>1 1 1 1</parameter>
 </Simulation>

@@ -11,11 +11,12 @@
 #include "../base/MathUtils.h"
 
 namespace lfns {
-    LFNS::LFNS(LFNSSettings &lfns_settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng)
+    LFNS::LFNS(LFNSSettings &lfns_settings)
             : _settings(lfns_settings), _live_points(), _dead_points(),
-              _post_estimator(lfns_settings.N, lfns_settings.r), _sampler(lfns_settings, sampler_settings, rng),
-              _logger(lfns_settings), _resume_run(false),
-              _epsilon(-DBL_MAX), _num_parameters(sampler_settings.param_names.size()) {}
+              _post_estimator(std::make_shared<PosteriorEstimator>(lfns_settings.N, lfns_settings.r)),
+              _sampler(nullptr),
+              _logger(lfns_settings), _resume_run(false), _epsilon(-DBL_MAX), _epsilon_ptr(&_epsilon),
+              _num_parameters(-1) {}
 
     LFNS::~LFNS() {}
 
@@ -81,12 +82,32 @@ namespace lfns {
 
     }
 
-    double *LFNS::getPointerToThreshold() { return &_epsilon; }
+    double *LFNS::getPointerToThreshold() { return _epsilon_ptr; }
+
+    bool LFNS::checkIfInitialized(std::ostream &os) {
+        if (!_sampler.get()) {
+            os << "LFNS_Sampler has not been set!" << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    void
+    LFNS::setSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng) {
+        _sampler = std::make_shared<LFNSSampler>(prior, density_estimation, rng);
+    }
+
+    void LFNS::setLogParams(std::vector<int> log_params) { _sampler->setLogParams(log_params); }
+
+    void LFNS::setThresholdPointer(double * epsilon_ptr){
+        _epsilon_ptr = epsilon_ptr;
+
+    }
 
     bool LFNS::_postIteration() {
-        PosteriorQuantitites post_quant = _post_estimator.estimatePosteriorQuantities(_live_points, _dead_points);
+        PosteriorQuantitites post_quant = _post_estimator->estimatePosteriorQuantities(_live_points, _dead_points);
         _logger.logIterationResults(post_quant);
-        _post_estimator.writeToFile(_settings.output_file, _live_points, _dead_points, post_quant);
+        _post_estimator->writeToFile(_settings.output_file, _live_points, _dead_points, post_quant);
         std::stringstream ss;
         ss << "live_points_" << _logger.iterationNumber();
         _live_points.writeToFile(_settings.output_file, ss.str());

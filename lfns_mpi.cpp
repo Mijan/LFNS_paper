@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
 
 void runMaster(LFNSSetup &lfns_setup) {
 
-    lfns::mpi::LFNSMpi lfns(lfns_setup.lfns_settings, lfns_setup.sampler_settings, lfns_setup.rng,
-                            num_tasks);
+    lfns::mpi::LFNSMpi lfns(lfns_setup.lfns_settings, num_tasks);
+    lfns.setSampler(lfns_setup.prior, lfns_setup.density_estimation, lfns_setup.rng);
     if (!lfns_setup.lfns_settings.previous_log_file.empty()) {
         lfns.resumeRum(lfns_setup.lfns_settings.previous_log_file);
     }
@@ -79,7 +79,9 @@ void runWorker(LFNSSetup &lfns_setup) {
 
     lfns::mpi::LFNSWorker worker(my_rank, lfns_setup.full_models.front()->getUnfixedParamteters().size(),
                                  lfns_setup.mult_like_eval.getLogLikeFun(), lfns_setup.lfns_settings,
-                                 lfns_setup.sampler_settings, lfns_setup.rng);
+                                 lfns_setup.sampler_settings, lfns_setup.rng, lfns_setup.prior,
+                                 lfns_setup.density_estimation);
+    worker.setSampler(lfns_setup.prior, lfns_setup.density_estimation, lfns_setup.rng);
 
     for (int i = 0; i < lfns_setup.particle_filters.size(); i++) {
         lfns_setup.simulators[i]->addStoppingCriterion(worker.getStoppingFct());

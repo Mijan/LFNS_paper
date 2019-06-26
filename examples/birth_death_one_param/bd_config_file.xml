@@ -1,5 +1,5 @@
 <model>
-	<type>STOCH</type>
+	<type>DET</type>
 	<model>./bd_model.txt</model>
 	<initialvalue>./bd_initial.txt</initialvalue>
 	<measurement>./bd_measurement.txt</measurement>

@@ -31,6 +31,10 @@
 
 
 namespace sampler {
+    typedef std::function<double(const std::vector<double> &)> LogLikelihodEvalFct;
+    typedef std::shared_ptr<LogLikelihodEvalFct> LogLikelihodEvalFct_ptr;
+
+
     class SamplerData {
     public:
         SamplerData(int n) : bounds(n, std::pair<double, double>(-DBL_MAX, DBL_MAX)) {}
@@ -68,6 +72,8 @@ namespace sampler {
 
         virtual void updateSeed(int seed) { _rng->seed(seed); }
 
+        virtual void updateLogLikelihoodFct(LogLikelihodEvalFct_ptr fct_ptr) {}
+
         bool isSampleFeasible(const std::vector<double> &sample) {
             for (std::size_t i = 0; i < sample.size(); i++) {
                 if (sample[i] < _bounds[i].first || sample[i] > _bounds[i].second) { return false; }
@@ -92,6 +98,18 @@ namespace sampler {
         }
 
         virtual void setRng(base::RngPtr rng) { _rng = rng; }
+
+        virtual void setLogScale(int param_index) {
+            if (_bounds[param_index].first <= 0 || _bounds[param_index].second <= 0) {
+                std::stringstream ss;
+                ss << "Tried to set scale for parameter number " << param_index
+                   << " to log, but original bounds is already " << _bounds[param_index].first << ", "
+                   << _bounds[param_index].second << std::endl;
+                throw std::runtime_error(ss.str());
+            }
+            _bounds[param_index].first = std::log10(_bounds[param_index].first);
+            _bounds[param_index].second = std::log10(_bounds[param_index].second);
+        }
 
     protected:
 

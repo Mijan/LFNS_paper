@@ -57,6 +57,11 @@ namespace lfns {
                     stream << "An ellipsoid sampler will be used.";
                     break;
                 }
+                case SLICE: {
+                    stream << "A slice sampler will be used.";
+                    break;
+                }
+
             }
             if (previous_log_file.size() > 0) {
                 stream << "\nA previous log file was provided:\t" << previous_log_file

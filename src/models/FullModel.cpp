@@ -172,7 +172,7 @@ namespace models {
 
     void FullModel::evaluateInput(const double *state, double t) {
         if (!_inputs.input_pram_indices.empty()) {
-            for (int index : _inputs.input_pram_indices) { _inputs.modified_parameter[index] = _parameter[index]; }
+            for (int index : _inputs.input_pram_indices) { _inputs.modified_parameter[index] = 0;}//_parameter[index]; }
             for (InputPulse &input : _inputs.pulses) {
                 if (input.pulseActive(t)) {
                     _inputs.modified_parameter[input.parameter_index] += input._input_strength;

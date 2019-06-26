@@ -44,17 +44,20 @@ int runLFNS(LFNSSetup &lfns_setup) {
     model_summary_file_stream << model_summary_stream.str();
     model_summary_file_stream.close();
 
+    lfns::seq::LFNSSeq lfns(lfns_setup.lfns_settings, lfns_setup.mult_like_eval.getLogLikeFun());
+    lfns.setThresholdPointer(&lfns_setup.threshold);
+    lfns.setSampler(lfns_setup.prior, lfns_setup.density_estimation, lfns_setup.rng);
+    lfns.setLogParams(lfns_setup.sampler_settings.getLogParams());
 
-    lfns::seq::LFNSSeq lfns(lfns_setup.lfns_settings, lfns_setup.sampler_settings, lfns_setup.rng,
-                            lfns_setup.mult_like_eval.getLogLikeFun());
+
     if (!lfns_setup.lfns_settings.previous_log_file.empty()) {
         lfns.resumeRum(lfns_setup.lfns_settings.previous_log_file);
     }
     if (lfns_setup.particle_filter_settings.use_premature_cancelation) {
         for (particle_filter::ParticleFilter_ptr filter : lfns_setup.particle_filters) {
-            filter->setThresholdPtr(lfns.getPointerToThreshold());
+            filter->setThresholdPtr(&lfns_setup.threshold);
         }
-        lfns_setup.mult_like_eval.setThresholdPtr(lfns.getPointerToThreshold());
+        lfns_setup.mult_like_eval.setThresholdPtr(&lfns_setup.threshold);
     }
 
     lfns.runLFNS();

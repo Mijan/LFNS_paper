@@ -15,10 +15,9 @@
 namespace lfns {
     class LFNSSampler {
     public:
-        LFNSSampler(sampler::SamplerSettings, sampler::Sampler_ptr prior,
-                    sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng);
+        LFNSSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng);
 
-        LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng);
+//        LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng);
 
         virtual ~LFNSSampler();
 
@@ -36,6 +35,8 @@ namespace lfns {
 
         sampler::DensityEstimation_ptr getDensityEstimation();
 
+        void setLogParams(std::vector<int> log_params);
+
     private:
         base::RngPtr _rng;
         sampler::Sampler_ptr _prior;
@@ -46,8 +47,9 @@ namespace lfns {
         std::vector<int> _log_params;
 
         std::vector<double> &_scaleSample(std::vector<double> &sample);
-
     };
+
+    typedef std::shared_ptr<LFNSSampler> LFNSSampler_ptr;
 }
 
 

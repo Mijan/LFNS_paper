@@ -6,62 +6,53 @@ Output file: /home/jan/crypt/CLionProjects/LFNS/examples/antithetic_model/result
 
 Parameters for simulation:
 Name         simulation value
-   mu                       2
-delta                       4
-  eta                       1
-theta                      10
+k1                       1
+k2                       1
+k3                       1
+k4                       1
 
 Experiments for simulation: 0, 
 
 ---------- Model Settings ----------
-Model file:	/home/jan/crypt/CLionProjects/LFNS/examples/antithetic_model/./antithetic_model.txt
-Initial value file:	/home/jan/crypt/CLionProjects/LFNS/examples/antithetic_model/./antithetic_initial.txt
+Model file:	/home/jan/crypt/CLionProjects/LFNS/examples/antithetic_model/./antithetic_model_2.txt
+Initial value file:	/home/jan/crypt/CLionProjects/LFNS/examples/antithetic_model/./antithetic_initial_2.txt
 Measurement file:	/home/jan/crypt/CLionProjects/LFNS/examples/antithetic_model/./antithetic_measurement.txt
 
-An ODE simulator will be used
+A HYBRID simulator will be used
 Model parameters 
-      k            fixed to 0.5
-  gamma              fixed to 1
-    k_P              fixed to 1
-gamma_P            fixed to 0.1
-     mu
-  delta
-    eta
-  theta
+k1
+k2
+k3
+k4
 
 
 
 -----------   Model   -----------
-Parameters: k gamma k_P gamma_P mu delta eta theta 
+Parameters: k1 k2 k3 k4 
 
-Species: mRNA P z1 z2 
+Species: A B C D 
 
 
-Reaction  0:	Propencity:        k*z1 		Stoichiometry: mRNA +1, 
-Reaction  1:	Propencity:  gamma*mRNA 		Stoichiometry: mRNA -1, 
-Reaction  2:	Propencity:    k_P*mRNA 		Stoichiometry: P +1, 
-Reaction  3:	Propencity:   gamma_P*P 		Stoichiometry: P -1, 
-Reaction  4:	Propencity:          mu 		Stoichiometry: z1 +1, 
-Reaction  5:	Propencity:    delta*z1 		Stoichiometry: z1 -1, 
-Reaction  6:	Propencity:     theta*P 		Stoichiometry: z2 +1, 
-Reaction  7:	Propencity:    delta*z2 		Stoichiometry: z2 -1, 
-Reaction  8:	Propencity:   eta*z1*z2 		Stoichiometry: z1 -1, z2 -1, 
+Reaction  0:	Propencity:  k1*A*B 		Stoichiometry: A -1, B +1, 
+Reaction  1:	Propencity:  k2*B*C 		Stoichiometry: B -1, C +1, 
+Reaction  2:	Propencity:  k3*C*D 		Stoichiometry: C -1, D +1, 
+Reaction  3:	Propencity:  k4*A*D 		Stoichiometry: A +1, D -1, 
 
 
 Ode equations:
-(d mRNA)/dt = (k*z1)-(gamma * mRNA) 
-   (d P)/dt = (k_P * mRNA)-(gamma_P * P) 
-  (d z1)/dt = (mu)-(delta * z1)-(eta * z1 * z2) 
-  (d z2)/dt = (theta * P)-(delta * z2)-(eta * z1 * z2) 
+(d A)/dt = -(k1 * A * B)+(k4 * D * A) 
+(d B)/dt = (k1 * A * B)-(k2 * B * C) 
+(d C)/dt = (k2 * B * C)-(k3 * C * D) 
+(d D)/dt = (k3 * C * D)-(k4 * D * A) 
 
 
 
 ----------   Initial Values   ---------- 
-State mRNA:	0 
-   State P:	0 
-  State z1:	0 
-  State z2:	0 
-      Time:	0 
+State A:	2 
+State B:	1 
+State C:	1 
+State D:	1 
+   Time:	0 
 
 ----------   Measurement Model   ----------
 

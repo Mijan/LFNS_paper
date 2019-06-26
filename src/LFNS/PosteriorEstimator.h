@@ -85,8 +85,12 @@ namespace lfns {
 
         double _varX(int i, int j);
 
-        void _computeCovTerm(DeadParticleSet &dead_points,  LiveParticleSet &live_points, double *log_cov, int *sign_cov);
+        void
+        _computeCovTerm(DeadParticleSet &dead_points, LiveParticleSet &live_points, double *log_cov, int *sign_cov);
+
     };
+
+    typedef std::shared_ptr<PosteriorEstimator> PosteriorEstimator_ptr;
 };
 
 

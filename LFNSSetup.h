@@ -34,12 +34,13 @@ public:
 
     particle_filter::ParticleFilterSettings particle_filter_settings;
     sampler::Sampler_ptr prior;
-    sampler::DensityEstimation_ptr desnity_estimation;
+    sampler::DensityEstimation_ptr density_estimation;
     sampler::SamplerSettings sampler_settings;
     lfns::LFNSSettings lfns_settings;
 
     std::vector<Times> times_vec;
     std::vector<TrajectorySet> data_vec;
+    double threshold = -DBL_MAX;
 
 
     void setUp();
@@ -60,9 +61,10 @@ private:
 
     particle_filter::ParticleFilterSettings _readParticleFilterSettings();
 
-    sampler::DensityEstimation_ptr _createDensityEstimation();
+    sampler::DensityEstimation_ptr _createDensityEstimation(lfns::LFNSSettings lfns_settings,
+                                                            sampler::SamplerSettings settings);
 
-    sampler::Sampler_ptr _createPrior();
+    sampler::Sampler_ptr _createPrior(lfns::LFNSSettings lfns_settings, sampler::SamplerSettings settings);
 
     sampler::SamplerSettings _readSamplerSettings();
 

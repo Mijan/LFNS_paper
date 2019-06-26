@@ -34,9 +34,13 @@ BOOST_CLASS_EXPORT_GUID(sampler::GaussianSampler, "GaussianSampler");
 
 namespace lfns {
     namespace mpi {
-        LFNSMpi::LFNSMpi(LFNSSettings &lfns_settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
-                         int num_tasks) : LFNS(lfns_settings, sampler_settings, rng), _num_tasks(num_tasks), time_1(0),
-                                          time_2(0), time_3(0), time_4(0), time_5(0) {}
+//        LFNSMpi::LFNSMpi(LFNSSettings &lfns_settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
+//                         int num_tasks) : LFNS(lfns_settings, sampler_settings, rng), _num_tasks(num_tasks), time_1(0),
+//                                          time_2(0), time_3(0), time_4(0), time_5(0) {}
+
+        LFNSMpi::LFNSMpi(LFNSSettings &lfns_settings, int num_tasks)
+                : LFNS(lfns_settings), _num_tasks(num_tasks),
+                  time_1(0), time_2(0), time_3(0), time_4(0), time_5(0) {}
 
         LFNSMpi::~LFNSMpi() {}
 
@@ -105,10 +109,10 @@ namespace lfns {
             _logger.epsilonUpdated(_epsilon);
 
             time_t tic = clock();
-            std::cout <<"number of live samples: " << _live_points.numberParticles() << std::endl;
-            _sampler.updateLiveSamples(_live_points);
+            std::cout << "number of live samples: " << _live_points.numberParticles() << std::endl;
+            _sampler->updateLiveSamples(_live_points);
             time_t toc = clock();
-            _logger.samplerUpdated(_sampler, toc - tic);
+            _logger.samplerUpdated(*_sampler, toc - tic);
             _updateSampler();
 
             while (_live_points.numberParticles() < _settings.N) {
@@ -147,7 +151,7 @@ namespace lfns {
                 world.send(rank, INSTRUCTION, UPDATE_SAMPLER);
 
                 std::stringstream stream;
-                _sampler.getSerializedSampler(stream);
+                _sampler->getSerializedSampler(stream);
 
                 std::size_t sampler_size = stream.str().size();
                 world.send(rank, SAMPLER_SIZE, sampler_size);

@@ -8,9 +8,17 @@
 #include "src/base/IoUtils.h"
 #include "src/simulator/SimulatorOde.h"
 #include "src/simulator/SimulatorSsa.h"
+#include "src/sampler/DpGmmSampler.h"
+#include "src/sampler/RejectionSupportSampler.h"
+#include "src/sampler/GaussianSampler.h"
+#include "src/sampler/KernelSupportEstimation.h"
+#include "src/sampler/SliceSampler.h"
+#include "src/sampler/UniformSampler.h"
+#include "src/sampler/EllipsoidSampler.h"
 
 
-LFNSSetup::LFNSSetup(options::LFNSOptions options, int process_nbr) : GeneralSetup(options, process_nbr), _lfns_options(options) {}
+LFNSSetup::LFNSSetup(options::LFNSOptions options, int process_nbr) : GeneralSetup(options, process_nbr),
+                                                                      _lfns_options(options) {}
 
 LFNSSetup::~LFNSSetup() {}
 
@@ -48,6 +56,8 @@ void LFNSSetup::setUp() {
         }
     }
     particle_filter_settings.num_used_trajectories = max_num_traj;
+    density_estimation = _createDensityEstimation(lfns_settings, sampler_settings);
+    prior = _createPrior(lfns_settings, sampler_settings);
 }
 
 void LFNSSetup::printSettings(std::ostream &os) {
@@ -107,6 +117,76 @@ particle_filter::ParticleFilterSettings LFNSSetup::_readParticleFilterSettings()
     return filter_settings;
 }
 
+
+sampler::DensityEstimation_ptr
+LFNSSetup::_createDensityEstimation(lfns::LFNSSettings lfns_settings, sampler::SamplerSettings settings) {
+
+    sampler::DensityEstimation_ptr density_estimation_ptr(nullptr);
+
+    std::vector<std::string> unfixed_params = settings.param_names;
+    sampler::SamplerData sampler_data(unfixed_params.size());
+    sampler_data.bounds = settings.getBounds(unfixed_params);
+
+    switch (lfns_settings.estimator) {
+        case lfns::REJECT_DPGMM  : {
+            sampler::DpGmmSamplerData dpgmm_data(sampler_data);
+            dpgmm_data.num_dp_iterations = 50;
+            sampler::DpGmmSampler_ptr dpgmm_sampler = std::make_shared<sampler::DpGmmSampler>(rng, dpgmm_data);
+
+
+            sampler::RejectionSamplerData rej_data(sampler_data);
+            rej_data.rejection_quantile = lfns_settings.rejection_quantile_for_density_estimation;
+            density_estimation_ptr = std::make_shared<sampler::RejectionSupportSampler>(rng, dpgmm_sampler, rej_data);
+            break;
+        }
+        case lfns::KDE_GAUSS: {
+            sampler::NormalSamplerData normal_data(sampler_data);
+            normal_data.cov = base::EiMatrix::Identity(sampler_data.size(), sampler_data.size()) * 0.1;
+            sampler::GaussianSampler_ptr gauss_kernel = std::make_shared<sampler::GaussianSampler>(rng,
+                                                                                                   normal_data);
+
+            density_estimation_ptr = std::make_shared<sampler::KernelSupportEstimation>(rng, gauss_kernel,
+                                                                                        sampler_data);
+            break;
+        }
+        case lfns::KDE_UNIFORM: {
+            sampler::UniformSamplerData unif_data(sampler_data);
+            sampler::KernelSampler_ptr unif_kernel = std::make_shared<sampler::UniformSampler>(rng, unif_data);
+            density_estimation_ptr = std::make_shared<sampler::KernelSupportEstimation>(rng, unif_kernel,
+                                                                                        sampler_data);
+            break;
+        }
+        case lfns::ELLIPS: {
+            density_estimation_ptr = std::make_shared<sampler::EllipsoidSampler>(rng, sampler_data);
+            break;
+        }
+        case lfns::SLICE: {
+            sampler::SliceSampler_ptr sampler_ptr = std::make_shared<sampler::SliceSampler>(rng, sampler_data,
+                                                                                            mult_like_eval.getLogLikeFun(),
+                                                                                            &threshold);
+            sampler_ptr->setLogScaleIndices(settings.getLogParams());
+            density_estimation_ptr = sampler_ptr;
+
+            break;
+        }
+    }
+    return density_estimation_ptr;
+}
+
+
+sampler::Sampler_ptr LFNSSetup::_createPrior(lfns::LFNSSettings lfns_settings, sampler::SamplerSettings settings) {
+
+    sampler::Sampler_ptr prior_ptr(nullptr);
+    std::vector<std::string> unfixed_params = settings.param_names;
+    sampler::SamplerData sampler_data(unfixed_params.size());
+    sampler_data.bounds = settings.getBounds(unfixed_params);
+
+    if (lfns_settings.uniform_prior) {
+        sampler::UniformSamplerData uni_data(sampler_data);
+        prior_ptr = std::make_shared<sampler::UniformSampler>(rng, sampler_data);
+    }
+    return prior_ptr;
+}
 
 sampler::SamplerSettings LFNSSetup::_readSamplerSettings() {
     sampler::SamplerSettings sampler_setting;
@@ -211,6 +291,10 @@ lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
             }
             case 2: {
                 lfns_setting.estimator = lfns::DENSITY_ESTIMATOR::ELLIPS;
+                break;
+            }
+            case 3: {
+                lfns_setting.estimator = lfns::DENSITY_ESTIMATOR::SLICE;
                 break;
             }
         }

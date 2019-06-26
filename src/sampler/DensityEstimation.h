@@ -32,7 +32,7 @@ namespace sampler {
 
         void updateDensitySamples(base::EiMatrix &samples);
 
-        std::vector<double> &sample() override;
+        virtual std::vector<double> &sample() override;
 
         virtual double getLogLikelihood(const std::vector<double> &sample);
 
@@ -50,6 +50,9 @@ namespace sampler {
         base::EiMatrixC _evs;
         base::EiMatrixC _inv_evs;
         base::EiVectorC _evals;
+        virtual void transformSample(base::EiVector &sample);
+
+        virtual void retransformSample(base::EiVector &sample);
 
         friend class boost::serialization::access;
 

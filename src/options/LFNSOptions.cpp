@@ -22,7 +22,7 @@ namespace options {
                 "LFNSparticles,N", po::value<int>(&N), "The number of LFNS particles")(
                 "smcparticles,H", po::value<int>(&H), "The number of particles for the particle filter")
                 ("sampler,S", po::value<int>(&_sampler_index),
-                 "Indicates whether to use the rejection sampler with DP-GMM estimation (0), Kernel Density Estimation (1) or Ellipsoid sampling (2).")(
+                 "Indicates whether to use the rejection sampler with DP-GMM estimation (0), Kernel Density Estimation (1), Ellipsoid sampling (2) or slice sampling (3).")(
                 "prematurecancelling,c", po::value<bool>(&use_premature_cancelation),
                 "Indicates whether the likelihood computation should be canceled if the current likelihood is already smaller than the current threshold. (This should be done when it is known that the likelhlihood for each timestepo cannot be higher than 1)")(
                 "numberprallelsamples,r",
