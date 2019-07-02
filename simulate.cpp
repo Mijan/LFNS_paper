@@ -54,7 +54,6 @@ int simulate(SimulationSetup &simulation_setup) {
 
     for (int exp_nbr = 0; exp_nbr < simulation_setup.experiments.size(); exp_nbr++) {
         std::string experiment = simulation_setup.experiments[exp_nbr];
-        std::cout << "Experiment: " << experiment << std::endl;
         simulator::Simulator_ptr simulator = simulation_setup.simulators[exp_nbr];
         models::FullModel_ptr full_model = simulation_setup.full_models[exp_nbr];
 

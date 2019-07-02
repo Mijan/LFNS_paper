@@ -102,31 +102,27 @@ namespace models {
 
         if (_perturbation_fct) { (*_perturbation_fct)(state, t); }
         _updateState(state);
-//        std::cout << std::endl;
-//        std::cout << "DERRIVATIVE: ";
         std::size_t species_index = 0;
         for (mu::Parser &p : _rhs_parsers) {
-            try {
+//            try {
                 if (_det_index_hybrid_model.empty() || _det_index_hybrid_model[species_index]) {
                     dx[species_index] = p.Eval();
-//                    std::cout << _base_data.getSpeciesNames()[species_index] << ": "<< dx[species_index] << " ";
                 } else {
                     dx[species_index] = 0;
                 }
                 species_index++;
-            } catch (mu::ParserError &e) {
-                std::ostringstream os;
-                os << "Parser error for equation " << species_index
-                   << " and expression : " << e.GetExpr() << std::endl;
-                os << "Message:  " << e.GetMsg() << "\n";
-                os << "Formula:  " << e.GetExpr() << "\n";
-                os << "Token:    " << e.GetToken() << "\n";
-                os << "Position: " << e.GetPos() << "\n";
-                os << "Errc:     " << e.GetCode() << "\n";
-                throw std::runtime_error(os.str());
-            }
+//            } catch (mu::ParserError &e) {
+//                std::ostringstream os;
+//                os << "Parser error for equation " << species_index
+//                   << " and expression : " << e.GetExpr() << std::endl;
+//                os << "Message:  " << e.GetMsg() << "\n";
+//                os << "Formula:  " << e.GetExpr() << "\n";
+//                os << "Token:    " << e.GetToken() << "\n";
+//                os << "Position: " << e.GetPos() << "\n";
+//                os << "Errc:     " << e.GetCode() << "\n";
+//                throw std::runtime_error(os.str());
+//            }
         }
-//        std::cout << std::endl;
     }
 
     RhsFct_ptr ChemicalReactionNetwork::getRhsFct() {

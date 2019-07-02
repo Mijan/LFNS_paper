@@ -21,12 +21,18 @@ namespace models {
                                                                         production_species(), product_species(),
                                                                         reaction_variables(), propensities(),
                                                                         stoichiometry_for_reaction() {
-        io::ModelReactionReader reader(model_file_name);
-        production_species = reader.readProductionSpecies();
-        product_species = reader.readProductSpecies();
-        reaction_variables = reader.readReactionVariables();
-        propensities = reader.readPropensities();
-        createStoichiometry();
+        try {
+            io::ModelReactionReader reader(model_file_name);
+            production_species = reader.readProductionSpecies();
+            product_species = reader.readProductSpecies();
+            reaction_variables = reader.readReactionVariables();
+            propensities = reader.readPropensities();
+            createStoichiometry();
+        } catch (const std::exception &e) {
+            std::stringstream ss;
+            ss << "Failed to create ModelReactionData:\n\t" << e.what() << std::endl;
+            throw std::runtime_error(ss.str());
+        }
     }
 
     ModelReactionData::ModelReactionData(const ModelReactionData &rhs) : ParserData(rhs),

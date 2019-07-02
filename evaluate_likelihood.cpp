@@ -49,9 +49,7 @@ int computeLikelihood(LikelihoodSetup &likelihood_setup) {
 
     for (std::vector<double> parameter : likelihood_setup.parameters) {
         for (std::size_t computation_nbr = 0; computation_nbr < likelihood_setup.num_computations; computation_nbr++) {
-            for (int exp_nbr = 0;
-                 exp_nbr <
-                 likelihood_setup.experiments.size(); exp_nbr++) {
+
                 double log_likelihood = -DBL_MAX;
                 try {
                     log_likelihood = likelihood_setup.mult_like_eval.compute_log_like(parameter);
@@ -62,7 +60,6 @@ int computeLikelihood(LikelihoodSetup &likelihood_setup) {
                 }
                 log_likelihoods.push_back(log_likelihood);
                 std::cout << log_likelihood << std::endl;
-            }
         }
     }
 

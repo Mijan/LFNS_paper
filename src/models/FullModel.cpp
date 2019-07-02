@@ -44,7 +44,7 @@ namespace models {
         if (init_data.getNumInitialValues() != dynamics->getNumSpecies()) {
             std::stringstream ss;
             ss << "Initial states not properly set! Model dynamics require " << dynamics->getNumSpecies()
-               << " species, but initial states only for " << init_data.getNumSpecies() << " states defined!"
+               << " species, but initial states for " << init_data.getNumInitialValues() << " states defined!"
                << std::endl;
             std::vector<std::string> dynamics_states = dynamics->getSpeciesNames();
             std::vector<std::string> init_states = init_data.getInitialStates();

@@ -5,6 +5,7 @@
 #include <cfloat>
 #include <iostream>
 #include <sstream>
+#include <muParserError.h>
 #include "ParticleFilter.h"
 
 namespace particle_filter {
@@ -60,7 +61,16 @@ namespace particle_filter {
                 }
                 return log_likelihood;
             }
-        } catch (const std::exception &e) {
+        } catch (mu::ParserError &e) {
+            std::ostringstream os;
+            os << "Parser error for expression : " << e.GetExpr() << std::endl;
+            os << "Message:  " << e.GetMsg() << "\n";
+            os << "Formula:  " << e.GetExpr() << "\n";
+            os << "Token:    " << e.GetToken() << "\n";
+            os << "Position: " << e.GetPos() << "\n";
+            os << "Errc:     " << e.GetCode() << "\n";
+            throw std::runtime_error(os.str());
+        }catch (const std::exception &e) {
 //            std::stringstream ss;
 //            ss << "Likelihood for parameter ";
 //            for (double d : theta) { ss << d << " "; }

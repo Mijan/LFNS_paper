@@ -44,8 +44,6 @@ namespace models {
             throw std::runtime_error(os.str());
         }
 
-
-        std::cout << "Time: " << t << std::endl;
         for (std::size_t i = 0; i < _measurement_parsers.size(); i++) {
             try {
                 (*measurement)[i] = _measurement_parsers[i].Eval();
@@ -66,8 +64,6 @@ namespace models {
             }
 
         }
-        printPointerValue(std::cout);
-        std::cout << "MEASUREMENT: " << (*measurement)[0] << std::endl;
     }
 
     double MeasurementModel::getLogLikelihood(const std::vector<double> &state, const std::vector<double> &measurements,
