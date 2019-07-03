@@ -138,7 +138,7 @@ namespace lfns {
                                base::RngPtr rng) {
             _sampler = std::make_shared<LFNSSampler>(prior, density_estimation, rng);
         }
-        
+
         void LFNSWorker::setLogParams(std::vector<int> log_params) { _sampler->setLogParams(log_params); }
 
 

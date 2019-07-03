@@ -34,9 +34,6 @@ BOOST_CLASS_EXPORT_GUID(sampler::GaussianSampler, "GaussianSampler");
 
 namespace lfns {
     namespace mpi {
-//        LFNSMpi::LFNSMpi(LFNSSettings &lfns_settings, sampler::SamplerSettings &sampler_settings, base::RngPtr rng,
-//                         int num_tasks) : LFNS(lfns_settings, sampler_settings, rng), _num_tasks(num_tasks), time_1(0),
-//                                          time_2(0), time_3(0), time_4(0), time_5(0) {}
 
         LFNSMpi::LFNSMpi(LFNSSettings &lfns_settings, int num_tasks)
                 : LFNS(lfns_settings), _num_tasks(num_tasks),

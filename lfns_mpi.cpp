@@ -57,6 +57,7 @@ void runMaster(LFNSSetup &lfns_setup) {
 
     lfns::mpi::LFNSMpi lfns(lfns_setup.lfns_settings, num_tasks);
     lfns.setSampler(lfns_setup.prior, lfns_setup.density_estimation, lfns_setup.rng);
+    lfns.setLogParams(lfns_setup.sampler_settings.getLogParams());
     if (!lfns_setup.lfns_settings.previous_log_file.empty()) {
         lfns.resumeRum(lfns_setup.lfns_settings.previous_log_file);
     }
