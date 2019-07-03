@@ -71,11 +71,11 @@ namespace particle_filter {
             os << "Errc:     " << e.GetCode() << "\n";
             throw std::runtime_error(os.str());
         } catch (const std::exception &e) {
-            std::stringstream ss;
-            ss << "Likelihood for parameter ";
-            for (double d : theta) { ss << d << " "; }
-            ss << " could not be computed:\n\t" << e.what() << std::endl;
-            std::cerr << ss.str() << std::endl;
+//            std::stringstream ss;
+//            ss << "Likelihood for parameter ";
+//            for (double d : theta) { ss << d << " "; }
+//            ss << " could not be computed:\n\t" << e.what() << std::endl;
+//            std::cerr << ss.str() << std::endl;
             return -DBL_MAX;
         }
     }
