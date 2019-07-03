@@ -14,16 +14,16 @@ namespace lfns {
 
     LFNSLogger::LFNSLogger(LFNSSettings settings) : _remaining_required_particles_iteration(settings.N),
                                                     _num_samples_iteration(0), _num_samples_particle(0),
-                                                    _num_accepted_iteration(0), _print_interval(1),
-                                                    _acceptance_info_print_interval(100), _particle_tic(0),
-                                                    _algorithm_tic(0),
-                                                    _iteration_tic(0), _sampling_seconds(0.0),
-                                                    _output_file_name(settings.output_file),
-                                                    _acceptance_rates(), _epsilons(), _iteration_nbrs(),
-                                                    _seconds_for_iteration(), _sampling_seconds_for_iteration(),
-                                                    _log_zd(), _log_var_zd(), _log_zl(),
-                                                    _log_var_zl(), _log_ztot(), _log_var_ztot(), _log_v_min(),
-                                                    _var_L_contribution(), _max_L_contribution() {}
+                                                    _num_accepted_iteration(0),
+                                                    _print_interval(settings.print_interval),
+                                                    _acceptance_info_print_interval(
+                                                            settings.acceptance_info_print_interval), _particle_tic(0),
+                                                    _algorithm_tic(0), _iteration_tic(0), _sampling_seconds(0.0),
+                                                    _output_file_name(settings.output_file), _acceptance_rates(),
+                                                    _epsilons(), _iteration_nbrs(), _seconds_for_iteration(),
+                                                    _sampling_seconds_for_iteration(), _log_zd(), _log_var_zd(),
+                                                    _log_zl(), _log_var_zl(), _log_ztot(), _log_var_ztot(),
+                                                    _log_v_min(), _var_L_contribution(), _max_L_contribution() {}
 
     LFNSLogger::~LFNSLogger() {}
 
