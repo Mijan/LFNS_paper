@@ -72,7 +72,6 @@ namespace sampler {
                 if (param_found) {
                     std::pair<double, double> d = parameter_bounds[param];
                     bounds.push_back(d);
-//                    bounds.push_back(parameter_bounds[param]);
                 }
                 if (!param_found) {
                     std::stringstream ss;

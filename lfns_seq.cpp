@@ -22,15 +22,13 @@ int main(int argc, char **argv) {
         lfns_options.handleCommandLineOptions(argc, argv);
 
 
-        LFNSSetup likelihood_setup(lfns_options);
-        likelihood_setup.setUp();
-        return runLFNS(likelihood_setup);
+        LFNSSetup lfns_setup(lfns_options);
+        lfns_setup.setUp();
+        return runLFNS(lfns_setup);
     } catch (const std::exception &e) {
         std::cerr << "Failed to run LFNS, exception thrown:\n\t" << e.what() << std::endl;
         return 0;
     }
-    return 1;
-
 }
 
 // TODO add check if output files can be saved BEFORE code runs!

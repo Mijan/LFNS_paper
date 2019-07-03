@@ -80,6 +80,7 @@ void runWorker(LFNSSetup &lfns_setup) {
     lfns::mpi::LFNSWorker worker(my_rank, lfns_setup.full_models.front()->getUnfixedParamteters().size(),
                                  lfns_setup.mult_like_eval.getLogLikeFun());
     worker.setSampler(lfns_setup.prior, lfns_setup.density_estimation, lfns_setup.rng);
+    worker.setLogParams(lfns_setup.sampler_settings.getLogParams());
 
     for (int i = 0; i < lfns_setup.particle_filters.size(); i++) {
         lfns_setup.simulators[i]->addStoppingCriterion(worker.getStoppingFct());

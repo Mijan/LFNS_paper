@@ -142,8 +142,7 @@ LFNSSetup::_createDensityEstimation(lfns::LFNSSettings lfns_settings, sampler::S
         case lfns::KDE_GAUSS: {
             sampler::NormalSamplerData normal_data(sampler_data);
             normal_data.cov = base::EiMatrix::Identity(sampler_data.size(), sampler_data.size()) * 0.1;
-            sampler::GaussianSampler_ptr gauss_kernel = std::make_shared<sampler::GaussianSampler>(rng,
-                                                                                                   normal_data);
+            sampler::GaussianSampler_ptr gauss_kernel = std::make_shared<sampler::GaussianSampler>(rng, normal_data);
 
             density_estimation_ptr = std::make_shared<sampler::KernelSupportEstimation>(rng, gauss_kernel,
                                                                                         sampler_data);

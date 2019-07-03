@@ -63,6 +63,9 @@ namespace lfns {
 
             void
             setSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng);
+
+            void setLogParams(std::vector<int> log_params);
+
         protected:
             const std::size_t _my_rank;
             const std::size_t _num_parameters;
