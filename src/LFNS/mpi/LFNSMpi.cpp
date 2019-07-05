@@ -86,6 +86,7 @@ namespace lfns {
                     queue.clearFirstParticle();
                 }
             }
+            _logger.logIterationStats();
             queue.stopPendingRequests();
         }
 
@@ -95,6 +96,7 @@ namespace lfns {
         }
 
         void LFNSMpi::_sampleConstPrior(RequestQueue &queue) {
+            _sampler->updateAcceptanceRate(_logger.lastAcceptanceRate());
             for (int j = 0; j < _settings.r; j++) {
                 const LFNSParticle &particle = _live_points.removeLowestPartcile();
                 _dead_points.push_back(particle);
