@@ -136,6 +136,9 @@ LFNSSetup::_createDensityEstimation(lfns::LFNSSettings lfns_settings, sampler::S
 
             sampler::RejectionSamplerData rej_data(sampler_data);
             rej_data.rejection_quantile = lfns_settings.rejection_quantile_for_density_estimation;
+            rej_data.thresh_accept_rate = lfns_settings.thresh_accept_rate;
+            rej_data.rejection_quantile_low_accept = lfns_settings.rejection_quantile_low_accept;
+
             density_estimation_ptr = std::make_shared<sampler::RejectionSupportSampler>(rng, dpgmm_sampler, rej_data);
             break;
         }
@@ -273,7 +276,7 @@ lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
     } else {
         try { lfns_setting.log_termination = std::log(interpreter.getEpsilonForLFNS()); }
         catch (const std::runtime_error &e) {
-            std::cout
+            std::cerr
                     << "\tNo number termination threshold epsilon for LFNS provided (either with -t through the command line or 'LFNS.epsilon' in the config file). Assume epsilon = "
                     << std::exp(lfns_setting.log_termination) << std::endl;
         }
@@ -303,5 +306,16 @@ lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
     if (_lfns_options.vm.count("printinterval") > 0) { lfns_setting.print_interval = _lfns_options.print_interval; }
     if (_lfns_options.vm.count("rej_quan") >
         0) { lfns_setting.rejection_quantile_for_density_estimation = _lfns_options.rejection_quantile; }
+
+    if(_lfns_options.vm.count("acc_thresh") > 0 || _lfns_options.vm.count("rej_quan_lo_accept") > 0){
+        if(_lfns_options.vm.count("acc_thresh") != _lfns_options.vm.count("rej_quan_lo_accept")){
+            std::cerr << "If variable rejection constant for the rejection sampler is set, bot, the acceptance rate threshold as well as the corresponding rejection quantile needs to be provided! Ignoring provided values!" << std::endl;
+            lfns_setting.rejection_quantile_low_accept = -1;
+            lfns_settings.thresh_accept_rate = -1;
+        }
+
+        lfns_setting.rejection_quantile_low_accept = _lfns_options.rejection_quantile_low_accept;
+        lfns_setting.thresh_accept_rate = _lfns_options.thresh_accept_rate;
+    }
     return lfns_setting;
 }

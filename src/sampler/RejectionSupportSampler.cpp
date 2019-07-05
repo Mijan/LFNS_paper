@@ -12,10 +12,8 @@ namespace sampler {
     RejectionSupportSampler::RejectionSupportSampler(base::RngPtr rng, DensityEstimation_ptr sampler,
                                                      RejectionSamplerData data) : DensityEstimation(rng, data),
                                                                                   _dist(0, 1),
-                                                                                  _current_sampler(
-                                                                                          sampler),
-                                                                                  _rejection_data(
-                                                                                          data),
+                                                                                  _current_sampler(sampler),
+                                                                                  _rejection_data(data),
                                                                                   _log_rejection_const(
                                                                                           data.log_rejection_const),
                                                                                   _rejection_quantile(
@@ -132,7 +130,7 @@ namespace sampler {
     }
 
 
-    void RejectionSupportSampler::setLogScale(int param_index){
+    void RejectionSupportSampler::setLogScale(int param_index) {
         Sampler::setLogScale(param_index);
         _current_sampler->setLogScale(param_index);
     }

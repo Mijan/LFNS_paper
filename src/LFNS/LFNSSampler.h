@@ -17,8 +17,6 @@ namespace lfns {
     public:
         LFNSSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation, base::RngPtr rng);
 
-//        LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng);
-
         virtual ~LFNSSampler();
 
         const std::vector<double> &samplePrior();
@@ -36,6 +34,8 @@ namespace lfns {
         sampler::DensityEstimation_ptr getDensityEstimation();
 
         void setLogParams(std::vector<int> log_params);
+
+        void updateAcceptanceRate(double acceptance_rate);
 
     private:
         base::RngPtr _rng;

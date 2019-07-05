@@ -100,11 +100,10 @@ namespace lfns {
 
     void LFNS::setLogParams(std::vector<int> log_params) { _sampler->setLogParams(log_params); }
 
-    void LFNS::setThresholdPointer(double *epsilon_ptr) {
-        _epsilon_ptr = epsilon_ptr;
-    }
+    void LFNS::setThresholdPointer(double *epsilon_ptr) { _epsilon_ptr = epsilon_ptr; }
 
     bool LFNS::_postIteration() {
+        _logger.logIterationStats();
         PosteriorQuantitites post_quant = _post_estimator->estimatePosteriorQuantities(_live_points, _dead_points);
         _logger.logIterationResults(post_quant);
         _post_estimator->writeToFile(_settings.output_file, _live_points, _dead_points, post_quant);

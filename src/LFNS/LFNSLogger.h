@@ -44,6 +44,8 @@ namespace lfns {
 
         void logIterationResults(PosteriorQuantitites &post_quant);
 
+        void logIterationStats();
+
         void lfnsTerminated();
 
         void writeToFile();
@@ -53,6 +55,8 @@ namespace lfns {
         int iterationNumber();
 
         double lastEpsilon();
+
+        double lastAcceptanceRate();
 
     private:
         int _remaining_required_particles_iteration;

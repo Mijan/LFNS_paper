@@ -18,82 +18,14 @@ namespace lfns {
     LFNSSampler::LFNSSampler(sampler::Sampler_ptr prior, sampler::DensityEstimation_ptr density_estimation,
                              base::RngPtr rng) : _rng(rng), _prior(prior), _density_estimation(density_estimation),
                                                  _max_live_prior_value(0), _dist(), _uniform_prior(true),
-                                                 _log_params() {
-        //        std::vector<std::string> unfixed_params = settings.param_names;
-//        _log_params = settings.getLogParams(unfixed_params);
-    }
-
-//    LFNSSampler::LFNSSampler(LFNSSettings &lfns_settings, sampler::SamplerSettings &settings, base::RngPtr rng) : _rng(
-//            rng), _prior(), _density_estimation(),
-//                                                                                                                  _max_live_prior_value(
-//                                                                                                                          0),
-//                                                                                                                  _dist(),
-//                                                                                                                  _uniform_prior(
-//                                                                                                                          true),
-//                                                                                                                  _log_params() {
-//
-//        std::vector<std::string> unfixed_params = settings.param_names;
-//        sampler::SamplerData sampler_data(unfixed_params.size());
-//        sampler_data.bounds = settings.getBounds(unfixed_params);
-//        _log_params = settings.getLogParams(unfixed_params);
-//
-//        for (int i : _log_params) {
-//            sampler_data.bounds[i].first = std::log10(sampler_data.bounds[i].first);
-//            sampler_data.bounds[i].second = std::log10(sampler_data.bounds[i].second);
-//        }
-//
-//        if (lfns_settings.uniform_prior) {
-//            sampler::UniformSamplerData uni_data(sampler_data);
-//            _prior = std::make_shared<sampler::UniformSampler>(_rng, uni_data);
-//        }
-//
-//        switch (lfns_settings.estimator) {
-//            case REJECT_DPGMM  : {
-//                sampler::DpGmmSamplerData dpgmm_data(sampler_data);
-//                dpgmm_data.num_dp_iterations = 50;
-//                sampler::DpGmmSampler_ptr dpgmm_sampler = std::make_shared<sampler::DpGmmSampler>(_rng, dpgmm_data);
-//
-//
-//                sampler::RejectionSamplerData rej_data(sampler_data);
-//                rej_data.rejection_quantile = lfns_settings.rejection_quantile_for_density_estimation;
-//                _density_estimation = std::make_shared<sampler::RejectionSupportSampler>(_rng, dpgmm_sampler, rej_data);
-//                break;
-//            }
-//            case KDE_GAUSS: {
-//                sampler::NormalSamplerData normal_data(sampler_data);
-//                normal_data.cov = base::EiMatrix::Identity(sampler_data.size(), sampler_data.size()) * 0.1;
-//                sampler::GaussianSampler_ptr gauss_kernel = std::make_shared<sampler::GaussianSampler>(_rng,
-//                                                                                                       normal_data);
-//
-//                _density_estimation = std::make_shared<sampler::KernelSupportEstimation>(_rng, gauss_kernel,
-//                                                                                         sampler_data);
-//                break;
-//            }
-//            case KDE_UNIFORM: {
-//                sampler::UniformSamplerData unif_data(sampler_data);
-//                sampler::KernelSampler_ptr unif_kernel = std::make_shared<sampler::UniformSampler>(_rng, unif_data);
-//                _density_estimation = std::make_shared<sampler::KernelSupportEstimation>(_rng, unif_kernel,
-//                                                                                         sampler_data);
-//                break;
-//            }
-//            case ELLIPS: {
-//                _density_estimation = std::make_shared<sampler::EllipsoidSampler>(_rng, sampler_data);
-//                break;
-//            }
-//            case SLICE: {
-////                _density_estimation = std::make_shared<sampler::SliceSampler>()
-//            }
-//        }
-//    }
+                                                 _log_params() {}
 
     LFNSSampler::~LFNSSampler() = default;
 
     const std::vector<double> &LFNSSampler::samplePrior() {
         std::vector<double> &sa = _prior->sample();
         std::vector<double> tmp_vec_a(1);
-        tmp_vec_a[0] = sa[0];
         std::vector<double> &sb = _scaleSample(sa);
-        std::vector<double> tmp_vec_b = sb;
         return sb;
     }
 
@@ -168,5 +100,10 @@ namespace lfns {
                 _density_estimation->setLogScale(param_index);
             }
         }
+    }
+
+
+    void LFNSSampler::updateAcceptanceRate(double acceptance_rate) {
+        _density_estimation->updateAcceptanceRate(acceptance_rate);
     }
 }

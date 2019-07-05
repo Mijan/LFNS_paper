@@ -42,6 +42,8 @@ namespace sampler {
 
         virtual double getTransformedLogLikelihood(const base::EiVector &trans_sample) = 0;
 
+        virtual void updateAcceptanceRate(double acceptance_rate){};
+
     private:
         base::EiVector _trans_sample;
 

@@ -99,14 +99,8 @@ namespace lfns {
 
     void LFNSLogger::logIterationResults(PosteriorQuantitites &post_quant) {
         double acceptance_rate = _num_accepted_iteration / (double) _num_samples_iteration;
-        _acceptance_rates.push_back(acceptance_rate);
 
         clock_t toc2 = clock();
-
-        double sec = ((double) (toc2 - _iteration_tic) / CLOCKS_PER_SEC);
-        _seconds_for_iteration.push_back(sec);
-
-        _sampling_seconds_for_iteration.push_back(_sampling_seconds);
 
         double log_zd = post_quant.log_zd;
         _log_zd.push_back(log_zd);
@@ -152,6 +146,19 @@ namespace lfns {
                   << "% to the total Bayesian Evidence" << std::endl;
     }
 
+    void LFNSLogger::logIterationStats(){
+        double acceptance_rate = _num_accepted_iteration / (double) _num_samples_iteration;
+        _acceptance_rates.push_back(acceptance_rate);
+
+        clock_t toc2 = clock();
+
+        double sec = ((double) (toc2 - _iteration_tic) / CLOCKS_PER_SEC);
+        _seconds_for_iteration.push_back(sec);
+
+        _sampling_seconds_for_iteration.push_back(_sampling_seconds);
+
+    }
+
     void LFNSLogger::lfnsTerminated() {
         time_t toc = clock();
         std::cout << "\n\nLFNS algorithm successfully terminated!" << std::endl;
@@ -180,6 +187,8 @@ namespace lfns {
 
 
     double LFNSLogger::lastEpsilon() { return _epsilons.back(); }
+
+    double LFNSLogger::lastAcceptanceRate() { return _acceptance_rates.back(); }
 
     void LFNSLogger::writeToFile() {
         std::string log_file_name =

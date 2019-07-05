@@ -37,12 +37,14 @@ namespace lfns {
                     _logger.particleAccepted(theta, l);
                 }
                 _live_points.writeToFile(_settings.output_file, "live_points_0");
+                _logger.logIterationStats();
             } else {
                 m = _logger.iterationNumber();
                 *_epsilon_ptr = _logger.lastEpsilon();
                 _logger.lfnsResume(m, *_epsilon_ptr);
             }
             while (!lfns_terminate) {
+                _sampler->updateAcceptanceRate(_logger.lastAcceptanceRate());
                 m++;
                 _logger.iterationStarted(m);
 

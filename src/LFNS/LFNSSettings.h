@@ -29,6 +29,8 @@ namespace lfns {
         int print_interval = 1;
         int acceptance_info_print_interval = 100;
         double rejection_quantile_for_density_estimation = 0.001;
+        double thresh_accept_rate = -1;
+        double rejection_quantile_low_accept = -1;
         std::string output_file = "";
 
 
@@ -43,6 +45,11 @@ namespace lfns {
                             << " DP-GMM density estimation with rejection sampling will be used. The rejection constant is the "
                             << rejection_quantile_for_density_estimation * 100
                             << "% quantile" << std::endl;
+                    if (thresh_accept_rate > 0) {
+                        stream << "If the acceptance rate drops below " << thresh_accept_rate
+                               << " the rejection constant will be set to the " << rejection_quantile_low_accept * 100
+                               << "% quantile" << std::endl;
+                    }
                     break;
                 }
                 case KDE_GAUSS: {
