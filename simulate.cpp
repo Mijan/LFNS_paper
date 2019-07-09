@@ -5,6 +5,7 @@
 #include "src/options/SimulationOptions.h"
 #include "SimulationSetup.h"
 #include "src/base/IoUtils.h"
+#include "src/simulator/SimulatorExceptions.h"
 
 typedef std::vector<double> Times;
 typedef std::vector<double> State;
@@ -79,7 +80,18 @@ int simulate(SimulationSetup &simulation_setup) {
                 full_model->initial_value_provider->computeInitialState(&latentstate, &t);
                 simulator->reset(latentstate, t);
                 for (double sim_time : simulation_setup.times) {
-                    simulator->simulate(sim_time);
+                    try {
+                        simulator->simulate(sim_time);
+                    } catch (const simulator::SimulationAborted &e) {
+                        full_model->measurement_model->computeMeasurement(&measurement, latentstate, t);
+
+                        latent_states.push_back(latentstate);
+                        measurements.push_back(measurement);
+                        std::cerr << "\nSimulation number " << sim_nbr << " for experiment " << experiment
+                                  << " was aborted at time " << t << ":\n\t" << e.what() << std::endl;
+                        break;
+
+                    }
                     full_model->measurement_model->computeMeasurement(&measurement, latentstate, t);
 
                     latent_states.push_back(latentstate);

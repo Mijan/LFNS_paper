@@ -9,6 +9,7 @@
 #include <cstring>
 #include "SimulatorOde.h"
 #include "../base/MathUtils.h"
+#include "SimulatorExceptions.h"
 
 namespace simulator {
     using namespace std::placeholders;
@@ -185,7 +186,9 @@ namespace simulator {
             os << "Current step size:\t" << h_curr << std::endl;
             os << "Current internal time:\t" << t_cur;
 
-            throw std::runtime_error(os.str());
+            SimulationAborted exception(os.str(), t);
+
+            throw exception;
         }
     }
 

@@ -146,6 +146,6 @@ install(FILES src/LFNS/LFNSSettings.h src/LFNS/LFNS.h src/LFNS/DeadParticleSet.h
 install(FILES src/LFNS/seq/LFNSSeq.h DESTINATION include)
 install(FILES src/LFNS/mpi/LFNSMpi.h src/LFNS/mpi/LFNSWorker.h src/LFNS/mpi/MpiRequest.h src/LFNS/mpi/RequestQueue.h src/LFNS/mpi/MpiTags.h DESTINATION include)
 install(FILES src/sampler/Sampler.h src/sampler/UniformSampler.h src/sampler/DensityEstimation.h src/sampler/DpGmmSampler.h src/sampler/EllipsoidSampler.h src/sampler/KernelDensityEstimation.h src/sampler/GaussianSampler.h src/sampler/KernelSupportEstimation.h src/sampler/RejectionSupportSampler.h DESTINATION include)
-install(FILES src/simulator/Simulator.h src/simulator/SimulatorSsa.h src/simulator/StoppingCriterion.h src/simulator/SimulatorOde.h DESTINATION include)
+install(FILES src/simulator/Simulator.h src/simulator/SimulatorSsa.h src/simulator/StoppingCriterion.h src/simulator/SimulatorOde.h src/simulator/SimulatorExceptions.h DESTINATION include)
 install(FILES src/particle_filter/ParticleFilter.h src/particle_filter/SmcParticle.h src/particle_filter/SmcParticleSet.h DESTINATION include)
 install(FILES src/models/BaseData.h src/models/BaseObject.h src/models/ChemicalReactionNetwork.h src/models/ModelReactionData.h src/models/ParserBaseObject.h src/models/ParserData.h src/models/InitialValueProvider.h src/models/InitialValueData.h src/models/MeasurementModel.h src/models/MeasurementModelData.h DESTINATION include)
