@@ -1,13 +1,12 @@
 Parameters:
-mu, eta, theta
+mu, eta, theta, k, gamma
 
 Species:
-z1, z2, z3, z4
+z1, z2, x1
 
 Reactions:
-0	 	--> 	z3 		Variables: mu					Propensity: #ma
-z1	 	--> 	z1 +z4 		Variables: theta					Propensity: #ma
+z1	 	--> 	z1+ x1 		Variables: k					Propensity: #ma
+x1      -->     0       Variables: gamma                Propensity: #ma
 0	 	--> 	z1          Variables: mu					Propensity: #ma
-z4	 	--> 	z4 + z2 		Variables: theta					Propensity: #ma
+x1	 	--> 	x1 + z2 	Variables: theta					Propensity: #ma
 z1 + z2	--> 	0 		    Variables: eta					Propensity: #ma
-z3 + z4	--> 	0 		    Variables: eta					Propensity: #ma

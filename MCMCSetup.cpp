@@ -69,7 +69,16 @@ void MCMCSetup::printSettings(std::ostream &os) {
 }
 
 
-std::vector<std::string> MCMCSetup::_readExperiments() { return interpreter.getExperimentsForLFNS(); }
+std::vector<std::string> MCMCSetup::_readExperiments() {
+    try {
+        return interpreter.getExperimentsForLFNS();
+    } catch (const std::exception &e) {
+        std::stringstream ss;
+        ss << "Failed to read experiments for MCMC:\n\t" << e.what() << std::endl;
+        ss << "At least one experiment with corresponding data needs to be provided." << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+}
 
 void MCMCSetup::_readSettingsfromFile() {
     GeneralSetup::_readSettingsfromFile();

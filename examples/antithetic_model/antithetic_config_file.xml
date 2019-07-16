@@ -1,14 +1,13 @@
 <model>
-	<type>HYBRID</type>
-	<model>./antithetic_model_2.txt</model>
-	<initialvalue>./antithetic_initial_2.txt</initialvalue>
+	<type>STOCH</type>
+	<model>./antithetic_model.txt</model>
+	<initialvalue>./antithetic_initial.txt</initialvalue>
 	<measurement>./antithetic_measurement.txt</measurement>
-    <detspecies>A C</detspecies>
 </model>
 <Simulation>
 	<experiments>0</experiments>
 	<initialtime>0</initialtime>
 	<finaltime>10</finaltime>
 	<interval>0.005</interval>
-    <parameter>1 1 1 1</parameter>
+    <parameter>1 1 1 1 1</parameter>
 </Simulation>

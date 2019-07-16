@@ -18,13 +18,13 @@ GeneralSetup::~GeneralSetup() {}
 
 void GeneralSetup::_readSettingsfromFile() {
     experiments = _readExperiments();
-    model_settings = _readModelSettings(experiments);
+    model_settings = _readModelSettings();
 }
 
 
 void GeneralSetup::printSettings(std::ostream &os) { io_settings.print(os); }
 
-models::ModelSettings GeneralSetup::_readModelSettings(std::vector<std::string> experiments) {
+models::ModelSettings GeneralSetup::_readModelSettings() {
     models::ModelSettings model_settings;
     model_settings.model_file = interpreter.getModelFileName();
     model_settings.initial_value_file = interpreter.getInitialConditionsFile();
@@ -114,6 +114,7 @@ simulator::Simulator_ptr GeneralSetup::_createSimulator(models::ChemicalReaction
         sim_ptr = std::make_shared<simulator::SimulatorSsa>(simulator_ssa);
     } else if (model_settings.model_type == models::MODEL_TYPE::HYBRID) {
         if (!model_settings.stoch_species_names.empty()) {
+            std::cout << "set stoch speices" << std::endl;
             dynamics->setStochStatesForHybridModel(model_settings.stoch_species_names);
         } else {
             dynamics->setDetStatesForHybridModel(model_settings.det_species_names);

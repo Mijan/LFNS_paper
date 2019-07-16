@@ -79,7 +79,16 @@ void LFNSSetup::printSettings(std::ostream &os) {
 }
 
 
-std::vector<std::string> LFNSSetup::_readExperiments() { return interpreter.getExperimentsForLFNS(); }
+std::vector<std::string> LFNSSetup::_readExperiments() {
+    try {
+        return interpreter.getExperimentsForLFNS();
+    } catch (const std::exception &e) {
+        std::stringstream ss;
+        ss << "Failed to read experiments for LFNS:\n\t" << e.what() << std::endl;
+        ss << "At least one experiment with corresponding data needs to be provided." << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+}
 
 void LFNSSetup::_readSettingsfromFile() {
     GeneralSetup::_readSettingsfromFile();
@@ -101,7 +110,7 @@ particle_filter::ParticleFilterSettings LFNSSetup::_readParticleFilterSettings()
     if (_lfns_options.vm.count("smcparticles") > 0) { filter_settings.H = _lfns_options.H; }
     else {
         try {
-            filter_settings.H = interpreter.getHForEvaluateLikelihood();
+            filter_settings.H = interpreter.getHForLFNS();
         } catch (const std::exception &e) {
             std::cout
                     << "No number of particles for particle H for particle filter provided (either with -H through the command line or 'ComputeLikelihood.H' in the config file). Assume H = "
@@ -307,9 +316,11 @@ lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
     if (_lfns_options.vm.count("rej_quan") >
         0) { lfns_setting.rejection_quantile_for_density_estimation = _lfns_options.rejection_quantile; }
 
-    if(_lfns_options.vm.count("acc_thresh") > 0 || _lfns_options.vm.count("rej_quan_lo_accept") > 0){
-        if(_lfns_options.vm.count("acc_thresh") != _lfns_options.vm.count("rej_quan_lo_accept")){
-            std::cerr << "If variable rejection constant for the rejection sampler is set, bot, the acceptance rate threshold as well as the corresponding rejection quantile needs to be provided! Ignoring provided values!" << std::endl;
+    if (_lfns_options.vm.count("acc_thresh") > 0 || _lfns_options.vm.count("rej_quan_lo_accept") > 0) {
+        if (_lfns_options.vm.count("acc_thresh") != _lfns_options.vm.count("rej_quan_lo_accept")) {
+            std::cerr
+                    << "If variable rejection constant for the rejection sampler is set, bot, the acceptance rate threshold as well as the corresponding rejection quantile needs to be provided! Ignoring provided values!"
+                    << std::endl;
             lfns_setting.rejection_quantile_low_accept = -1;
             lfns_settings.thresh_accept_rate = -1;
         }

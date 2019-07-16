@@ -61,7 +61,17 @@ void LikelihoodSetup::_readSettingsfromFile() {
 }
 
 std::vector<std::string>
-LikelihoodSetup::_readExperiments() { return interpreter.getExperimentsForEvaluateLikelihood(); }
+LikelihoodSetup::_readExperiments() {
+    try {
+        return interpreter.getExperimentsForEvaluateLikelihood();
+    } catch (const std::exception &e) {
+        std::stringstream ss;
+        ss << "Failed to read experiments for likelihood evaluation:\n\t" << e.what() << std::endl;
+        ss << "At least one experiment with corresponding data needs to be provided." << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+
+}
 
 
 void LikelihoodSetup::printSettings(std::ostream &os) {

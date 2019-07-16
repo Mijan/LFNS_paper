@@ -38,7 +38,7 @@ protected:
 
     virtual std::vector<std::string> _readExperiments() = 0;
 
-    models::ModelSettings _readModelSettings(std::vector<std::string> experiments);
+    models::ModelSettings _readModelSettings();
 
     std::vector<models::InputData> _getInputDatasForExperiment(std::string experiment, double final_time);
 
