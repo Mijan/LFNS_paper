@@ -11,13 +11,14 @@ GeneralSetup::GeneralSetup(options::CommandLineOptions &options, int process_nbr
         options.config_file_name), rng(nullptr) {
     io_settings.config_file = options.config_file_name;
     io_settings.output_file = options.output_file_name;
+    experiments = options.experiments;
     rng = std::make_shared<base::RandomNumberGenerator>(process_nbr * time(NULL));
 }
 
 GeneralSetup::~GeneralSetup() {}
 
 void GeneralSetup::_readSettingsfromFile() {
-    experiments = _readExperiments();
+    if (experiments.empty()) { experiments = _readExperiments(); }
     model_settings = _readModelSettings();
 }
 
@@ -95,7 +96,7 @@ std::vector<models::InputData> GeneralSetup::_getInputDatasForExperiment(std::st
                           << names[i] << " starting at " << starting_times[i] << " will be ignored!" << std::endl;
             } else {
                 int max_num_pulses = std::min(num_pulses[i],
-                                              (int) std::ceil((final_time - starting_times[i]) / (periods[i] + 1)));
+                                              (int) std::ceil((final_time - starting_times[i]) / (periods[i])));
                 datas.push_back(
                         models::InputData(periods[i], strength[i], duration[i], max_num_pulses, names[i],
                                           starting_times[i]));

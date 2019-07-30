@@ -23,6 +23,7 @@ namespace options {
 
         std::string config_file_name;
         std::string output_file_name;
+        std::vector<std::string> experiments;
 
         po::options_description desc;
         po::variables_map vm;

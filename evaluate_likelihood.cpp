@@ -39,29 +39,36 @@ int computeLikelihood(LikelihoodSetup &likelihood_setup) {
 
     std::string model_summary_file_name = base::IoUtils::appendToFileName(likelihood_setup.io_settings.output_file,
                                                                           model_summary_suffix);
-    std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
-    model_summary_file_stream << model_summary_stream.str();
-    model_summary_file_stream.close();
+//    std::ofstream model_summary_file_stream(model_summary_file_name.c_str());
+//    model_summary_file_stream << model_summary_stream.str();
+//    model_summary_file_stream.close();
+
+    std::string output_file_str = base::IoUtils::appendToFileName(likelihood_setup.io_settings.output_file,
+                                                                  likelihood_setup.experiments[0]);
+    std::ofstream output_file_file_stream(output_file_str.c_str());
 
     std::cout << "\n\nLog Likelihoods: " << std::endl;
     time_t tic = clock();
     std::vector<double> log_likelihoods;
 
+    likelihood_setup.mult_like_eval.setVerbose(true);
+    likelihood_setup.mult_like_eval.setStream(&output_file_file_stream);
     for (std::vector<double> parameter : likelihood_setup.parameters) {
         for (std::size_t computation_nbr = 0; computation_nbr < likelihood_setup.num_computations; computation_nbr++) {
 
-                double log_likelihood = -DBL_MAX;
-                try {
-                    log_likelihood = likelihood_setup.mult_like_eval.compute_log_like(parameter);
-                } catch (const std::exception &e) {
-                    std::cerr << "Failed to compute likelihood for parameter ";
-                    for (double &p : parameter) { std::cerr << p << " "; }
-                    std::cerr << "\n\t" << e.what();
-                }
-                log_likelihoods.push_back(log_likelihood);
-                std::cout << log_likelihood << std::endl;
+            double log_likelihood = -DBL_MAX;
+            try {
+                log_likelihood = likelihood_setup.mult_like_eval.compute_log_like(parameter);
+            } catch (const std::exception &e) {
+                std::cerr << "Failed to compute likelihood for parameter ";
+                for (double &p : parameter) { std::cerr << p << " "; }
+                std::cerr << "\n\t" << e.what();
+            }
+            log_likelihoods.push_back(log_likelihood);
+//                std::cout << log_likelihood << std::endl;
         }
     }
+    output_file_file_stream.close();
 
     time_t toc = clock();
 

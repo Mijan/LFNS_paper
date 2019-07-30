@@ -213,9 +213,11 @@ particle_filter::ParticleFilterSettings LikelihoodSetup::_readParticleFilterSett
                     << filter_settings.H << std::endl;
         }
     }
-    if (_likelihood_options.vm.count("numuseddata") >
-        0) { filter_settings.num_used_trajectories = _likelihood_options.num_used_data; }
-    if (_likelihood_options.vm.count("numcomputations") >
-        0) { num_computations = _likelihood_options.num_computations; }
+    if (_likelihood_options.vm.count("numuseddata") > 0) {
+        filter_settings.num_used_trajectories = _likelihood_options.num_used_data;
+    }
+    if (_likelihood_options.vm.count("numcomputations") > 0) {
+        num_computations = _likelihood_options.num_computations;
+    }
     return filter_settings;
 }

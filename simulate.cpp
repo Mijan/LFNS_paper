@@ -88,9 +88,20 @@ int simulate(SimulationSetup &simulation_setup) {
                         latent_states.push_back(latentstate);
                         measurements.push_back(measurement);
                         std::cerr << "\nSimulation number " << sim_nbr << " for experiment " << experiment
-                                  << " was aborted at time " << t << ":\n\t" << e.what() << std::endl;
-                        break;
+                                  << " and parameter";
+                        for (double &p : param) { std::cerr << " " << p; }
 
+                        std::cerr << " was aborted at time " << t << ":\n\t" << e.what() << std::endl;
+                        break;
+                    } catch (mu::ParserError &e) {
+                        std::ostringstream os;
+                        os << "Parser error for expression : " << e.GetExpr() << std::endl;
+                        os << "Message:  " << e.GetMsg() << "\n";
+                        os << "Formula:  " << e.GetExpr() << "\n";
+                        os << "Token:    " << e.GetToken() << "\n";
+                        os << "Position: " << e.GetPos() << "\n";
+                        os << "Errc:     " << e.GetCode() << "\n";
+                        throw std::runtime_error(os.str());
                     }
                     full_model->measurement_model->computeMeasurement(&measurement, latentstate, t);
 

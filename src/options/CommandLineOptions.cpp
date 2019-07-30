@@ -12,7 +12,9 @@ namespace options {
         desc.add_options()("help", "produce help message")("config_file",
                                                            po::value<std::string>(&config_file_name),
                                                            "Config file. A config file must always be provided!")(
-                "output_file,O", po::value<std::string>(&output_file_name), "Output file");
+                "output_file,O", po::value<std::string>(&output_file_name), "Output file")(
+                "experiment,E", po::value<std::vector<std::string> >(&experiments)->multitoken(),
+                "The performed experiments");
 
     }
 

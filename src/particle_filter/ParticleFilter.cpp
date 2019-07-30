@@ -7,6 +7,7 @@
 #include <sstream>
 #include <muParserError.h>
 #include "ParticleFilter.h"
+#include "../simulator/SimulatorExceptions.h"
 
 namespace particle_filter {
     using namespace std::placeholders;
@@ -70,12 +71,10 @@ namespace particle_filter {
             os << "Position: " << e.GetPos() << "\n";
             os << "Errc:     " << e.GetCode() << "\n";
             throw std::runtime_error(os.str());
-        } catch (const std::exception &e) {
-//            std::stringstream ss;
-//            ss << "Likelihood for parameter ";
-//            for (double d : theta) { ss << d << " "; }
-//            ss << " could not be computed:\n\t" << e.what() << std::endl;
-//            std::cerr << ss.str() << std::endl;
+        }catch(const simulator::SimulationAborted & e){
+            std::cerr << "simulation for paramter ";
+            for (double d : theta) { std::cerr  << d << " "; }
+            std::cerr << " aborted at timepoint " << e.terminationTime() << std::endl;
             return -DBL_MAX;
         }
     }

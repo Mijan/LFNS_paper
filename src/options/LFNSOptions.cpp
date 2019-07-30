@@ -45,7 +45,10 @@ namespace options {
                 "The file name of the previous population files. An according previous_pop_log_file.txt files needs to be provided")(
                 "verbose,v",
                 po::value<bool>(&verbose),
-                "Indicates if ODE error messages should be printed out.");
+                "Indicates if ODE error messages should be printed out.")(
+                "priorfile,g",
+                po::value<std::string>(&prior_file),
+                "A file with samples from the prior which will be approximated with DP-GMM");
     }
 
     LFNSOptions::~LFNSOptions() {}

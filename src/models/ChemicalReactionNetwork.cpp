@@ -104,24 +104,13 @@ namespace models {
         _updateState(state);
         std::size_t species_index = 0;
         for (mu::Parser &p : _rhs_parsers) {
-//            try {
-                if (_det_index_hybrid_model.empty() || _det_index_hybrid_model[species_index]) {
-                    dx[species_index] = p.Eval();
-                } else {
-                    dx[species_index] = 0;
-                }
-                species_index++;
-//            } catch (mu::ParserError &e) {
-//                std::ostringstream os;
-//                os << "Parser error for equation " << species_index
-//                   << " and expression : " << e.GetExpr() << std::endl;
-//                os << "Message:  " << e.GetMsg() << "\n";
-//                os << "Formula:  " << e.GetExpr() << "\n";
-//                os << "Token:    " << e.GetToken() << "\n";
-//                os << "Position: " << e.GetPos() << "\n";
-//                os << "Errc:     " << e.GetCode() << "\n";
-//                throw std::runtime_error(os.str());
-//            }
+            if (_det_index_hybrid_model.empty() || _det_index_hybrid_model[species_index]) {
+                dx[species_index] = p.Eval();
+            } else {
+                dx[species_index] = 0;
+            }
+            species_index++;
+
         }
     }
 
@@ -177,7 +166,8 @@ namespace models {
             std::vector<std::string>::iterator it = std::find(det_states.begin(), det_states.end(), stoch_state);
 
             if (it == det_states.end()) {
-                std::cerr << "Tried to set stochastic species " << stoch_state << " twice, ignoring the second entry"
+                std::cerr << "Tried to set stochastic species " << stoch_state
+                          << " twice, ignoring the second entry"
                           << std::endl;
             }
             det_states.erase(it);
@@ -351,7 +341,8 @@ namespace models {
             for (std::size_t reaction_nbr = 0; reaction_nbr < _model_data.getNumReactions(); reaction_nbr++) {
                 const std::map<std::size_t, int> &stoichiometry =
                         _model_data.stoichiometry_for_reaction[reaction_nbr];
-                if ((stoichiometry.find(species_nbr) != stoichiometry.end()) && stoichiometry.at(species_nbr) != 0) {
+                if ((stoichiometry.find(species_nbr) != stoichiometry.end()) &&
+                    stoichiometry.at(species_nbr) != 0) {
                     _reaction_nbr_by_species[species_nbr].push_back(reaction_nbr);
                 }
             }

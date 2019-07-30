@@ -172,7 +172,7 @@ namespace models {
 
     void FullModel::evaluateInput(const double *state, double t) {
         if (!_inputs.input_pram_indices.empty()) {
-            for (int index : _inputs.input_pram_indices) { _inputs.modified_parameter[index] = 0;}//_parameter[index]; }
+            for (int index : _inputs.input_pram_indices) { _inputs.modified_parameter[index] = 0; }//_parameter[index]; }
             for (InputPulse &input : _inputs.pulses) {
                 if (input.pulseActive(t)) {
                     _inputs.modified_parameter[input.parameter_index] += input._input_strength;
@@ -186,9 +186,7 @@ namespace models {
         return std::make_shared<PerturbationFct>(std::bind(&FullModel::evaluateInput, this, _1, _2));
     }
 
-    std::vector<double> FullModel::getDiscontTimes() {
-        return _inputs.getDisContTime();
-    }
+    std::vector<double> FullModel::getDiscontTimes() {        return _inputs.getDisContTime();    }
 
     double FullModel::root(const double *state, double t) {
 

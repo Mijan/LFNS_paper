@@ -30,6 +30,7 @@ namespace options {
         std::string previous_population_file;
 
         int print_interval;
+        std::string prior_file;
 
         bool verbose;
 

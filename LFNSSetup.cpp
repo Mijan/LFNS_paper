@@ -195,6 +195,20 @@ sampler::Sampler_ptr LFNSSetup::_createPrior(lfns::LFNSSettings lfns_settings, s
     if (lfns_settings.uniform_prior) {
         sampler::UniformSamplerData uni_data(sampler_data);
         prior_ptr = std::make_shared<sampler::UniformSampler>(rng, sampler_data);
+    } else {
+        sampler::DpGmmSamplerData dpgmm_data(sampler_data);
+        dpgmm_data.num_dp_iterations = 50;
+        sampler::DpGmmSampler_ptr dpgmm_sampler = std::make_shared<sampler::DpGmmSampler>(rng, dpgmm_data);
+
+        lfns::LiveParticleSet particles;
+        particles.readFromFile(lfns_settings.prior_file);
+        base::EiMatrix matrix = particles.toMatrix();
+        for (int &index: settings.getLogParams()) {
+            matrix.col(index) = matrix.col(index).array().log10();
+        }
+
+        dpgmm_sampler->updateDensitySamples(matrix);
+        prior_ptr = dpgmm_sampler;
     }
     return prior_ptr;
 }
@@ -327,6 +341,10 @@ lfns::LFNSSettings LFNSSetup::_readLFNSSettings() {
 
         lfns_setting.rejection_quantile_low_accept = _lfns_options.rejection_quantile_low_accept;
         lfns_setting.thresh_accept_rate = _lfns_options.thresh_accept_rate;
+    }
+    if (_lfns_options.vm.count("priorfile") > 0) {
+        lfns_setting.uniform_prior = false;
+        lfns_setting.prior_file = _lfns_options.prior_file;
     }
     return lfns_setting;
 }

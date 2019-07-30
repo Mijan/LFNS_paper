@@ -13,7 +13,7 @@ namespace simulator {
 
         const char *what() const throw() { return _error_message.c_str(); }
 
-        double terminationTime() { return _termination_time; }
+        double terminationTime() const { return _termination_time; }
 
     private:
         std::string _error_message;

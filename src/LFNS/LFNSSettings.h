@@ -23,6 +23,7 @@ namespace lfns {
         int N = 1000;
         int r = 100;
         bool uniform_prior = true;
+        std::string prior_file = "";
         std::string previous_log_file = "";
         DENSITY_ESTIMATOR estimator = REJECT_DPGMM;
         double log_termination = -4.6;
@@ -38,6 +39,12 @@ namespace lfns {
             stream << "N:\t" << N << std::endl;
             stream << "r:\t" << r << std::endl;
             stream << "Termination threshold:\t" << std::exp(log_termination) << std::endl;
+            if (uniform_prior) {
+                stream << "A uniform prior will be used." << std::endl;
+            } else {
+                stream << "A non-uniform prior will be used. It will be approximated from the samples in file "
+                       << prior_file << std::endl;
+            }
             stream << "To sample from the super-level sets of the likelihood a";
             switch (estimator) {
                 case REJECT_DPGMM: {

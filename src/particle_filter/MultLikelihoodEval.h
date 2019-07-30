@@ -18,7 +18,7 @@ namespace particle_filter {
 
     class MultLikelihoodEval {
     public:
-        MultLikelihoodEval() : _log_like_fun(), _threshold_ptr(nullptr) {}
+        MultLikelihoodEval() : _log_like_fun(), _threshold_ptr(nullptr), _verbose(false), _stream(nullptr) {}
 
         ~MultLikelihoodEval() {}
 
@@ -26,9 +26,22 @@ namespace particle_filter {
             double log_like = 0;
             int num_traj = 1;
             for (LogLikelihodEvalFct_ptr fun : _log_like_fun) {
-                log_like += (*fun)(theta);
+                double log_like_single_traj = (*fun)(theta);
+                if (_verbose) {
+                    std::cout << " " << log_like_single_traj;
+                }
+                if (_stream) {
+                    (*_stream) << " " << log_like_single_traj;
+                }
+                log_like += log_like_single_traj;
                 if (_threshold_ptr && log_like < *_threshold_ptr) { return -DBL_MAX; }
                 num_traj++;
+            }
+            if (_verbose) {
+                std::cout << std::endl;
+            }
+            if (_stream) {
+                (*_stream)<< std::endl;
             }
             return log_like;
         }
@@ -36,15 +49,22 @@ namespace particle_filter {
         void addLogLikeFun(LogLikelihodEvalFct_ptr log_like_fun) { _log_like_fun.push_back(log_like_fun); }
 
         LogLikelihodEvalFct_ptr getLogLikeFun() {
-            return std::make_shared<LogLikelihodEvalFct>(std::bind(&MultLikelihoodEval::compute_log_like, this, std::placeholders::_1));
+            return std::make_shared<LogLikelihodEvalFct>(
+                    std::bind(&MultLikelihoodEval::compute_log_like, this, std::placeholders::_1));
         }
 
         void setThresholdPtr(double *threshold_ptr) { _threshold_ptr = threshold_ptr; }
+
+        void setVerbose(bool verbose) { _verbose = verbose; }
+
+        void setStream(std::ostream * stream) { _stream = stream; }
 
     private:
         std::vector<LogLikelihodEvalFct_ptr> _log_like_fun;
 
         double *_threshold_ptr;
+        bool _verbose;
+        std::ostream * _stream;
     };
 }
 
