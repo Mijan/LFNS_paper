@@ -47,7 +47,6 @@ namespace models {
         for (std::size_t i = 0; i < _measurement_parsers.size(); i++) {
             try {
                 (*measurement)[i] = _measurement_parsers[i].Eval();
-                std::cout << (*measurement)[i] << std::endl;
             } catch (mu::ParserError &e) {
                 std::ostringstream os;
                 os << "Parser error for equation measurement simulation"
