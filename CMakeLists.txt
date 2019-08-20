@@ -32,14 +32,6 @@ MESSAGE("Including DPGMM directory ${DPGMM_INCLUDE_DIR}")
 
 ## muparser
 find_package(muparser)
-if (NOT MUPARSER_FOUND)
-    message("muparser library not found (you can set muparser location through the environment variable MUPARSER_ROOT). Shipped muparser library in ${CMAKE_SOURCE_DIR}/required_packages/muparser-2.2.5 will be used!")
-    if (NOT DEFINED ENV{MUPARSER_ROOT})
-        set(ENV{MUPARSER_ROOT} "${CMAKE_SOURCE_DIR}/required_packages/muparser-2.2.5/" CACHE FILEPATH
-                "The location of the mu_parser library")
-    endif ()
-    find_package(muparser REQUIRED)
-endif ()
 include_directories(${MUPARSER_INCLUDE_DIR})
 MESSAGE("Including muParser directory ${MUPARSER_INCLUDE_DIR}")
 
