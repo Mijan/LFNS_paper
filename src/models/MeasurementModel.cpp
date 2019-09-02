@@ -4,6 +4,7 @@
 
 #include <iomanip>
 #include "MeasurementModel.h"
+#include "ModelExceptions.h"
 #include <algorithm>
 
 namespace models {
@@ -88,7 +89,7 @@ namespace models {
                     ss << "Computed likelihood is NaN!\n\tExpression: " << _log_likelihood.GetExpr() << std::endl;
                     ss << "\tPointer values:" << std::endl;
                     printPointerValue(ss);
-                    throw std::runtime_error(ss.str());
+                    throw ModelException(ss.str());
                 }
             }
             return log_likelihood;

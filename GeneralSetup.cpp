@@ -97,9 +97,12 @@ std::vector<models::InputData> GeneralSetup::_getInputDatasForExperiment(std::st
             } else {
                 int max_num_pulses = std::min(num_pulses[i],
                                               (int) std::ceil((final_time - starting_times[i]) / (periods[i])));
-                datas.push_back(
-                        models::InputData(periods[i], strength[i], duration[i], max_num_pulses, names[i],
-                                          starting_times[i]));
+
+                if (max_num_pulses > 0) {
+                    datas.push_back(
+                            models::InputData(periods[i], strength[i], duration[i], max_num_pulses, names[i],
+                                              starting_times[i]));
+                }
             }
         }
     }

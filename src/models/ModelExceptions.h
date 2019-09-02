@@ -2,8 +2,8 @@
 // Created by jan on 09/07/19.
 //
 
-#ifndef LFNS_SIMULATOREXCEPTIONS_H
-#define LFNS_SIMULATOREXCEPTIONS_H
+#ifndef LFNS_MODELEXCEPTIONS_H
+#define LFNS_MODELEXCEPTIONS_H
 
 namespace models {
     class ModelException : public std::exception {
@@ -16,4 +16,4 @@ namespace models {
         std::string _error_message;
     };
 }
-#endif //LFNS_SIMULATOREXCEPTIONS_H
+#endif //LFNS_MODELEXCEPTIONS_H

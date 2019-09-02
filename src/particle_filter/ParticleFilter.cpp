@@ -8,6 +8,7 @@
 #include <muParserError.h>
 #include "ParticleFilter.h"
 #include "../simulator/SimulatorExceptions.h"
+#include "../models/ModelExceptions.h"
 
 namespace particle_filter {
     using namespace std::placeholders;
@@ -75,6 +76,11 @@ namespace particle_filter {
             std::cerr << "simulation for paramter ";
             for (double d : theta) { std::cerr  << d << " "; }
             std::cerr << " aborted at timepoint " << e.terminationTime() << std::endl;
+            return -DBL_MAX;
+        }catch(const models::ModelException & e){
+            std::cerr << "Model related error for parameter ";
+            for (double d : theta) { std::cerr  << d << " "; }
+            std::cerr << " with error mssage:\n\t" << e.what() << std::endl;
             return -DBL_MAX;
         }
     }
