@@ -6,17 +6,13 @@ General
 ----------
   * Author: Jan Mikelson <jan.mikelson@bsse.ethz.ch>
 
-This toolbox provides the functions lfns_seq, lfns_mpi and simulate. The lfns commands lfns_seq and lfns_mpi are the
+This toolbox provides the functions lfns_seq, lfns_mpi, compute_likelihood and simulate. The lfns commands lfns_seq and lfns_mpi are the
 sequential and parallel version of the LF-NS algorithm which performs likelihood-free nested samplinga as described
 in the preprint
 
 Mikelson, Jan, and Mustafa Khammash. "Likelihood-free nested sampling for biochemical reaction networks." bioRxiv (2019): 564047.
 
-the command "simulate" performs ODE simulation.
-This version is a trimmed version of the full LF-NS toolbox that was used for the inference runs for the paper in the
-preprint
-
-Blum, Yannick, et al. "Temporal perturbation of Erk dynamics reveals network architecture of FGF2-MAPK signaling." bioRxiv (2019): 629287.
+the command "simulate" performs ODE simulation. The command compute_likelihood performes a particle filter likelihood approximation.
 
 The general use of the lfns commands are (we exemplify it on the lfns_seq command)
 "lfns_seq [path/to/config/file] -O [path/to/output/file] [options]"
