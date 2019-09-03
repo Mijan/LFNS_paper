@@ -1,0 +1,111 @@
+Config file: /cluster/home/mijan/LFNS_paper/LacGfp/results/q01_H500/../../lac_config_file.xml
+Output file: /cluster/home/mijan/LFNS_paper/LacGfp/results/q01_H500/./lac.txt
+
+N:	500
+r:	50
+Termination threshold:	0.01
+To sample from the super-level sets of the likelihood a DP-GMM density estimation with rejection sampling will be used. The rejection constant is the 0.1% quantile
+
+H:	500
+Data used:
+Experiment:	0		Data file: /cluster/home/mijan/LFNS_paper/LacGfp/results/q01_H500/../.././lacgfp_data.txt	times file: /cluster/home/mijan/LFNS_paper/LacGfp/results/q01_H500/../.././lacgfp_data_times.txt
+Nnumber of trajectories used for each experiment: 1
+
+
+
+Parameters to be sampled: 
+    Name                  Bounds  Scale
+ theta_1             [1e-05, 10]    log
+ theta_2             [1e-05, 10]    log
+ theta_3             [1e-05, 10]    log
+ theta_4             [1e-05, 10]    log
+ theta_5             [1e-05, 10]    log
+ theta_6            [0.01, 3000]    log
+ theta_7             [1e-05, 10]    log
+ theta_8             [1e-05, 10]    log
+ theta_9              [1e-05, 1]    log
+theta_10             [0.01, 500]    log
+theta_11             [1e-05, 10]    log
+theta_12             [0.01, 500]    log
+theta_13             [1e-05, 10]    log
+theta_14              [1e-05, 1]    log
+theta_15             [1e-05, 10]    log
+theta_16              [0.01, 50]    log
+theta_17             [1e-05, 10]    log
+theta_18             [1e-05, 10]    log
+
+
+
+-----------   Model   -----------
+Parameters: theta_1 theta_2 theta_3 theta_4 theta_5 theta_6 theta_7 theta_8 theta_9 theta_10 theta_11 theta_12 theta_13 theta_14 theta_15 theta_16 theta_17 theta_18 IPTG 
+
+Species: lacI LACI LACI2 PLac O2Lac O4Lac gfp GFP mGFP 
+
+
+Reaction  0:	Propencity:                      theta_1 		Stoichiometry: lacI +1, 
+Reaction  1:	Propencity:                 theta_2*lacI 		Stoichiometry: lacI -1, 
+Reaction  2:	Propencity:                 theta_3*lacI 		Stoichiometry: LACI +1, 
+Reaction  3:	Propencity:  LACI*(theta_4+theta_5*IPTG) 		Stoichiometry: LACI -1, 
+Reaction  4:	Propencity:        theta_6*binom(LACI,2) 		Stoichiometry: LACI -2, LACI2 +1, 
+Reaction  5:	Propencity:                theta_7*LACI2 		Stoichiometry: LACI +2, LACI2 -1, 
+Reaction  6:	Propencity:           theta_8*LACI2*PLac 		Stoichiometry: LACI2 -1, PLac -1, O2Lac +1, 
+Reaction  7:	Propencity:                theta_9*O2Lac 		Stoichiometry: LACI2 +1, PLac +1, O2Lac -1, 
+Reaction  8:	Propencity:      theta_10*binom(O2Lac,2) 		Stoichiometry: O2Lac -2, O4Lac +1, 
+Reaction  9:	Propencity:               theta_11*O4Lac 		Stoichiometry: O2Lac +2, O4Lac -1, 
+Reaction 10:	Propencity:                theta_12*PLac 		Stoichiometry: gfp +1, 
+Reaction 11:	Propencity:               theta_13*O2Lac 		Stoichiometry: gfp +1, 
+Reaction 12:	Propencity:               theta_14*O4Lac 		Stoichiometry: gfp +1, 
+Reaction 13:	Propencity:                 theta_15*gfp 		Stoichiometry: gfp -1, 
+Reaction 14:	Propencity:                 theta_16*gfp 		Stoichiometry: GFP +1, 
+Reaction 15:	Propencity:                 theta_17*GFP 		Stoichiometry: GFP -1, 
+Reaction 16:	Propencity:                 theta_18*GFP 		Stoichiometry: GFP -1, mGFP +1, 
+Reaction 17:	Propencity:                theta_17*mGFP 		Stoichiometry: mGFP -1, 
+
+
+Ode equations:
+ (d lacI)/dt = (theta_1)-(theta_2 * lacI) 
+ (d LACI)/dt = (theta_3 * lacI)-(LACI*(theta_4+theta_5*IPTG))-2*(theta_6 * LACI * LACI)+2*(theta_7 * LACI2) 
+(d LACI2)/dt = (theta_6 * LACI * LACI)-(theta_7 * LACI2)-(theta_8 * LACI2 * PLac)+(theta_9 * O2Lac) 
+ (d PLac)/dt = -(theta_8 * LACI2 * PLac)+(theta_9 * O2Lac) 
+(d O2Lac)/dt = (theta_8 * LACI2 * PLac)-(theta_9 * O2Lac)-2*(theta_10 * O2Lac * O2Lac)+2*(theta_11 * O4Lac) 
+(d O4Lac)/dt = (theta_10 * O2Lac * O2Lac)-(theta_11 * O4Lac) 
+  (d gfp)/dt = (theta_12 * PLac)+(theta_13 * O2Lac)+(theta_14 * O4Lac)-(theta_15 * gfp) 
+  (d GFP)/dt = (theta_16 * gfp)-(theta_17 * GFP)-(theta_18 * GFP) 
+ (d mGFP)/dt = (theta_18 * GFP)-(theta_17 * mGFP) 
+
+
+
+----------   Initial Values   ---------- 
+
+Uniform int numbers:
+r_1:	min: 0	max: 5
+r_2:	min: 0	max: 10
+r_3:	min: 50	max: 70
+
+
+ State lacI:	r_1 
+ State LACI:	r_2 
+State LACI2:	0 
+ State PLac:	0 
+State O2Lac:	0 
+State O4Lac:	r_3 
+  State gfp:	0 
+  State GFP:	0 
+ State mGFP:	0 
+   State _t:	0 
+
+----------   Measurement Model   ----------
+Parameters: fl_mean fl_sigma 
+
+Species: mGFP 
+
+Normal numbers:
+r_1:	mean: 0	std: 1
+bg:	mean: 80	std: 40
+
+
+Measurements:
+       fluorescence = fl_mean*mGFP+sqrt(fl_sigma*mGFP)*r_1+bg 
+
+Log Likelihood:
+       fluorescence:	-(((fluorescence-mGFP*fl_mean-80)*(fluorescence-mGFP*fl_mean-80))/(2*(mGFP*fl_sigma+40)))-log(sqrt((mGFP*fl_sigma+40)*2*_pi)) 

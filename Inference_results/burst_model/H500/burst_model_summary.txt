@@ -1,0 +1,85 @@
+Config file: /cluster/home/mijan/LFNS_paper/burst_model/results/q01_u5_H500/../../burst_config.xml
+Output file: /cluster/home/mijan/LFNS_paper/burst_model/results/q01_u5_H500/./burst.txt
+
+N:	500
+r:	50
+Termination threshold:	0.01
+To sample from the super-level sets of the likelihood a DP-GMM density estimation with rejection sampling will be used. The rejection constant is the 0.1% quantile
+
+H:	500
+Data used:
+Experiment:	low		Data file: /cluster/home/mijan/LFNS_paper/burst_model/results/q01_u5_H500/../.././data/2500.txt	times file: /cluster/home/mijan/LFNS_paper/burst_model/results/q01_u5_H500/../.././data/times.txt
+Nnumber of trajectories used for each experiment: 5
+
+
+
+Parameters to be sampled: 
+  Name                  Bounds  Scale
+  k_on            [1e-05, 100]    log
+ k_off            [1e-05, 100]    log
+   k_r              [0.1, 500]    log
+lambda                  [2, 8] linear
+
+
+
+-----------   Model   -----------
+Parameters: k_on k_off k_r lambda factor_1 factor_2 factor_3 
+
+Species: g_off g_on RNA_1 RNA_2 RNA_3 RNA_4 RNA_5 RNA_6 RNA_7 RNA_8 
+
+
+Reaction  0:	Propencity:  (k_on+factor_1)*g_off 		Stoichiometry: g_off -1, g_on +1, 
+Reaction  1:	Propencity:  (k_off+factor_2)*g_on 		Stoichiometry: g_off +1, g_on -1, 
+Reaction  2:	Propencity:    (k_r+factor_3)*g_on 		Stoichiometry: RNA_1 +1, 
+Reaction  3:	Propencity:           lambda*RNA_1 		Stoichiometry: RNA_1 -1, RNA_2 +1, 
+Reaction  4:	Propencity:           lambda*RNA_2 		Stoichiometry: RNA_2 -1, RNA_3 +1, 
+Reaction  5:	Propencity:           lambda*RNA_3 		Stoichiometry: RNA_3 -1, RNA_4 +1, 
+Reaction  6:	Propencity:           lambda*RNA_4 		Stoichiometry: RNA_4 -1, RNA_5 +1, 
+Reaction  7:	Propencity:           lambda*RNA_5 		Stoichiometry: RNA_5 -1, RNA_6 +1, 
+Reaction  8:	Propencity:           lambda*RNA_6 		Stoichiometry: RNA_6 -1, RNA_7 +1, 
+Reaction  9:	Propencity:           lambda*RNA_7 		Stoichiometry: RNA_7 -1, RNA_8 +1, 
+Reaction 10:	Propencity:           lambda*RNA_8 		Stoichiometry: RNA_8 -1, 
+
+
+Ode equations:
+(d g_off)/dt = -((k_on+factor_1)*g_off)+((k_off+factor_2)*g_on) 
+ (d g_on)/dt = ((k_on+factor_1)*g_off)-((k_off+factor_2)*g_on) 
+(d RNA_1)/dt = ((k_r+factor_3)*g_on)-(lambda * RNA_1) 
+(d RNA_2)/dt = (lambda * RNA_1)-(lambda * RNA_2) 
+(d RNA_3)/dt = (lambda * RNA_2)-(lambda * RNA_3) 
+(d RNA_4)/dt = (lambda * RNA_3)-(lambda * RNA_4) 
+(d RNA_5)/dt = (lambda * RNA_4)-(lambda * RNA_5) 
+(d RNA_6)/dt = (lambda * RNA_5)-(lambda * RNA_6) 
+(d RNA_7)/dt = (lambda * RNA_6)-(lambda * RNA_7) 
+(d RNA_8)/dt = (lambda * RNA_7)-(lambda * RNA_8) 
+
+
+
+----------   Initial Values   ---------- 
+State g_off:	1 
+ State g_on:	0 
+State RNA_1:	0 
+State RNA_2:	0 
+State RNA_3:	0 
+State RNA_4:	0 
+State RNA_5:	0 
+State RNA_6:	0 
+State RNA_7:	0 
+State RNA_8:	0 
+   State _t:	0 
+
+----------   Measurement Model   ----------
+Parameters: mu sigma 
+
+Species: RNA_1 RNA_2 RNA_3 RNA_4 RNA_5 RNA_6 RNA_7 RNA_8 
+
+Normal numbers:
+r_1:	mean: 0	std: 1
+bg_r:	mean: 0	std: 4
+
+
+Measurements:
+       RNA_read = mu*(RNA_1+RNA_2+RNA_3+RNA_4+RNA_5+RNA_6+RNA_7+RNA_8)+sigma*r_1*sqrt(RNA_1+RNA_2+RNA_3+RNA_4+RNA_5+RNA_6+RNA_7+RNA_8)+bg_r 
+
+Log Likelihood:
+       RNA_read:	-(RNA_read-mu*(RNA_1+RNA_2+RNA_3+RNA_4+RNA_5+RNA_6+RNA_7+RNA_8))^2/(2*((RNA_1+RNA_2+RNA_3+RNA_4+RNA_5+RNA_6+RNA_7+RNA_8)*sigma^2+16))-log((sigma*sqrt(RNA_1+RNA_2+RNA_3+RNA_4+RNA_5+RNA_6+RNA_7+RNA_8)+4)*sqrt(2*_pi)) 
