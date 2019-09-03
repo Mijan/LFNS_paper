@@ -17,7 +17,7 @@ the command "simulate" performs ODE simulation. The command compute_likelihood p
 The general use of the lfns commands are (we exemplify it on the lfns_seq command)
 "lfns_seq [path/to/config/file] -O [path/to/output/file] [options]"
 where a list of options can be obtained by calling "lfns_seq --help". Examples of confg files can be found in the folder
-"FGF2_models/FGF_*".
+"examples/lac_config_file.xml*".
 
 
 Dependencies
