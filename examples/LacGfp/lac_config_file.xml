@@ -59,9 +59,9 @@
 </ComputeLikelihood>
 <LFNS>
 	<experiments>0</experiments>
-	<N>1000</N>
+	<N>500</N>
 	<H>500</H>
-	<r>100</r>
+	<r>50</r>
     <epsilon>0.001</epsilon>
 	<dpgmmiterations>50</dpgmmiterations>	
 </LFNS>
